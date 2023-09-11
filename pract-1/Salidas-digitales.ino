@@ -47,28 +47,28 @@ void loop() {
 	}
 
 	// Parpadear unidades (2s)
-	for (int = 0; i < 2; i++) {
+	for (int i = 0; i < 2; i++) {
 		digitalWrite(D4, LOW);
 		dealy(500)
 		digitalWrite(D4, HIGH);
 		dealy(500)
 	}
 	// Parpadear decenas (2s)
-	for (int = 0; i < 2; i++) {
+	for (int i = 0; i < 2; i++) {
 		digitalWrite(D3, LOW);
 		dealy(500)
 		digitalWrite(D3, HIGH);
 		dealy(500)
 	}
 	// Parpadear centenas (2s)
-	for (int = 0; i < 2; i++) {
+	for (int i = 0; i < 2; i++) {
 		digitalWrite(D2, LOW);
 		dealy(500)
 		digitalWrite(D2, HIGH);
 		dealy(500)
 	}
 	// Parpadear decenas (2s)
-	for (int = 0; i < 2; i++) {
+	for (int i = 0; i < 2; i++) {
 		digitalWrite(D1, LOW);
 		dealy(500)
 		digitalWrite(D1, HIGH);
