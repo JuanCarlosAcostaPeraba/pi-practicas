@@ -1,3 +1,18 @@
+/*
+Hacer un programa para que haga parpadear (encender y apagar)
+todos los segmentos del dígito de las unidades (D4) durante
+2 segundos, aproximadamente. Luego hacer que el parpadeo
+pase de forma secuencial al resto de los dígitos:
+
+Unidades-D4 (parpadeo 2 seg) -> decenas-D3 (parpadeo 2 seg) ->
+centenas-D2 (parpadeo 2 seg) -> millares-D1 (parpadeo 2 seg) ->
+unidades-D4 (parpadeo 2 seg) y así, sucesivamente.
+
+Al cambiar de dígito, generar una señal acústica para avisar al usuario.
+Tiene completa libertad para elegir la duración y la frecuencia
+del pitido (o señal acústica) que se oirá por el zumbador/altavoz.
+*/
+
 // Pulsadores
 #define PRIGHT 30 // PC[7] pulsador right
 #define PLEFT 31 // PC[6] pulsador down
