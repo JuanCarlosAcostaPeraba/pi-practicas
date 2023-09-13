@@ -21,7 +21,7 @@ del pitido (o señal acústica) que se oirá por el zumbador/altavoz.
 #define PSELECT 34 // PC[3] pulsador up
 #define PSTART 37 // PC[0] speaker
 
-// Teclado
+// Display 8 segmentos
 #define D4 49 // Pin 49 - unidades
 #define D3 48 // Pin 48 - decenas
 #define D2 47 // Pin 47 - centenas
