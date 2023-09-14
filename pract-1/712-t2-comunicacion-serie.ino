@@ -200,5 +200,27 @@ void select_hexadecimal() {
 	}
 
 	// Mostrar en el display
-	
+	Serial.println("Seleccione un dígito del display:");
+	Serial.println("1. Unidades");
+	Serial.println("2. Decenas");
+	Serial.println("3. Centenas");
+	Serial.println("4. Unidades de millar");
+	int digit = Serial.read();
+	switch (digit) {
+		case '1':
+			digitalWrite(display_map[0], LOW);
+			break;
+		case '2':
+			digitalWrite(display_map[1], LOW);
+			break;
+		case '3':
+			digitalWrite(display_map[2], LOW);
+			break;
+		case '4':
+			digitalWrite(display_map[3], LOW);
+			break;
+		default:
+			Serial.println("Opción no válida");
+			break;
+	}
 }
