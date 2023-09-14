@@ -27,6 +27,9 @@ del pitido (o señal acústica) que se oirá por el zumbador/altavoz.
 #define D2 47 // Pin 47 - centenas
 #define D1 46 // Pin 46 - unidades de millar
 
+// Matriz display 8 segmentos
+char display_map[] = {D4, D3, D2, D1};
+
 // Matriz teclado
 char teclado_map[][3] = {
 	{'1', '2', '3'},
@@ -61,32 +64,41 @@ void loop() {
 		}
 	}
 
-	// Parpadear unidades (2s)
-	for (int i = 0; i < 2; i++) {
-		digitalWrite(D4, LOW);
-		delay(500);
-		digitalWrite(D4, HIGH);
-		delay(500);
+	for (int i = 0; i < 4; i++) {
+		for (int j = 0; j < 2; j++) {
+			digitalWrite(display_map[i], LOW);
+			delay(500);
+			digitalWrite(display_map[i], HIGH);
+			delay(500);
+		}
 	}
-	// Parpadear decenas (2s)
-	for (int i = 0; i < 2; i++) {
-		digitalWrite(D3, LOW);
-		delay(500);
-		digitalWrite(D3, HIGH);
-		delay(500);
-	}
-	// Parpadear centenas (2s)
-	for (int i = 0; i < 2; i++) {
-		digitalWrite(D2, LOW);
-		delay(500);
-		digitalWrite(D2, HIGH);
-		delay(500);
-	}
-	// Parpadear decenas (2s)
-	for (int i = 0; i < 2; i++) {
-		digitalWrite(D1, LOW);
-		delay(500);
-		digitalWrite(D1, HIGH);
-		delay(500);
-	}
+
+	// // Parpadear unidades (2s)
+	// for (int i = 0; i < 2; i++) {
+	// 	digitalWrite(D4, LOW);
+	// 	delay(500);
+	// 	digitalWrite(D4, HIGH);
+	// 	delay(500);
+	// }
+	// // Parpadear decenas (2s)
+	// for (int i = 0; i < 2; i++) {
+	// 	digitalWrite(D3, LOW);
+	// 	delay(500);
+	// 	digitalWrite(D3, HIGH);
+	// 	delay(500);
+	// }
+	// // Parpadear centenas (2s)
+	// for (int i = 0; i < 2; i++) {
+	// 	digitalWrite(D2, LOW);
+	// 	delay(500);
+	// 	digitalWrite(D2, HIGH);
+	// 	delay(500);
+	// }
+	// // Parpadear decenas (2s)
+	// for (int i = 0; i < 2; i++) {
+	// 	digitalWrite(D1, LOW);
+	// 	delay(500);
+	// 	digitalWrite(D1, HIGH);
+	// 	delay(500);
+	// }
 }
