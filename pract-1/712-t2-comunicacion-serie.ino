@@ -77,6 +77,15 @@ void setup()
 
 void loop()
 {
+	// test
+	for (int i = 0; i < 16; i++)
+	{
+		PORTA = hexadecimal[i];
+		delay(200);
+	}
+
+	delay(5000);
+
 	// Imprimir menu
 	if (print_menu)
 	{
