@@ -29,6 +29,9 @@ digitos del display sera todos los segmentos encendidos):
 #define D2 47 // Pin 47 - centenas
 #define D1 46 // Pin 46 - unidades de millar
 
+char option;
+char back;
+
 // Matriz display 8 segmentos
 char display_map[4] = {D4, D3, D2, D1};
 
@@ -53,11 +56,6 @@ char teclado_map[][3] = {
 		{'7', '8', '9'},
 		{'*', '0', '#'}};
 
-// Bool print menu
-bool print_menu = true; // Para imprimir el menu
-bool print2 = true;			// Para imprimir el menu de seleccion de hexadecimal
-bool print3 = true;			// Para imprimir el menu de seleccion de digito
-
 void setup()
 {
 	Serial.begin(9600); // Inicializamos el puerto serie
@@ -73,147 +71,39 @@ void setup()
 	// Puerto C
 	DDRC = B00000001;	 // Configuramos el pin 0 del puerto C como salida (0x01)
 	PORTC = B11111110; // Inicializamos el puerto C a 1 (0cFE)
+
+	menu();
 }
 
 void loop()
 {
-	// Imprimir menu
-	if (print_menu)
-	{
-		menu();
-		print_menu = false;
-	}
-
 	// Leer opcion
-	int option = -1;
 	if (Serial.available() > 0)
 	{
 		option = Serial.read();
+		back = option;
 	}
 
 	// Ejecutar opcion
 	switch (option)
 	{
 	case '1': // Opcion 1: Parpadeo de las unidades
-		Serial.println("1. Parpadeo de las unidades");
-		Serial.println("Presione 7 para salir");
-		while (true)
-		{
-			digit_flashing(0);
-			if (Serial.available() > 0)
-			{													 // Comprueba si hay datos disponibles en el puerto serial
-				int num = Serial.read(); // Lee el número ingresado desde el puerto serial
-				if (num == '7')
-				{
-					break; // Sale del bucle infinito cuando se ingresa el número 7
-				}
-			}
-		}
-		print_menu = true;
+		digit_flashing(0);
 		break;
 	case '2': // Opcion 2: Parpadeo de las decenas
-		Serial.println("2. Parpadeo de las decenas");
-		Serial.println("Presione 7 para salir");
-		while (true)
-		{
-			digit_flashing(1);
-			if (Serial.available() > 0)
-			{													 // Comprueba si hay datos disponibles en el puerto serial
-				int num = Serial.read(); // Lee el número ingresado desde el puerto serial
-
-				if (num == '7')
-				{
-					break; // Sale del bucle infinito cuando se ingresa el número 7
-				}
-			}
-		}
-		print_menu = true;
+		digit_flashing(1);
 		break;
 	case '3': // Opcion 3: Parpadeo de las centenas
-		Serial.println("3. Parpadeo de las centenas");
-		Serial.println("Presione 7 para salir");
-		while (true)
-		{
-			digit_flashing(2);
-			if (Serial.available() > 0)
-			{													 // Comprueba si hay datos disponibles en el puerto serial
-				int num = Serial.read(); // Lee el número ingresado desde el puerto serial
-
-				if (num == '7')
-				{
-					break; // Sale del bucle infinito cuando se ingresa el número 7
-				}
-			}
-		}
-		print_menu = true;
+		digit_flashing(2);
 		break;
 	case '4': // Opcion 4: Parpadeo de las unidades de millar
-		Serial.println("4. Parpadeo de las unidades de millar");
-		Serial.println("Presione 7 para salir");
-		while (true)
-		{
-			digit_flashing(3);
-			if (Serial.available() > 0)
-			{													 // Comprueba si hay datos disponibles en el puerto serial
-				int num = Serial.read(); // Lee el número ingresado desde el puerto serial
-
-				if (num == '7')
-				{
-					break; // Sale del bucle infinito cuando se ingresa el número 7
-				}
-			}
-		}
-		print_menu = true;
+		digit_flashing(3);
 		break;
 	case '5': // Opcion 5: Parpadeo secuencial con todos los digitos (tarea1)
-		Serial.println("5. Parpadeo secuencial con todos los digitos");
-		Serial.println("Presione 7 para salir");
-		while (true)
-		{
-			sequential_flashing();
-			if (Serial.available() > 0)
-			{													 // Comprueba si hay datos disponibles en el puerto serial
-				int num = Serial.read(); // Lee el número ingresado desde el puerto serial
-
-				if (num == '7')
-				{
-					break; // Sale del bucle infinito cuando se ingresa el número 7
-				}
-			}
-		}
-		print_menu = true;
+		sequential_flashing();
 		break;
 	case '6': // Opcion 6: Seleccion del caracter hexadecimal (0-F) a visualizar en el display
-		Serial.println("6. Seleccion del caracter hexadecimal (0-F) a visualizar en el display");
-		Serial.println("Presione p para salir");
-		while (true)
-		{
-			select_hexadecimal();
-			if (Serial.available() > 0)
-			{													 // Comprueba si hay datos disponibles en el puerto serial
-				int num = Serial.read(); // Lee el número ingresado desde el puerto serial
-
-				if (num == 'p')
-				{
-					break; // Sale del bucle infinito cuando se ingresa el número 7
-				}
-			}
-		}
-		print_menu = true;
-		print2 = true;
-		print3 = true;
 		break;
-	default:
-		if (option != -1)
-		{
-			Serial.println("Opcion no valida");
-		}
-		break;
-	}
-	PORTA = 0xFF; // Resetar el puerto A a 1 (B11111111)
-	for (int i = 0; i < 4; i++)
-	{ // Resetar el display apagando todos los digitos
-		digitalWrite(display_map[i], HIGH);
 	}
 }
 
@@ -252,64 +142,4 @@ void sequential_flashing()
 // Funcion "Seleccion del caracter hexadecimal (0-F) a visualizar en el display"
 void select_hexadecimal()
 {
-	if (print2)
-	{
-		print2 = false;
-		Serial.println("Seleccione un caracter hexadecimal entre los siguientes:");
-		for (int i = 0; i < 16; i++)
-		{
-			Serial.print(hexadecimal[i]);
-			Serial.print(" ");
-		}
-		Serial.println();
-	}
-	int hex = -1;
-	if (Serial.available())
-	{											 // Comprueba si hay datos disponibles en el puerto serial
-		hex = Serial.read(); // Lee el número ingresado desde el puerto serial
-		if (hex != -1)
-		{
-			for (int i = 0; i < 16; i++)
-			{
-				if (hex == hexadecimal[i])
-				{
-					PORTA = hex_value[i];
-					Serial.println(hexadecimal[i]);
-					break;
-				}
-			}
-		}
-	}
-	if (print3 && hex != -1)
-	{
-		print3 = false;
-		// Mostrar en el display
-		Serial.println("Seleccione un digito del display:");
-		Serial.println("1. Unidades");
-		Serial.println("2. Decenas");
-		Serial.println("3. Centenas");
-		Serial.println("4. Unidades de millar");
-		if (Serial.available())
-		{														 // Comprueba si hay datos disponibles en el puerto serial
-			int digit = Serial.read(); // Lee el número ingresado desde el puerto serial
-			switch (digit)
-			{
-			case '1':
-				digitalWrite(display_map[0], LOW);
-				break;
-			case '2':
-				digitalWrite(display_map[1], LOW);
-				break;
-			case '3':
-				digitalWrite(display_map[2], LOW);
-				break;
-			case '4':
-				digitalWrite(display_map[3], LOW);
-				break;
-			default:
-				Serial.println("Opcion no valida");
-				break;
-			}
-		}
-	}
 }
