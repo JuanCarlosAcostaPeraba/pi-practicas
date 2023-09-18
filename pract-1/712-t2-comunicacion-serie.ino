@@ -170,8 +170,8 @@ void loop() {
 		case '6': // Opcion 6: Seleccion del caracter hexadecimal (0-F) a visualizar en el display
 			Serial.println("6. Seleccion del caracter hexadecimal (0-F) a visualizar en el display");
 			Serial.println("Presione 7 para salir");
-			select_hexadecimal();
 			while (true) {
+				select_hexadecimal();
 				if (Serial.available()) {  // Comprueba si hay datos disponibles en el puerto serial
 					int num = Serial.read();  // Lee el número ingresado desde el puerto serial
 
