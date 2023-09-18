@@ -1,16 +1,16 @@
 /*
 Hacer un programa para que haga parpadear (encender y apagar)
-todos los segmentos del dígito de las unidades (D4) durante
+todos los segmentos del digito de las unidades (D4) durante
 2 segundos, aproximadamente. Luego hacer que el parpadeo
-pase de forma secuencial al resto de los dígitos:
+pase de forma secuencial al resto de los digitos:
 
 Unidades-D4 (parpadeo 2 seg) -> decenas-D3 (parpadeo 2 seg) ->
 centenas-D2 (parpadeo 2 seg) -> millares-D1 (parpadeo 2 seg) ->
-unidades-D4 (parpadeo 2 seg) y así, sucesivamente.
+unidades-D4 (parpadeo 2 seg) y asi, sucesivamente.
 
-Al cambiar de dígito, generar una señal acústica para avisar al usuario.
-Tiene completa libertad para elegir la duración y la frecuencia
-del pitido (o señal acústica) que se oirá por el zumbador/altavoz.
+Al cambiar de digito, generar una señal acustica para avisar al usuario.
+Tiene completa libertad para elegir la duracion y la frecuencia
+del pitido (o señal acustica) que se oira por el zumbador/altavoz.
 */
 
 // Pulsadores
