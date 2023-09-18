@@ -103,6 +103,20 @@ void loop()
 		sequential_flashing();
 		break;
 	case '6': // Opcion 6: Seleccion del caracter hexadecimal (0-F) a visualizar en el display
+		Serial.println("Selecciona un caracter hexadecimal (0-F):");
+		while (Serial.available() == 0)
+		{
+		}
+		option = Serial.read();
+		for (int i = 0; i < 16; i++)
+		{
+			if (option == hexadecimal[i])
+			{
+				PORTA = hex_value[i];
+				break;
+			}
+		}
+		option = back;
 		break;
 	}
 }
@@ -137,9 +151,4 @@ void sequential_flashing()
 	{
 		digit_flashing(i);
 	}
-}
-
-// Funcion "Seleccion del caracter hexadecimal (0-F) a visualizar en el display"
-void select_hexadecimal()
-{
 }
