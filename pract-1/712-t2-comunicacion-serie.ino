@@ -92,60 +92,96 @@ void loop() {
 			Serial.println("Presione 7 para salir");
 			while (true) {
 				digit_flashing(0);
-				if (Serial.read() == 7) { // presionar 7 para salir
-					break;
+				if (Serial.available()) {  // Comprueba si hay datos disponibles en el puerto serial
+					int num = Serial.parseInt();  // Lee el número ingresado desde el puerto serial
+
+					if (num == 7) {
+						Serial.println("¡Número 7 detectado! Saliendo del bucle infinito.");
+						break;  // Sale del bucle infinito cuando se ingresa el número 7
+					}
 				}
 			}
+			print_menu = true;
 			break;
 		case '2': // Opcion 2: Parpadeo de las decenas
 			Serial.println("2. Parpadeo de las decenas");
 			Serial.println("Presione 7 para salir");
 			while (true) {
 				digit_flashing(1);
-				if (Serial.read() == 7) { // presionar 7 para salir
-					break;
+				if (Serial.available()) {  // Comprueba si hay datos disponibles en el puerto serial
+					int num = Serial.parseInt();  // Lee el número ingresado desde el puerto serial
+
+					if (num == 7) {
+						Serial.println("¡Número 7 detectado! Saliendo del bucle infinito.");
+						break;  // Sale del bucle infinito cuando se ingresa el número 7
+					}
 				}
 			}
+			print_menu = true;
 			break;
 		case '3': // Opcion 3: Parpadeo de las centenas
 			Serial.println("3. Parpadeo de las centenas");
 			Serial.println("Presione 7 para salir");
 			while (true) {
 				digit_flashing(2);
-				if (Serial.read() == 7) { // presionar 7 para salir
-					break;
+				if (Serial.available()) {  // Comprueba si hay datos disponibles en el puerto serial
+					int num = Serial.parseInt();  // Lee el número ingresado desde el puerto serial
+
+					if (num == 7) {
+						Serial.println("¡Número 7 detectado! Saliendo del bucle infinito.");
+						break;  // Sale del bucle infinito cuando se ingresa el número 7
+					}
 				}
 			}
+			print_menu = true;
 			break;
 		case '4': // Opcion 4: Parpadeo de las unidades de millar
 			Serial.println("4. Parpadeo de las unidades de millar");
 			Serial.println("Presione 7 para salir");
 			while (true) {
 				digit_flashing(3);
-				if (Serial.read() == 7) { // presionar 7 para salir
-					break;
+				if (Serial.available()) {  // Comprueba si hay datos disponibles en el puerto serial
+					int num = Serial.parseInt();  // Lee el número ingresado desde el puerto serial
+
+					if (num == 7) {
+						Serial.println("¡Número 7 detectado! Saliendo del bucle infinito.");
+						break;  // Sale del bucle infinito cuando se ingresa el número 7
+					}
 				}
 			}
+			print_menu = true;
 			break;
 		case '5': // Opcion 5: Parpadeo secuencial con todos los digitos (tarea1)
 			Serial.println("5. Parpadeo secuencial con todos los digitos");
 			Serial.println("Presione 7 para salir");
 			while (true) {
 				sequential_flashing();
-				if (Serial.read() == 7) { // presionar 7 para salir
-					break;
+				if (Serial.available()) {  // Comprueba si hay datos disponibles en el puerto serial
+					int num = Serial.parseInt();  // Lee el número ingresado desde el puerto serial
+
+					if (num == 7) {
+						Serial.println("¡Número 7 detectado! Saliendo del bucle infinito.");
+						break;  // Sale del bucle infinito cuando se ingresa el número 7
+					}
 				}
 			}
+			print_menu = true;
 			break;
 		case '6': // Opcion 6: Seleccion del caracter hexadecimal (0-F) a visualizar en el display
 			Serial.println("6. Seleccion del caracter hexadecimal (0-F) a visualizar en el display");
 			Serial.println("Presione 7 para salir");
 			select_hexadecimal();
 			while (true) {
-				if (Serial.read() == 7) { // presionar 7 para salir
-					break;
+				if (Serial.available()) {  // Comprueba si hay datos disponibles en el puerto serial
+					int num = Serial.parseInt();  // Lee el número ingresado desde el puerto serial
+
+					if (num == 7) {
+						Serial.println("¡Número 7 detectado! Saliendo del bucle infinito.");
+						break;  // Sale del bucle infinito cuando se ingresa el número 7
+					}
 				}
 			}
+			print_menu = true;
 			break;
 		default:
 			if (option != -1) {
