@@ -77,15 +77,6 @@ void setup()
 
 void loop()
 {
-	// test
-	for (int i = 0; i < 16; i++)
-	{
-		Serial.println(hexadecimal[i]);
-		delay(200);
-	}
-
-	delay(5000);
-
 	// Imprimir menu
 	if (print_menu)
 	{
@@ -262,7 +253,11 @@ void select_hexadecimal()
 	{
 		print2 = false;
 		Serial.println("Seleccione un caracter hexadecimal entre los siguientes:");
-		Serial.print("0, 1, 2, 3, 4, 5, 6, 7, 8, 9, A, B, C, D, E, F");
+		for (int i = 0; i < 16; i++)
+		{
+			Serial.print(hexadecimal[i] + " ");
+			delay(100);
+		}
 		Serial.println();
 	}
 	int hex = -1;
