@@ -56,9 +56,6 @@ char teclado_map[][3] = {
 	{'*', '0', '#'}
 };
 
-// Bool print menu
-bool print_menu = true;
-
 void setup() {
 	Serial.begin(9600); // Inicializamos el puerto serie
 
@@ -77,10 +74,13 @@ void setup() {
 
 void loop() {
 	// Imprimir menú
-	menu(print_menu);
+	menu();
 
-	// Leer opción
-	int option = Serial.read();
+	// esperar a que se pulse una tecla
+	while (Serial.available() == 0) {
+		// Leer opción
+		int option = Serial.read();
+	}
 
 	// Ejecutar opción
 	switch (option) {
@@ -93,7 +93,6 @@ void loop() {
 					break;
 				}
 			}
-			print_menu = true;
 			break;
 		case '2': // Opción 2: Parpadeo de las decenas
 			Serial.println("2. Parpadeo de las decenas");
@@ -104,7 +103,6 @@ void loop() {
 					break;
 				}
 			}
-			print_menu = true;
 			break;
 		case '3': // Opción 3: Parpadeo de las centenas
 			Serial.println("3. Parpadeo de las centenas");
@@ -115,7 +113,6 @@ void loop() {
 					break;
 				}
 			}
-			print_menu = true;
 			break;
 		case '4': // Opción 4: Parpadeo de las unidades de millar
 			Serial.println("4. Parpadeo de las unidades de millar");
@@ -126,7 +123,6 @@ void loop() {
 					break;
 				}
 			}
-			print_menu = true;
 			break;
 		case '5': // Opción 5: Parpadeo secuencial con todos los dígitos (tarea1)
 			Serial.println("5. Parpadeo secuencial con todos los dígitos");
@@ -137,7 +133,6 @@ void loop() {
 					break;
 				}
 			}
-			print_menu = true;
 			break;
 		case '6': // Opción 6: Selección del carácter hexadecimal (0-F) a visualizar en el display
 			Serial.println("6. Selección del carácter hexadecimal (0-F) a visualizar en el display");
@@ -148,11 +143,9 @@ void loop() {
 					break;
 				}
 			}
-			print_menu = true;
 			break;
 		default:
 			Serial.println("Opción no válida");
-			print_menu = true;
 			break;
 	}
 	PORTA = 0xFF; // Resetar el puerto A a 1 (B11111111)
@@ -161,10 +154,7 @@ void loop() {
 	}
 }
 
-void menu(bool print) {
-	if (!print) {
-		return;
-	}
+void menu() {
 	Serial.println("Seleccione una opción:");
 	Serial.println("1. Parpadeo de las unidades");
 	Serial.println("2. Parpadeo de las decenas");
@@ -172,7 +162,6 @@ void menu(bool print) {
 	Serial.println("4. Parpadeo de las unidades de millar");
 	Serial.println("5. Parpadeo secuencial con todos los dígitos");
 	Serial.println("6. Selección del carácter hexadecimal (0-F) a visualizar en el display");
-	print_menu = false;
 }
 
 // Función parpadeo dígito seleccionado
