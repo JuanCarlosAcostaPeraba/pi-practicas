@@ -148,7 +148,9 @@ void loop() {
 			}
 			break;
 		default:
-			Serial.println("Opción no válida");
+			if (option != -1) {
+				Serial.println("Opción no válida");
+			}
 			break;
 	}
 	PORTA = 0xFF; // Resetar el puerto A a 1 (B11111111)
