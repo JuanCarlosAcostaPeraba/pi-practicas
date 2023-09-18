@@ -56,6 +56,7 @@ char teclado_map[][3] = {
 // Bool print menu
 bool print_menu = true; // Para imprimir el menu
 bool print2 = true;			// Para imprimir el menu de seleccion de hexadecimal
+bool print3 = true;			// Para imprimir el menu de seleccion de digito
 
 void setup()
 {
@@ -265,30 +266,32 @@ void select_hexadecimal()
 			break;
 		}
 	}
-
-	// Mostrar en el display
-	Serial.println("Seleccione un digito del display:");
-	Serial.println("1. Unidades");
-	Serial.println("2. Decenas");
-	Serial.println("3. Centenas");
-	Serial.println("4. Unidades de millar");
-	int digit = Serial.read();
-	switch (digit)
+	if (print3 && hex != -1)
 	{
-	case '1':
-		digitalWrite(display_map[0], LOW);
-		break;
-	case '2':
-		digitalWrite(display_map[1], LOW);
-		break;
-	case '3':
-		digitalWrite(display_map[2], LOW);
-		break;
-	case '4':
-		digitalWrite(display_map[3], LOW);
-		break;
-	default:
-		Serial.println("Opcion no valida");
-		break;
+		// Mostrar en el display
+		Serial.println("Seleccione un digito del display:");
+		Serial.println("1. Unidades");
+		Serial.println("2. Decenas");
+		Serial.println("3. Centenas");
+		Serial.println("4. Unidades de millar");
+		int digit = Serial.read();
+		switch (digit)
+		{
+		case '1':
+			digitalWrite(display_map[0], LOW);
+			break;
+		case '2':
+			digitalWrite(display_map[1], LOW);
+			break;
+		case '3':
+			digitalWrite(display_map[2], LOW);
+			break;
+		case '4':
+			digitalWrite(display_map[3], LOW);
+			break;
+		default:
+			Serial.println("Opcion no valida");
+			break;
+		}
 	}
 }
