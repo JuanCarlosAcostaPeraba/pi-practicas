@@ -93,9 +93,9 @@ void loop() {
 			while (true) {
 				digit_flashing(0);
 				if (Serial.available()) {  // Comprueba si hay datos disponibles en el puerto serial
-					int num = Serial.parseInt();  // Lee el número ingresado desde el puerto serial
+					int num = Serial.read();  // Lee el número ingresado desde el puerto serial
 
-					if (num == 7) {
+					if (num == '7') {
 						Serial.println("¡Número 7 detectado! Saliendo del bucle infinito.");
 						break;  // Sale del bucle infinito cuando se ingresa el número 7
 					}
@@ -109,9 +109,9 @@ void loop() {
 			while (true) {
 				digit_flashing(1);
 				if (Serial.available()) {  // Comprueba si hay datos disponibles en el puerto serial
-					int num = Serial.parseInt();  // Lee el número ingresado desde el puerto serial
+					int num = Serial.read();  // Lee el número ingresado desde el puerto serial
 
-					if (num == 7) {
+					if (num == '7') {
 						Serial.println("¡Número 7 detectado! Saliendo del bucle infinito.");
 						break;  // Sale del bucle infinito cuando se ingresa el número 7
 					}
@@ -125,9 +125,9 @@ void loop() {
 			while (true) {
 				digit_flashing(2);
 				if (Serial.available()) {  // Comprueba si hay datos disponibles en el puerto serial
-					int num = Serial.parseInt();  // Lee el número ingresado desde el puerto serial
+					int num = Serial.read();  // Lee el número ingresado desde el puerto serial
 
-					if (num == 7) {
+					if (num == '7') {
 						Serial.println("¡Número 7 detectado! Saliendo del bucle infinito.");
 						break;  // Sale del bucle infinito cuando se ingresa el número 7
 					}
@@ -141,9 +141,9 @@ void loop() {
 			while (true) {
 				digit_flashing(3);
 				if (Serial.available()) {  // Comprueba si hay datos disponibles en el puerto serial
-					int num = Serial.parseInt();  // Lee el número ingresado desde el puerto serial
+					int num = Serial.read();  // Lee el número ingresado desde el puerto serial
 
-					if (num == 7) {
+					if (num == '7') {
 						Serial.println("¡Número 7 detectado! Saliendo del bucle infinito.");
 						break;  // Sale del bucle infinito cuando se ingresa el número 7
 					}
@@ -157,9 +157,9 @@ void loop() {
 			while (true) {
 				sequential_flashing();
 				if (Serial.available()) {  // Comprueba si hay datos disponibles en el puerto serial
-					int num = Serial.parseInt();  // Lee el número ingresado desde el puerto serial
+					int num = Serial.read();  // Lee el número ingresado desde el puerto serial
 
-					if (num == 7) {
+					if (num == '7') {
 						Serial.println("¡Número 7 detectado! Saliendo del bucle infinito.");
 						break;  // Sale del bucle infinito cuando se ingresa el número 7
 					}
@@ -173,9 +173,9 @@ void loop() {
 			select_hexadecimal();
 			while (true) {
 				if (Serial.available()) {  // Comprueba si hay datos disponibles en el puerto serial
-					int num = Serial.parseInt();  // Lee el número ingresado desde el puerto serial
+					int num = Serial.read();  // Lee el número ingresado desde el puerto serial
 
-					if (num == 7) {
+					if (num == '7') {
 						Serial.println("¡Número 7 detectado! Saliendo del bucle infinito.");
 						break;  // Sale del bucle infinito cuando se ingresa el número 7
 					}
