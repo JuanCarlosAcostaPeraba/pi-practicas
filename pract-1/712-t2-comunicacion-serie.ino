@@ -85,7 +85,11 @@ void loop()
 	}
 
 	// Leer opcion
-	int option = Serial.read();
+	int option = -1;
+	if (Serial.available() > 0)
+	{
+		option = Serial.read();
+	}
 
 	// Ejecutar opcion
 	switch (option)
@@ -96,10 +100,9 @@ void loop()
 		while (true)
 		{
 			digit_flashing(0);
-			if (Serial.available())
+			if (Serial.available() > 0)
 			{													 // Comprueba si hay datos disponibles en el puerto serial
 				int num = Serial.read(); // Lee el número ingresado desde el puerto serial
-
 				if (num == '7')
 				{
 					break; // Sale del bucle infinito cuando se ingresa el número 7
@@ -114,7 +117,7 @@ void loop()
 		while (true)
 		{
 			digit_flashing(1);
-			if (Serial.available())
+			if (Serial.available() > 0)
 			{													 // Comprueba si hay datos disponibles en el puerto serial
 				int num = Serial.read(); // Lee el número ingresado desde el puerto serial
 
@@ -132,7 +135,7 @@ void loop()
 		while (true)
 		{
 			digit_flashing(2);
-			if (Serial.available())
+			if (Serial.available() > 0)
 			{													 // Comprueba si hay datos disponibles en el puerto serial
 				int num = Serial.read(); // Lee el número ingresado desde el puerto serial
 
@@ -150,7 +153,7 @@ void loop()
 		while (true)
 		{
 			digit_flashing(3);
-			if (Serial.available())
+			if (Serial.available() > 0)
 			{													 // Comprueba si hay datos disponibles en el puerto serial
 				int num = Serial.read(); // Lee el número ingresado desde el puerto serial
 
@@ -168,7 +171,7 @@ void loop()
 		while (true)
 		{
 			sequential_flashing();
-			if (Serial.available())
+			if (Serial.available() > 0)
 			{													 // Comprueba si hay datos disponibles en el puerto serial
 				int num = Serial.read(); // Lee el número ingresado desde el puerto serial
 
@@ -182,15 +185,15 @@ void loop()
 		break;
 	case '6': // Opcion 6: Seleccion del caracter hexadecimal (0-F) a visualizar en el display
 		Serial.println("6. Seleccion del caracter hexadecimal (0-F) a visualizar en el display");
-		Serial.println("Presione 7 para salir");
+		Serial.println("Presione p para salir");
 		while (true)
 		{
 			select_hexadecimal();
-			if (Serial.available())
+			if (Serial.available() > 0)
 			{													 // Comprueba si hay datos disponibles en el puerto serial
 				int num = Serial.read(); // Lee el número ingresado desde el puerto serial
 
-				if (num == '7')
+				if (num == 'p')
 				{
 					break; // Sale del bucle infinito cuando se ingresa el número 7
 				}
@@ -257,7 +260,6 @@ void select_hexadecimal()
 		{
 			Serial.print(hexadecimal[i]);
 			Serial.print(" ");
-			delay(100);
 		}
 		Serial.println();
 	}
@@ -272,6 +274,7 @@ void select_hexadecimal()
 				if (hex == hexadecimal[i])
 				{
 					PORTA = hex_value[i];
+					Serial.println(hexadecimal[i]);
 					break;
 				}
 			}
