@@ -108,6 +108,7 @@ void loop()
 		{
 		}
 		option = Serial.read();
+		Serial.println(typeof(option));
 		for (int i = 0; i < 16; i++)
 		{
 			if (option == hexadecimal[i])
@@ -116,7 +117,18 @@ void loop()
 				break;
 			}
 		}
-		option = back;
+		if (option != hexadecimal[i])
+		{
+			Serial.println("Caracter hexadecimal no valido");
+		}
+		if (back != '6')
+		{
+			option = back;
+		}
+		else
+		{
+			option = '1';
+		}
 		break;
 	}
 }
