@@ -116,7 +116,7 @@ void loop() {
 			Serial.println("Presione ESC para salir");
 			while (true) {
 				digit_flashing(3);
-				if (escape == 27) { // presionar ESC para salir
+				if (Serial.read() == 27) { // presionar ESC para salir
 					break;
 				}
 			}
