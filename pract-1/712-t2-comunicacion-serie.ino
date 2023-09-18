@@ -86,8 +86,7 @@ void loop() {
 			Serial.println("Presione ESC para salir");
 			while (true) {
 				digit_flashing(0);
-				int escape = Serial.read();
-				if (escape == 27) { // presionar ESC para salir
+				if (Serial.read() == 27) { // presionar ESC para salir
 					break;
 				}
 			}
@@ -97,8 +96,7 @@ void loop() {
 			Serial.println("Presione ESC para salir");
 			while (true) {
 				digit_flashing(1);
-				int escape = Serial.read();
-				if (escape == 27) { // presionar ESC para salir
+				if (Serial.read() == 27) { // presionar ESC para salir
 					break;
 				}
 			}
@@ -108,8 +106,7 @@ void loop() {
 			Serial.println("Presione ESC para salir");
 			while (true) {
 				digit_flashing(2);
-				int escape = Serial.read();
-				if (escape == 27) { // presionar ESC para salir
+				if (Serial.read() == 27) { // presionar ESC para salir
 					break;
 				}
 			}
@@ -119,7 +116,6 @@ void loop() {
 			Serial.println("Presione ESC para salir");
 			while (true) {
 				digit_flashing(3);
-				int escape = Serial.read();
 				if (escape == 27) { // presionar ESC para salir
 					break;
 				}
@@ -130,7 +126,6 @@ void loop() {
 			Serial.println("Presione ESC para salir");
 			while (true) {
 				sequential_flashing();
-				int escape = Serial.read();
 				if (Serial.read() == 27) { // presionar ESC para salir
 					break;
 				}
@@ -141,7 +136,6 @@ void loop() {
 			Serial.println("Presione ESC para salir");
 			select_hexadecimal();
 			while (true) {
-				int escape = Serial.read();
 				if (Serial.read() == 27) { // presionar ESC para salir
 					break;
 				}
