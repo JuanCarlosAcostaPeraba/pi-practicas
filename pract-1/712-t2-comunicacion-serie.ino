@@ -56,6 +56,8 @@ char teclado_map[][3] = {
 	{'*', '0', '#'}
 };
 
+int option; // Opción seleccionada
+
 void setup() {
 	Serial.begin(9600); // Inicializamos el puerto serie
 
@@ -79,7 +81,7 @@ void loop() {
 	// esperar a que se pulse una tecla
 	while (Serial.available() == 0) {
 		// Leer opción
-		int option = Serial.read();
+		option = Serial.read();
 	}
 
 	// Ejecutar opción
