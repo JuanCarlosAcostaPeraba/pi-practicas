@@ -85,6 +85,9 @@ void loop()
 		back = option;
 	}
 
+	Serial.println(option);
+	Serial.println(back);
+
 	// Ejecutar opcion
 	switch (option)
 	{
