@@ -31,6 +31,7 @@ digitos del display sera todos los segmentos encendidos):
 
 char option;
 char back;
+char caracter;
 
 // Matriz display 8 segmentos
 char display_map[4] = {D4, D3, D2, D1};
@@ -107,29 +108,17 @@ void loop()
 		while (Serial.available() == 0)
 		{
 		}
-		option = Serial.read();
-		Serial.println(typeof(option));
-		for (int i = 0; i < 16; i++)
+		caracter = Serial.read();
+		if (caracter < 58)
 		{
-			if (option == hexadecimal[i])
-			{
-				PORTA = hex_value[i];
-				break;
-			}
-		}
-		if (option != hexadecimal[i])
-		{
-			Serial.println("Caracter hexadecimal no valido");
-		}
-		if (back != '6')
-		{
-			option = back;
+			caracter = caracter - 48; // Convertir de ASCII a decimal
+			Serial.println(caracter);
 		}
 		else
 		{
-			option = '1';
+			caracter = caracter - 55; // Convertir de ASCII a decimal
+			Serial.println(caracter);
 		}
-		break;
 	}
 }
 
