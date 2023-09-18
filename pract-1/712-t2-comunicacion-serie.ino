@@ -161,7 +161,10 @@ void loop() {
 	}
 }
 
-void menu() {
+void menu(bool print) {
+	if (!print) {
+		return;
+	}
 	Serial.println("Seleccione una opción:");
 	Serial.println("1. Parpadeo de las unidades");
 	Serial.println("2. Parpadeo de las decenas");
