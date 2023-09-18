@@ -255,7 +255,8 @@ void select_hexadecimal()
 		Serial.println("Seleccione un caracter hexadecimal entre los siguientes:");
 		for (int i = 0; i < 16; i++)
 		{
-			Serial.print(hexadecimal[i] + " ");
+			Serial.print(hexadecimal[i]);
+			Serial.print(" ");
 			delay(100);
 		}
 		Serial.println();
