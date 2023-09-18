@@ -256,13 +256,20 @@ void select_hexadecimal()
 		Serial.print("0, 1, 2, 3, 4, 5, 6, 7, 8, 9, A, B, C, D, E, F");
 		Serial.println();
 	}
-	int hex = Serial.read();
-	for (int i = 0; i < 16; i++)
-	{ // Recorremos la matriz hexadecimal
-		if (hex == hexadecimal[i])
-		{												// Si la opcion es igual a un elemento de la matriz
-			PORTA = hex_value[i]; // Mostramos el valor del indice en el puerto A
-			break;
+	int hex = -1;
+	if (Serial.available())
+	{											 // Comprueba si hay datos disponibles en el puerto serial
+		hex = Serial.read(); // Lee el número ingresado desde el puerto serial
+		if (hex != -1)
+		{
+			for (int i = 0; i < 16; i++)
+			{
+				if (hex == hexadecimal[i])
+				{
+					PORTA = hex_value[i];
+					break;
+				}
+			}
 		}
 	}
 	if (print3 && hex != -1)
@@ -274,24 +281,27 @@ void select_hexadecimal()
 		Serial.println("2. Decenas");
 		Serial.println("3. Centenas");
 		Serial.println("4. Unidades de millar");
-		int digit = Serial.read();
-		switch (digit)
-		{
-		case '1':
-			digitalWrite(display_map[0], LOW);
-			break;
-		case '2':
-			digitalWrite(display_map[1], LOW);
-			break;
-		case '3':
-			digitalWrite(display_map[2], LOW);
-			break;
-		case '4':
-			digitalWrite(display_map[3], LOW);
-			break;
-		default:
-			Serial.println("Opcion no valida");
-			break;
+		if (Serial.available())
+		{														 // Comprueba si hay datos disponibles en el puerto serial
+			int digit = Serial.read(); // Lee el número ingresado desde el puerto serial
+			switch (digit)
+			{
+			case '1':
+				digitalWrite(display_map[0], LOW);
+				break;
+			case '2':
+				digitalWrite(display_map[1], LOW);
+				break;
+			case '3':
+				digitalWrite(display_map[2], LOW);
+				break;
+			case '4':
+				digitalWrite(display_map[3], LOW);
+				break;
+			default:
+				Serial.println("Opcion no valida");
+				break;
+			}
 		}
 	}
 }
