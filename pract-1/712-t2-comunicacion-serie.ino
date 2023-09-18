@@ -197,6 +197,8 @@ void loop()
 			}
 		}
 		print_menu = true;
+		print2 = true;
+		print3 = true;
 		break;
 	default:
 		if (option != -1)
@@ -249,13 +251,13 @@ void select_hexadecimal()
 {
 	if (print2)
 	{
+		print2 = false;
 		Serial.println("Seleccione un caracter hexadecimal entre los siguientes:");
 		for (int i = 0; i < 16; i++)
 		{
 			Serial.print(hexadecimal[i] + " ");
 		}
 		Serial.println();
-		print2 = false;
 	}
 	int hex = Serial.read();
 	for (int i = 0; i < 16; i++)
@@ -268,6 +270,7 @@ void select_hexadecimal()
 	}
 	if (print3 && hex != -1)
 	{
+		print3 = false;
 		// Mostrar en el display
 		Serial.println("Seleccione un digito del display:");
 		Serial.println("1. Unidades");
