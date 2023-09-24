@@ -84,7 +84,7 @@ void loop()
 	if (Serial.available() > 0)
 	{
 		// Sonar zumbador
-		tone(PSTART, 1000, 1000);
+		tone(PSTART, 1000, 100);
 		option = Serial.read();
 		if (option != '6')
 		{
@@ -144,7 +144,7 @@ void digit_flashing(int digit)
 void sequential_flashing()
 {
 	// Sonar zumbador
-	tone(PSTART, 1000, 1000);
+	tone(PSTART, 1000, 100);
 
 	// Parpadeo
 	for (int i = 0; i < 4; i++)
