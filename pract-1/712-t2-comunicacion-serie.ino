@@ -30,7 +30,7 @@ digitos del display sera todos los segmentos encendidos):
 #define D1 46 // Pin 46 - unidades de millar
 
 char option;
-char back;
+char back = '7';
 char caracter;
 
 // Matriz display 8 segmentos
@@ -82,11 +82,11 @@ void loop()
 	if (Serial.available() > 0)
 	{
 		option = Serial.read();
-		back = option;
+		if (option != '6')
+		{
+			back = option;
+		}
 	}
-
-	Serial.println(option);
-	Serial.println(back);
 
 	// Ejecutar opcion
 	switch (option)
@@ -112,15 +112,21 @@ void loop()
 		{
 		}
 		caracter = Serial.read();
-		if (caracter < 58)
+		if (caracter >= 48 && caracter <= 57) // Si es un numero (0-9)
 		{
-			caracter = caracter - 48; // Convertir de ASCII a decimal
-			Serial.println(caracter);
+			PORTA = hex_value[caracter - 48]; //
+		}
+		else if (caracter >= 65 && caracter <= 70) // Si es una letra (A-F)
+		{
+			PORTA = hex_value[caracter - 55];
+		}
+		else if (caracter >= 97 && caracter <= 102) // Si es una letra (a-f)
+		{
+			PORTA = hex_value[caracter - 87];
 		}
 		else
 		{
-			caracter = caracter - 55; // Convertir de ASCII a decimal
-			Serial.println(caracter);
+			Serial.println("Caracter no valido");
 		}
 	}
 }
