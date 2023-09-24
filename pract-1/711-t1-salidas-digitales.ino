@@ -70,7 +70,7 @@ void loop()
 	for (int i = 0; i < 4; i++)
 	{
 		// Sonar zumbador
-		tone(PSTART, 1000, 1000);
+		tone(PSTART, 1000, 100);
 
 		// Parpadeo
 		for (int j = 0; j < 2; j++)
