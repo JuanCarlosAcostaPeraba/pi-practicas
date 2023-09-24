@@ -62,16 +62,16 @@ void setup()
 	Serial.begin(9600); // Inicializamos el puerto serie
 
 	// Puerto A salida
-	DDRA = 0xFF;	// Configuramos el puerto A como salida (B11111111)
-	PORTA = 0xFF; // Inicializamos el puerto A a 1 (B11111111)
+	DDRA = B11111111;	 // Configuramos el puerto A como salida (0xFF)
+	PORTA = B11111111; // Inicializamos el puerto A a 1 (0xFF)
 
 	// Puerto L teclado
-	DDRL = 0x0F;	// Configuramos los pines 0, 1, 2 y 3 del puerto L como salida (B00001111)
-	PORTL = 0xFF; // Inicializamos el puerto L a 1 (B11111111)
+	DDRL = B00001111;	 // Configuramos los pines 0, 1, 2 y 3 del puerto L como salida (0x0F)
+	PORTL = B11111111; // Inicializamos el puerto L a 1 (0xFF)
 
 	// Puerto C
-	DDRC = B00000001;	 // Configuramos el pin 0 del puerto C como salida (0x01)
-	PORTC = B11111110; // Inicializamos el puerto C a 1 (0cFE)
+	DDRC = B00000000;	 // Configuramos el pin 0 del puerto C como salida (0x00)
+	PORTC = B11111111; // Inicializamos el puerto C a 1 (0cFF)
 
 	menu();
 
@@ -83,6 +83,8 @@ void loop()
 	// Leer opcion
 	if (Serial.available() > 0)
 	{
+		// Sonar zumbador
+		tone(PSTART, 1000, 1000);
 		option = Serial.read();
 		if (option != '6')
 		{
@@ -141,6 +143,10 @@ void digit_flashing(int digit)
 // Funcion "Parpadeo secuencial con todos los digitos" (tarea1)
 void sequential_flashing()
 {
+	// Sonar zumbador
+	tone(PSTART, 1000, 1000);
+
+	// Parpadeo
 	for (int i = 0; i < 4; i++)
 	{
 		digit_flashing(i);
