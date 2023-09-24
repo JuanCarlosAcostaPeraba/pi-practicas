@@ -30,7 +30,7 @@ digitos del display sera todos los segmentos encendidos):
 #define D1 46 // Pin 46 - unidades de millar
 
 char option;
-char back = '7';
+char back;
 char caracter;
 
 // Matriz display 8 segmentos
@@ -74,6 +74,8 @@ void setup()
 	PORTC = B11111110; // Inicializamos el puerto C a 1 (0cFE)
 
 	menu();
+
+	back = '7';
 }
 
 void loop()
@@ -107,27 +109,9 @@ void loop()
 		sequential_flashing();
 		break;
 	case '6': // Opcion 6: Seleccion del caracter hexadecimal (0-F) a visualizar en el display
-		Serial.println("Selecciona un caracter hexadecimal (0-F):");
-		while (Serial.available() == 0)
-		{
-		}
-		caracter = Serial.read();
-		if (caracter >= 48 && caracter <= 57) // Si es un numero (0-9)
-		{
-			PORTA = hex_value[caracter - 48]; //
-		}
-		else if (caracter >= 65 && caracter <= 70) // Si es una letra (A-F)
-		{
-			PORTA = hex_value[caracter - 55];
-		}
-		else if (caracter >= 97 && caracter <= 102) // Si es una letra (a-f)
-		{
-			PORTA = hex_value[caracter - 87];
-		}
-		else
-		{
-			Serial.println("Caracter no valido");
-		}
+		hexadecimal_selection();
+		option = back; // Volver a la opcion anterior
+		break;
 	}
 }
 
@@ -160,5 +144,31 @@ void sequential_flashing()
 	for (int i = 0; i < 4; i++)
 	{
 		digit_flashing(i);
+	}
+}
+
+// Función "Selección del carácter hexadecimal (0-F) a visualizar en el display"
+void hexadecimal_selection()
+{
+	Serial.println("Selecciona un caracter hexadecimal (0-F):");
+	while (Serial.available() == 0)
+	{
+	}
+	caracter = Serial.read();
+	if (caracter >= 48 && caracter <= 57) // Si es un numero (0-9)
+	{
+		PORTA = hex_value[caracter - 48]; //
+	}
+	else if (caracter >= 65 && caracter <= 70) // Si es una letra (A-F)
+	{
+		PORTA = hex_value[caracter - 55];
+	}
+	else if (caracter >= 97 && caracter <= 102) // Si es una letra (a-f)
+	{
+		PORTA = hex_value[caracter - 87];
+	}
+	else
+	{
+		Serial.println("Caracter no valido");
 	}
 }
