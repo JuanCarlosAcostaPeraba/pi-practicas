@@ -64,8 +64,8 @@ int pup;
 int pdown;
 int pcenter;
 
-long int time_old = millis();
-int transition_time = 50;
+long int time_old;
+int transition_time;
 
 // Matriz display 8 segmentos
 char display_map[4] = {D4, D3, D2, D1};
@@ -110,6 +110,8 @@ void setup()
 	estado = false;
 	unidades = 9;
 	decenas = 1;
+	time_old = millis();
+	transition_time = 250;
 }
 
 void loop()
