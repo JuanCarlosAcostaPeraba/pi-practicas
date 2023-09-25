@@ -44,10 +44,10 @@ Loop(): Programa principal {
 
 // Pulsadores
 #define PRIGHT 30	 // PC[7] pulsador right
-#define PLEFT 31	 // PC[6] pulsador left
-#define PUP 32		 // PC[5] pulsador up
-#define PDOWN 33	 // PC[4] pulsador down
-#define PSELECT 34 // PC[3] pulsador select/enter
+#define PDOWN 31	 // PC[6] pulsador down
+#define PLEFT 32	 // PC[5] pulsador left
+#define PSELECT 33 // PC[4] pulsador select/enter
+#define PUP 34		 // PC[3] pulsador up
 #define PSTART 37	 // PC[0] speaker
 
 // Display 8 segmentos
