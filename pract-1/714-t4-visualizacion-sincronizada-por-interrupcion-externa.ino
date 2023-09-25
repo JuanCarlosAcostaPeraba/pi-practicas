@@ -130,10 +130,10 @@ void setup()
 	transition_time = 250;
 
 	// Habilitación de la interrupción INT2
-	cli();
-	EICRA |= (1 << ISC21) | (1 << ISC20);
-	EIMSK |= (1 << INT2);
-	sei();
+	cli();																// Deshabilitamos las interrupciones
+	EICRA |= (1 << ISC21) | (1 << ISC20); // INT2 activada por flanco de subida
+	EIMSK |= (1 << INT2);									// Desenmascaramos la interrupción INT2 para habilitar la interrupción externa 2
+	sei();																// Habilitamos las interrupciones
 }
 
 void loop()
