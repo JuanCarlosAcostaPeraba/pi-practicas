@@ -105,8 +105,8 @@ void setup()
 	PORTC = B11111111; // Inicializamos el puerto C a 1 (0cFF)
 
 	estado = false;
-	unidades = 0;
-	decenas = 0;
+	unidades = 9;
+	decenas = 1;
 }
 
 void loop()
@@ -117,15 +117,30 @@ void loop()
 
 	if (pup == 0)
 	{
-		Serial.println("pup");
+		while (!digitalRead())
+		{
+			unidades++;
+			// logica para que no se pase de 99
+		}
+		dealy(100);
 	}
 	else if (pdown == 0)
 	{
-		Serial.println("pdown");
+		while (!digitalRead())
+		{
+			unidades--;
+			// logica para que no se pase de 00
+		}
+		delay(100);
 	}
 	else if (pcenter == 0)
 	{
-		Serial.println("pcenter");
+		while (!digitalRead())
+		{
+			unidades = 0;
+			decenas = 0;
+		}
+		delay(100);
 	}
 
 	// Encender display
@@ -145,12 +160,4 @@ void loop()
 	}
 
 	estado = !estado;
-}
-
-// Función que lee el pusdador pulsado
-
-void reset()
-{
-	unidades = 0;
-	decenas = 0;
 }
