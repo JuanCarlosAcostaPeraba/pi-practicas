@@ -15,10 +15,10 @@ del pitido (o señal acustica) que se oira por el zumbador/altavoz.
 
 // Pulsadores
 #define PRIGHT 30	 // PC[7] pulsador right
-#define PLEFT 31	 // PC[6] pulsador down
-#define PUP 32		 // PC[5] pulsador left
-#define PDOWN 33	 // PC[4] pulsador enter
-#define PSELECT 34 // PC[3] pulsador up
+#define PLEFT 31	 // PC[6] pulsador left
+#define PUP 32		 // PC[5] pulsador up
+#define PDOWN 33	 // PC[4] pulsador down
+#define PSELECT 34 // PC[3] pulsador select/enter
 #define PSTART 37	 // PC[0] speaker
 
 // Display 8 segmentos
