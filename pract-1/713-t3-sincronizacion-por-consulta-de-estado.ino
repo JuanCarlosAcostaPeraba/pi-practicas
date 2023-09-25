@@ -65,6 +65,7 @@ int pdown;
 int pcenter;
 
 long int time_old = millis();
+int transition_time = 50;
 
 // Matriz display 8 segmentos
 char display_map[4] = {D4, D3, D2, D1};
@@ -119,7 +120,7 @@ void loop()
 
 	if (pup == 0)
 	{
-		if (millis() - time_old > 100)
+		if (millis() - time_old > transition_time)
 		{
 			unidades++;
 			// logica para que no se pase de 99
@@ -128,7 +129,7 @@ void loop()
 	}
 	else if (pdown == 0)
 	{
-		if (millis() - time_old > 100)
+		if (millis() - time_old > transition_time)
 		{
 			unidades--;
 			// logica para que no se pase de 99
@@ -137,7 +138,7 @@ void loop()
 	}
 	else if (pcenter == 0)
 	{
-		if (millis() - time_old > 100)
+		if (millis() - time_old > transition_time)
 		{
 			unidades = 0;
 			decenas = 0;
