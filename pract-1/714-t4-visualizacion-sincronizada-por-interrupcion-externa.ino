@@ -169,8 +169,6 @@ void loop()
 			time_old = millis();
 		}
 	}
-
-	state();
 }
 
 ISR(INT2_vect)
