@@ -175,11 +175,6 @@ void loop()
 
 ISR(INT2_vect)
 {
-	state();
-}
-
-void state()
-{
 	// Encender display
 	if (estado)
 	{
