@@ -148,6 +148,11 @@ void loop()
 		}
 	}
 
+	state();
+}
+
+void state()
+{
 	// Encender display
 	if (estado)
 	{
