@@ -64,6 +64,8 @@ int pup;
 int pdown;
 int pcenter;
 
+long int time_old = millis();
+
 // Matriz display 8 segmentos
 char display_map[4] = {D4, D3, D2, D1};
 
@@ -117,30 +119,30 @@ void loop()
 
 	if (pup == 0)
 	{
-		while (!digitalRead())
+		if (millis() - time_old > 100)
 		{
 			unidades++;
 			// logica para que no se pase de 99
+			time_old = millis();
 		}
-		dealy(100);
 	}
 	else if (pdown == 0)
 	{
-		while (!digitalRead())
+		if (millis() - time_old > 100)
 		{
 			unidades--;
-			// logica para que no se pase de 00
+			// logica para que no se pase de 99
+			time_old = millis();
 		}
-		delay(100);
 	}
 	else if (pcenter == 0)
 	{
-		while (!digitalRead())
+		if (millis() - time_old > 100)
 		{
 			unidades = 0;
 			decenas = 0;
+			time_old = millis();
 		}
-		delay(100);
 	}
 
 	// Encender display
