@@ -125,7 +125,7 @@ void loop()
 		if (millis() - time_old > transition_time)
 		{
 			unidades++;
-			// logica para que no se pase de 99
+			logic_99();
 			time_old = millis();
 		}
 	}
@@ -134,7 +134,7 @@ void loop()
 		if (millis() - time_old > transition_time)
 		{
 			unidades--;
-			// logica para que no se pase de 99
+			logic_00();
 			time_old = millis();
 		}
 	}
@@ -170,4 +170,32 @@ void state()
 	}
 
 	estado = !estado;
+}
+
+void logic_99()
+{
+	// logica para que no se pase de 99
+	if (unidades > 9)
+	{
+		unidades = 0;
+		decenas++;
+	}
+	if (decenas > 9)
+	{
+		decenas = 0;
+	}
+}
+
+void logic_00()
+{
+	// logica para que no se pase de 00
+	if (unidades < 0)
+	{
+		unidades = 9;
+		decenas--;
+	}
+	if (decenas < 0)
+	{
+		decenas = 9;
+	}
 }
