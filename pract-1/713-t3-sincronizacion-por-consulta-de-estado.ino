@@ -108,7 +108,10 @@ void setup()
 void loop()
 {
 	// TODO: leer pulsadores y actualizar variables del contador
-	Serial.println(digitalRead(PUP));
+	if (digitalRead(PUP) == LOW)
+	{
+		Serial.println(digitalRead(PUP));
+	}
 
 	// Encender display
 	if (estado)
