@@ -108,8 +108,8 @@ void setup()
 	PORTC = B11111111; // Inicializamos el puerto C a 1 (0cFF)
 
 	estado = false;
-	unidades = 9;
-	decenas = 1;
+	unidades = 0;
+	decenas = 0;
 	time_old = millis();
 	transition_time = 250;
 }
