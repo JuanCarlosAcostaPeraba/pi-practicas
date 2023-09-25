@@ -19,6 +19,7 @@ Para más información consultar la documentación de las clases de teoría.
 // fuera de ISR() han de declararse “volatile”
 // ejemplo:
 volatile boolean estado;
+
 // función de setup()
 void setup(){
 	// Habilitación de la interrupción INT2, flanco de subida (rising) cli();
@@ -71,7 +72,7 @@ de la visualización entrelazada.
 #define D2 47 // Pin 47 - centenas
 #define D1 46 // Pin 46 - unidades de millar
 
-bool estado;
+volatile bool estado;
 int unidades;
 int decenas;
 
@@ -127,6 +128,12 @@ void setup()
 	decenas = 0;
 	time_old = millis();
 	transition_time = 250;
+
+	// Habilitación de la interrupción INT2
+	cli();
+	EICRA |= (1 << ISC21) | (1 << ISC20);
+	EIMSK |= (1 << INT2);
+	sei();
 }
 
 void loop()
@@ -163,6 +170,11 @@ void loop()
 		}
 	}
 
+	state();
+}
+
+ISR(INT2_vect)
+{
 	state();
 }
 
