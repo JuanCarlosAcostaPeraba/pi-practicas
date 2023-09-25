@@ -134,9 +134,9 @@ void digit_flashing(int digit)
 	for (int i = 0; i < 2; i++)
 	{
 		digitalWrite(display_map[digit], LOW);
-		delay(500);
+		delay(200);
 		digitalWrite(display_map[digit], HIGH);
-		delay(500);
+		delay(200);
 	}
 }
 
