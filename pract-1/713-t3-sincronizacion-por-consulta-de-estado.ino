@@ -125,6 +125,7 @@ void loop()
 		if (millis() - time_old > transition_time)
 		{
 			unidades++;
+			tone(PSTART, 1000, 100);
 			logic_99();
 			time_old = millis();
 		}
@@ -134,6 +135,7 @@ void loop()
 		if (millis() - time_old > transition_time)
 		{
 			unidades--;
+			tone(PSTART, 1000, 100);
 			logic_00();
 			time_old = millis();
 		}
@@ -144,6 +146,7 @@ void loop()
 		{
 			unidades = 0;
 			decenas = 0;
+			tone(PSTART, 1000, 100);
 			time_old = millis();
 		}
 	}
