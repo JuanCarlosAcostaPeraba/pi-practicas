@@ -93,11 +93,11 @@ void setup()
 	PORTA = B11111111; // Inicializamos el puerto A a 1 (0xFF)
 
 	// Puerto L teclado
-	DDRL = B00001111;	 // Configuramos los pines 0, 1, 2 y 3 del puerto L como salida (0x0F)
+	DDRL = B00001111;	 // Configuramos los pines 0, 1, 2 y 3 del puerto L como entrada, y el resto como salida (0x0F)
 	PORTL = B11111111; // Inicializamos el puerto L a 1 (0xFF)
 
 	// Puerto C
-	DDRC = B00000000;	 // Configuramos el pin 0 del puerto C como salida (0x00)
+	DDRC = B00000000;	 // Configuramos el pin 0 del puerto C como entrada (0x00)
 	PORTC = B11111111; // Inicializamos el puerto C a 1 (0cFF)
 
 	estado = false;
@@ -128,30 +128,8 @@ void loop()
 	estado = !estado;
 }
 
-// Funcion parpadeo digito seleccionado
-void digit_flashing(int digit)
+void reset()
 {
-	for (int i = 0; i < 2; i++)
-	{
-		digitalWrite(display_map[digit], LOW);
-		delay(500);
-		digitalWrite(display_map[digit], HIGH);
-		delay(500);
-	}
+	unidades = 0;
+	decenas = 0;
 }
-
-// Funcion "Parpadeo secuencial con todos los digitos" (tarea1)
-void sequential_flashing()
-{
-	// Sonar zumbador
-	tone(PSTART, 1000, 100);
-
-	// Parpadeo
-	for (int i = 0; i < 4; i++)
-	{
-		digit_flashing(i);
-	}
-}
-
-// Función "Selección del carácter hexadecimal (0-F) a visualizar en el display"
-void hexadecimal_selection()
