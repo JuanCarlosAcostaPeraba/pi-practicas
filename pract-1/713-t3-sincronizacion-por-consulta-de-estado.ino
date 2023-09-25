@@ -60,6 +60,10 @@ bool estado;
 int unidades;
 int decenas;
 
+int pup;
+int pdown;
+int pcenter;
+
 // Matriz display 8 segmentos
 char display_map[4] = {D4, D3, D2, D1};
 
@@ -107,10 +111,21 @@ void setup()
 
 void loop()
 {
-	// TODO: leer pulsadores y actualizar variables del contador
-	if (digitalRead(PUP) == LOW)
+	pup = digitalRead(PUP);
+	pdown = digitalRead(PDOWN);
+	pcenter = digitalRead(PSELECT);
+
+	if (pup == 0)
 	{
-		Serial.println(digitalRead(PUP));
+		Serial.println("pup");
+	}
+	else if (pdown == 0)
+	{
+		Serial.println("pdown");
+	}
+	else if (pcenter == 0)
+	{
+		Serial.println("pcenter");
 	}
 
 	// Encender display
@@ -131,6 +146,8 @@ void loop()
 
 	estado = !estado;
 }
+
+// Función que lee el pusdador pulsado
 
 void reset()
 {
