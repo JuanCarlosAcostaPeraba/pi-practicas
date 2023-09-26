@@ -138,6 +138,14 @@ void loop()
 
 ISR(INT3_vect)
 {
+	// Exploracion del teclado
+	keyboard(row);
+	row++;
+	if (row > 3)
+	{
+		row = 0;
+	}
+
 	switch (option)
 	{
 	case '1':
@@ -151,14 +159,6 @@ ISR(INT3_vect)
 		break;
 	default:
 		break;
-	}
-
-	// Exploracion del teclado
-	keyboard(row);
-	row++;
-	if (row > 3)
-	{
-		row = 0;
 	}
 }
 
@@ -379,7 +379,6 @@ void keyboard(int row)
 		if (digitalRead(ROW0) == 0)
 		{
 			Serial.print(teclado_map[0][estado]);
-			Serial.print(" - ");
 		}
 		break;
 	case 1:
