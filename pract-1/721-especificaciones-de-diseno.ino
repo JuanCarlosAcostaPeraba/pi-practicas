@@ -250,7 +250,7 @@ void buttons_increment()
 	{
 		if (millis() - time_old > transition_time)
 		{
-			logic("up", increment);
+			logic();
 			tone(PSTART, 1000, 100);
 			time_old = millis();
 		}
@@ -259,7 +259,7 @@ void buttons_increment()
 	{
 		if (millis() - time_old > transition_time)
 		{
-			logic("down", increment);
+			logic();
 			tone(PSTART, 1000, 100);
 			logic("down");
 			time_old = millis();
@@ -293,9 +293,9 @@ void buttons_increment()
 }
 
 // Funcion para que el contador cambie
-void logic(String action = "", int increment = 1)
+void logic()
 {
-	if (increment == 1 && (action == "up" || action == "down"))
+	if (increment == 1 && (pup == 0 || pdown == 0))
 	{
 		if (contador > 999)
 		{
@@ -306,7 +306,7 @@ void logic(String action = "", int increment = 1)
 			contador = 999;
 		}
 	}
-	else if (increment == 2 && action == "up")
+	else if (increment == 2 && pup == 0)
 	{
 		if (contador == 998)
 		{
@@ -321,7 +321,7 @@ void logic(String action = "", int increment = 1)
 			contador += 2;
 		}
 	}
-	else if (increment == 2 && action == "down"
+	else if (increment == 2 && pdown == 0)
 	{
 		if (contador == 1)
 		{
