@@ -41,6 +41,12 @@ La aplicacion se implementara de acuerdo a las siguientes especificaciones:
 #define D2 47 // Pin 47 - centenas
 #define D1 46 // Pin 46 - unidades de millar
 
+// Teclado
+#define ROW0 42 // PL[7] fila 0
+#define ROW1 43 // PL[6] fila 1
+#define ROW2 44 // PL[5] fila 2
+#define ROW3 45 // PL[4] fila 3
+
 // Matriz display 8 segmentos
 char display_map[4] = {D4, D3, D2, D1};
 
@@ -70,6 +76,7 @@ int increment;
 
 volatile int estado;
 volatile char option;
+volatile int row;
 
 int pup;
 int pdown;
@@ -104,6 +111,7 @@ void setup()
 
 	estado = 0;
 	contador = 0;
+	row = 0;
 	increment = 1;
 
 	time_old = millis();
@@ -143,6 +151,14 @@ ISR(INT3_vect)
 		break;
 	default:
 		break;
+	}
+
+	// Exploracion del teclado
+	keyboard(row);
+	row++;
+	if (row > 3)
+	{
+		row = 0;
 	}
 }
 
@@ -343,5 +359,19 @@ void logic(bool pdown)
 		{
 			contador -= 2;
 		}
+	}
+}
+
+// Funcion para leer el teclado
+void keyboard(int row)
+{
+	switch (row)
+	{
+	case 0:
+		digitalRead(PSTART);
+		break;
+
+	default:
+		break;
 	}
 }
