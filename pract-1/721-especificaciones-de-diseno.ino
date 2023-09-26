@@ -383,13 +383,22 @@ void keyboard(int row)
 		}
 		break;
 	case 1:
-		Serial.println(digitalRead(ROW1));
+		if (digitalRead(ROW1) == 0)
+		{
+			Serial.print(teclado_map[1][estado]);
+		}
 		break;
 	case 2:
-		Serial.println(digitalRead(ROW2));
+		if (digitalRead(ROW2) == 0)
+		{
+			Serial.print(teclado_map[2][estado]);
+		}
 		break;
 	case 3:
-		Serial.println(digitalRead(ROW3));
+		if (digitalRead(ROW3) == 0)
+		{
+			Serial.print(teclado_map[3][estado]);
+		}
 		break;
 	}
 }
