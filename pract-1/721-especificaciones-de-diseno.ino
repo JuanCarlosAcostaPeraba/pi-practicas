@@ -65,9 +65,19 @@ char teclado_map[][3] = {
 		{'7', '8', '9'},
 		{'*', '0', '#'}};
 
-volatile int estado;
 int contador;
+
+volatile int estado;
 volatile char option;
+
+int pup;
+int pdown;
+int pcenter;
+int pleft;
+int pright;
+
+long int time_old;
+int transition_time;
 
 void setup()
 {
@@ -103,6 +113,12 @@ void loop()
 	{
 	}
 	option = Serial.read();
+
+	pup = digitalRead(PUP);
+	pdown = digitalRead(PDOWN);
+	pcenter = digitalRead(PSELECT);
+	pleft = digitalRead(PLEFT);
+	pright = digitalRead(PRIGHT);
 }
 
 ISR(INT3_vect)
@@ -217,5 +233,72 @@ void mode_3()
 		PORTA = hex_value[int((contador / 10) % 10)]; // Visualizar decenas
 		digitalWrite(D1, LOW);												// Encender unidades de millar
 		estado = 0;
+	}
+}
+
+// Funcion para incrementar el contador por botones
+void buttons_increment()
+{
+	if (pup == 0)
+	{
+		if (millis() - time_old > transition_time)
+		{
+			contador++;
+			tone(PSTART, 1000, 100);
+			logic();
+			time_old = millis();
+		}
+	}
+	else if (pdown == 0)
+	{
+		if (millis() - time_old > transition_time)
+		{
+			contador--;
+			tone(PSTART, 1000, 100);
+			logic();
+			time_old = millis();
+		}
+	}
+	else if (pcenter == 0)
+	{
+		if (millis() - time_old > transition_time)
+		{
+			contador = 0;
+			tone(PSTART, 1000, 100);
+			time_old = millis();
+		}
+	}
+	else if (pright == 0)
+	{
+		if (millis() - time_old > transition_time)
+		{
+			contador += 2;
+			tone(PSTART, 1000, 100);
+			logic();
+			time_old = millis();
+		}
+	}
+	else if (pleft == 0)
+	{
+		if (millis() - time_old > transition_time)
+		{
+			contador -= 2;
+			tone(PSTART, 1000, 100);
+			logic();
+			time_old = millis();
+		}
+	}
+}
+
+void logic()
+{
+	// logica para que no se pase de 999
+	if (contador > 999)
+	{
+		contador = 0;
+	}
+	else if (contador < 0)
+	{
+		contador = 999;
 	}
 }
