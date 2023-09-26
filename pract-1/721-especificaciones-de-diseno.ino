@@ -277,9 +277,11 @@ void mode_3()
 		digitalWrite(D4, HIGH); // Apagar unidades
 		digitalWrite(D1, HIGH); // Apagar unidades de millar
 		PORTA = 0x00;
-		digitalWrite(D3, LOW);	// Encender centenas
+		digitalWrite(D3, LOW); // Encender centenas
+		delay(10);
 		digitalWrite(D3, HIGH); // Apagar centenas
 		digitalWrite(D2, LOW);	// Encender centenas
+		delay(10);
 		digitalWrite(D2, HIGH); // Apagar centenas
 	}
 	estado++;
