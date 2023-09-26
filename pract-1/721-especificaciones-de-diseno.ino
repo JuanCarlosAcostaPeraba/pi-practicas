@@ -104,6 +104,9 @@ void setup()
 	estado = 0;
 	contador = 0;
 
+	time_old = millis();
+	transition_time = 250;
+
 	menu();
 }
 
