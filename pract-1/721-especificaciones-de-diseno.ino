@@ -211,10 +211,10 @@ void mode_3()
 	{
 		// Apagar centenenas, encender y visualizar millares
 		digitalWrite(D4, HIGH);						 // Apagar unidades
-		digitalWrite(D3, LOW);						 // Apagar decenas
+		digitalWrite(D3, HIGH);						 // Apagar decenas
 		digitalWrite(D2, HIGH);						 // Apagar centenas
 		PORTA = hex_value[contador % 100]; // Visualizar decenas
-		digitalWrite(D1, HIGH);						 // Encender unidades de millar
+		digitalWrite(D1, LOW);						 // Encender unidades de millar
 		estado = 0;
 	}
 }
