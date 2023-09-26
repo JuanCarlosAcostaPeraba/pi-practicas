@@ -279,7 +279,14 @@ void buttons_increment()
 		{
 			contador += 2;
 			tone(PSTART, 1000, 100);
-			logic();
+			if (contador == 998)
+			{
+				contador = 0;
+			}
+			else if (contador == 999)
+			{
+				contador = 1;
+			}
 			time_old = millis();
 		}
 	}
@@ -289,12 +296,20 @@ void buttons_increment()
 		{
 			contador -= 2;
 			tone(PSTART, 1000, 100);
-			logic();
+			if (contador == 1)
+			{
+				contador = 999;
+			}
+			else if (contador == 0)
+			{
+				contador = 998;
+			}
 			time_old = millis();
 		}
 	}
 }
 
+// Funcion para que el contador cambie de 1 en 1
 void logic()
 {
 	// logica para que no se pase de 999
