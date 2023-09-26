@@ -65,7 +65,7 @@ char teclado_map[][3] = {
 		{'7', '8', '9'},
 		{'*', '0', '#'}};
 
-volatile bool estado;
+volatile int estado;
 int contador = 0;
 
 void setup()
@@ -89,6 +89,8 @@ void setup()
 	EICRA |= (1 << ISC31) | (1 << ISC30); // INT3 activada por flanco de subida
 	EIMSK |= (1 << INT3);									// Desenmascaramos la interrupción INT3 para habilitar la interrupción externa 3
 	sei();																// Habilitamos las interrupciones
+
+	estado = 0;
 
 	menu();
 }
