@@ -368,7 +368,10 @@ void keyboard(int row)
 	switch (row)
 	{
 	case 0:
-		Serial.println(digitalRead(ROW0));
+		if (digitalRead(ROW0) == 0)
+		{
+			Serial.println(teclado_map[0][0]);
+		}
 		break;
 	case 1:
 		Serial.println(digitalRead(ROW1));
