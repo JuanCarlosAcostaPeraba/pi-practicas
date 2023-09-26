@@ -378,7 +378,8 @@ void keyboard(int row)
 	case 0:
 		if (digitalRead(ROW0) == 0)
 		{
-			Serial.println(teclado_map[0][estado]);
+			Serial.print(teclado_map[0][estado]);
+			Serial.print(" - ");
 		}
 		break;
 	case 1:
