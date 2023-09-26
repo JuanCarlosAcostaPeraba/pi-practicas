@@ -368,10 +368,16 @@ void keyboard(int row)
 	switch (row)
 	{
 	case 0:
-		digitalRead(PSTART);
+		Serial.println(digitalRead(ROW0));
 		break;
-
-	default:
+	case 1:
+		Serial.println(digitalRead(ROW1));
+		break;
+	case 2:
+		Serial.println(digitalRead(ROW2));
+		break;
+	case 3:
+		Serial.println(digitalRead(ROW3));
 		break;
 	}
 }
