@@ -119,6 +119,8 @@ void loop()
 	pcenter = digitalRead(PSELECT);
 	pleft = digitalRead(PLEFT);
 	pright = digitalRead(PRIGHT);
+
+	buttons_increment();
 }
 
 ISR(INT3_vect)
