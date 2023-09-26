@@ -138,14 +138,6 @@ void loop()
 
 ISR(INT3_vect)
 {
-	// Exploracion del teclado
-	keyboard(row);
-	row++;
-	if (row > 3)
-	{
-		row = 0;
-	}
-
 	switch (option)
 	{
 	case '1':
@@ -159,6 +151,14 @@ ISR(INT3_vect)
 		break;
 	default:
 		break;
+	}
+
+	// Exploracion del teclado
+	keyboard(row);
+	row++;
+	if (row > 3)
+	{
+		row = 0;
 	}
 }
 
