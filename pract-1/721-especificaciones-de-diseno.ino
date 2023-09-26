@@ -66,6 +66,7 @@ char teclado_map[][3] = {
 		{'*', '0', '#'}};
 
 int contador;
+int increment;
 
 volatile int estado;
 volatile char option;
@@ -103,6 +104,7 @@ void setup()
 
 	estado = 0;
 	contador = 0;
+	increment = 1;
 
 	time_old = millis();
 	transition_time = 250;
@@ -248,9 +250,8 @@ void buttons_increment()
 	{
 		if (millis() - time_old > transition_time)
 		{
-			contador++;
+			logic("up", increment);
 			tone(PSTART, 1000, 100);
-			logic();
 			time_old = millis();
 		}
 	}
@@ -258,9 +259,9 @@ void buttons_increment()
 	{
 		if (millis() - time_old > transition_time)
 		{
-			contador--;
+			logic("down", increment);
 			tone(PSTART, 1000, 100);
-			logic();
+			logic("down");
 			time_old = millis();
 		}
 	}
@@ -277,16 +278,7 @@ void buttons_increment()
 	{
 		if (millis() - time_old > transition_time)
 		{
-			contador += 2;
-			tone(PSTART, 1000, 100);
-			if (contador == 998)
-			{
-				contador = 0;
-			}
-			else if (contador == 999)
-			{
-				contador = 1;
-			}
+			incremet = 2;
 			time_old = millis();
 		}
 	}
@@ -294,31 +286,54 @@ void buttons_increment()
 	{
 		if (millis() - time_old > transition_time)
 		{
-			contador -= 2;
-			tone(PSTART, 1000, 100);
-			if (contador == 1)
-			{
-				contador = 999;
-			}
-			else if (contador == 0)
-			{
-				contador = 998;
-			}
+			incremet = 1;
 			time_old = millis();
 		}
 	}
 }
 
-// Funcion para que el contador cambie de 1 en 1
-void logic()
+// Funcion para que el contador cambie
+void logic(String action = "", int increment = 1)
 {
-	// logica para que no se pase de 999
-	if (contador > 999)
+	if (increment == 1 && (action == "up" || action == "down"))
 	{
-		contador = 0;
+		if (contador > 999)
+		{
+			contador = 0;
+		}
+		else if (contador < 0)
+		{
+			contador = 999;
+		}
 	}
-	else if (contador < 0)
+	else if (increment == 2 && action == "up")
 	{
-		contador = 999;
+		if (contador == 998)
+		{
+			contador = 0;
+		}
+		else if (contador == 999)
+		{
+			contador = 1;
+		}
+		else
+		{
+			contador += 2;
+		}
+	}
+	else if (increment == 2 && action == "down"
+	{
+		if (contador == 1)
+		{
+			contador = 999;
+		}
+		else if (contador == 0)
+		{
+			contador = 998;
+		}
+		else
+		{
+			contador -= 2;
+		}
 	}
 }
