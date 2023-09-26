@@ -109,10 +109,10 @@ void setup()
 
 void loop()
 {
-	while (Serial.available() == 0)
+	if (Serial.available() > 0)
 	{
+		option = Serial.read();
 	}
-	option = Serial.read();
 
 	pup = digitalRead(PUP);
 	pdown = digitalRead(PDOWN);
