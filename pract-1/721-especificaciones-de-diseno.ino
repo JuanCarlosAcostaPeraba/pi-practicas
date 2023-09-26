@@ -378,25 +378,69 @@ void keyboard(int row)
 	case 0:
 		if (digitalRead(ROW0) == 0)
 		{
-			Serial.print(teclado_map[0][estado]);
+			if (estado == 2)
+			{
+				Serial.print(teclado_map[0][0]);
+			}
+			else if (estado == 3)
+			{
+				Serial.print(teclado_map[0][1]);
+			}
+			else
+			{
+				Serial.print(teclado_map[0][2]);
+			}
 		}
 		break;
 	case 1:
 		if (digitalRead(ROW1) == 0)
 		{
-			Serial.print(teclado_map[1][estado]);
+			if (estado == 2)
+			{
+				Serial.print(teclado_map[1][0]);
+			}
+			else if (estado == 3)
+			{
+				Serial.print(teclado_map[1][1]);
+			}
+			else
+			{
+				Serial.print(teclado_map[1][2]);
+			}
 		}
 		break;
 	case 2:
 		if (digitalRead(ROW2) == 0)
 		{
-			Serial.print(teclado_map[2][estado]);
+			if (estado == 2)
+			{
+				Serial.print(teclado_map[2][0]);
+			}
+			else if (estado == 3)
+			{
+				Serial.print(teclado_map[2][1]);
+			}
+			else
+			{
+				Serial.print(teclado_map[2][2]);
+			}
 		}
 		break;
 	case 3:
 		if (digitalRead(ROW3) == 0)
 		{
-			Serial.print(teclado_map[3][estado]);
+			if (estado == 2)
+			{
+				Serial.print(teclado_map[3][0]);
+			}
+			else if (estado == 3)
+			{
+				Serial.print(teclado_map[3][1]);
+			}
+			else
+			{
+				Serial.print(teclado_map[3][2]);
+			}
 		}
 		break;
 	}
