@@ -250,7 +250,7 @@ void buttons_increment()
 	{
 		if (millis() - time_old > transition_time)
 		{
-			logic();
+			logic(false);
 			tone(PSTART, 1000, 100);
 			time_old = millis();
 		}
@@ -259,9 +259,8 @@ void buttons_increment()
 	{
 		if (millis() - time_old > transition_time)
 		{
-			logic();
+			logic(true);
 			tone(PSTART, 1000, 100);
-			logic();
 			time_old = millis();
 		}
 	}
@@ -293,9 +292,17 @@ void buttons_increment()
 }
 
 // Funcion para que el contador cambie
-void logic()
+void logic(bool pdown)
 {
-	if (increment == 1 && (pup == 0 || pdown == 0))
+	if (increment == 1 && !pdown)
+	{
+		contador++;
+	}
+	else if (increment == 1 && pdown)
+	{
+		contador--;
+	}
+	if (increment == 1)
 	{
 		if (contador > 999)
 		{
@@ -306,7 +313,8 @@ void logic()
 			contador = 999;
 		}
 	}
-	else if (increment == 2 && pup == 0)
+
+	if (increment == 2 && !pdown)
 	{
 		if (contador == 998)
 		{
@@ -321,7 +329,7 @@ void logic()
 			contador += 2;
 		}
 	}
-	else if (increment == 2 && pdown == 0)
+	else if (increment == 2 && pdown)
 	{
 		if (contador == 1)
 		{
