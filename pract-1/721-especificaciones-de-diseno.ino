@@ -66,7 +66,7 @@ char teclado_map[][3] = {
 		{'*', '0', '#'}};
 
 volatile int estado;
-int contador = 0;
+int contador;
 
 void setup()
 {
@@ -91,6 +91,7 @@ void setup()
 	sei();																// Habilitamos las interrupciones
 
 	estado = 0;
+	contador = 0;
 
 	menu();
 }
@@ -107,6 +108,7 @@ ISR(INT3_vect)
 		digitalWrite(D2, HIGH);						// Apagar centenas
 		PORTA = hex_value[contador % 10]; // Visualizar unidades
 		digitalWrite(D4, LOW);						// Encender unidades
+		estado++;
 	}
 	else if (estado == 1)
 	{
@@ -115,6 +117,7 @@ ISR(INT3_vect)
 		digitalWrite(D2, HIGH);						 // Apagar centenas
 		PORTA = hex_value[contador % 100]; // Visualizar decenas
 		digitalWrite(D3, LOW);						 // Encender decenas
+		estado++;
 	}
 	else
 	{
@@ -123,9 +126,8 @@ ISR(INT3_vect)
 		digitalWrite(D4, HIGH);							// Apagar unidades
 		PORTA = hex_value[contador % 1000]; // Visualizar unidades
 		digitalWrite(D2, LOW);							// Encender unidades
+		estado = 0;
 	}
-
-	estado = 0;
 }
 
 void menu()
