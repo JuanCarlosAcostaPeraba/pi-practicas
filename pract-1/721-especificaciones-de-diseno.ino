@@ -107,7 +107,7 @@ void loop()
 
 ISR(INT3_vect)
 {
-	switch (oction)
+	switch (option)
 	{
 	case '1':
 		mode_1();
