@@ -65,6 +65,7 @@ char teclado_map[][3] = {
 		{'7', '8', '9'},
 		{'*', '0', '#'}};
 
+volatile bool estado;
 int contador = 0;
 
 void setup()
