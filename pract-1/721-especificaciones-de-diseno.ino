@@ -278,7 +278,7 @@ void buttons_increment()
 	{
 		if (millis() - time_old > transition_time)
 		{
-			incremet = 2;
+			increment = 2;
 			time_old = millis();
 		}
 	}
@@ -286,7 +286,7 @@ void buttons_increment()
 	{
 		if (millis() - time_old > transition_time)
 		{
-			incremet = 1;
+			increment = 1;
 			time_old = millis();
 		}
 	}
