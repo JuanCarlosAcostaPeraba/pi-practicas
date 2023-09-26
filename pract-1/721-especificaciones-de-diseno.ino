@@ -221,7 +221,7 @@ void mode_2()
 		digitalWrite(D4, LOW);								 // Encender unidades
 		estado++;
 	}
-	else
+	else if (estado == 1)
 	{
 		// Apagar unidades, encender y visualizar decenas
 		digitalWrite(D4, HIGH);												// Apagar unidades
@@ -229,6 +229,10 @@ void mode_2()
 		digitalWrite(D1, HIGH);												// Apagar unidades de millar
 		PORTA = hex_value[int((contador / 10) % 10)]; // Visualizar decenas
 		digitalWrite(D3, LOW);												// Encender decenas
+		estado++;
+	}
+	else
+	{
 		estado = 0;
 	}
 }
@@ -247,7 +251,7 @@ void mode_3()
 		digitalWrite(D2, LOW);								 // Encender centenenas
 		estado++;
 	}
-	else
+	else if (estado == 1)
 	{
 		// Apagar centenenas, encender y visualizar millares
 		digitalWrite(D4, HIGH);												// Apagar unidades
@@ -255,6 +259,10 @@ void mode_3()
 		digitalWrite(D2, HIGH);												// Apagar centenas
 		PORTA = hex_value[int((contador / 10) % 10)]; // Visualizar decenas
 		digitalWrite(D1, LOW);												// Encender unidades de millar
+		estado++;
+	}
+	else
+	{
 		estado = 0;
 	}
 }
@@ -370,7 +378,7 @@ void keyboard(int row)
 	case 0:
 		if (digitalRead(ROW0) == 0)
 		{
-			Serial.println(teclado_map[0][0]);
+			Serial.println(teclado_map[0][estado]);
 		}
 		break;
 	case 1:
