@@ -261,7 +261,7 @@ void buttons_increment()
 		{
 			logic();
 			tone(PSTART, 1000, 100);
-			logic("down");
+			logic();
 			time_old = millis();
 		}
 	}
