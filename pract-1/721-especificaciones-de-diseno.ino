@@ -65,6 +65,8 @@ char teclado_map[][3] = {
 		{'7', '8', '9'},
 		{'*', '0', '#'}};
 
+int contador = 0;
+
 void setup()
 {
 	Serial.begin(9600); // Inicializamos el puerto serie
@@ -80,6 +82,53 @@ void setup()
 	// Puerto C
 	DDRC = B00000000;	 // Configuramos el pin 0 del puerto C como entrada (0x00)
 	PORTC = B11111111; // Inicializamos el puerto C a 1 (0cFF)
+
+	// Habilitación de la interrupción INT3
+	cli();																// Deshabilitamos las interrupciones
+	EICRA |= (1 << ISC31) | (1 << ISC30); // INT3 activada por flanco de subida
+	EIMSK |= (1 << INT3);									// Desenmascaramos la interrupción INT3 para habilitar la interrupción externa 3
+	sei();																// Habilitamos las interrupciones
+
+	menu();
 }
 
 void loop() {}
+
+ISR(INT3_vect)
+{
+	// Encender display
+	if (estado == 0)
+	{
+		// Apagar decenas y centetas, encender y visualizar unidades
+		digitalWrite(D3, HIGH);						// Apagar decenas
+		digitalWrite(D2, HIGH);						// Apagar centenas
+		PORTA = hex_value[contador % 10]; // Visualizar unidades
+		digitalWrite(D4, LOW);						// Encender unidades
+	}
+	else if (estado == 1)
+	{
+		// Apagar unidades y centenas, encender y visualizar decenas
+		digitalWrite(D4, HIGH);						 // Apagar unidades
+		digitalWrite(D2, HIGH);						 // Apagar centenas
+		PORTA = hex_value[contador % 100]; // Visualizar decenas
+		digitalWrite(D3, LOW);						 // Encender decenas
+	}
+	else
+	{
+		// Apagar decenas y unidades, encender y visualizar centenas
+		digitalWrite(D3, HIGH);							// Apagar decenas
+		digitalWrite(D4, HIGH);							// Apagar unidades
+		PORTA = hex_value[contador % 1000]; // Visualizar unidades
+		digitalWrite(D2, LOW);							// Encender unidades
+	}
+
+	estado = 0;
+}
+
+void menu()
+{
+	Serial.println(" -- TURNOMATIC -- ");
+	Serial.println("1.- Modo normal de visualización (tres dígitos): OFF-centenas-decenas-unidades");
+	Serial.println("2.- Modo reducido-inferior de visualización (dos dígitos): OFF-OFF-decenas-unidades");
+	Serial.println("3.- Modo reducido-superior de visualización (dos dígitos): decenas-unidades-OFF-OFF");
+}
