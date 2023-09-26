@@ -272,20 +272,20 @@ void mode_3()
 	else if (estado == 2)
 	{
 		// Apagar decenas y unidades, encender y visualizar centenas
-		digitalWrite(D3, HIGH);												 // Apagar decenas
-		digitalWrite(D4, HIGH);												 // Apagar unidades
-		digitalWrite(D1, HIGH);												 // Apagar unidades de millar
-		PORTA = hex_value[int((contador / 100) % 10)]; // Visualizar unidades
-		digitalWrite(D2, LOW);												 // Encender unidades
+		digitalWrite(D3, HIGH);								 // Apagar decenas
+		digitalWrite(D4, HIGH);								 // Apagar unidades
+		digitalWrite(D1, HIGH);								 // Apagar unidades de millar
+		PORTA = hex_value[int(contador % 10)]; // Visualizar unidades
+		digitalWrite(D2, LOW);								 // Encender unidades
 	}
 	else
 	{
-		// Apagar decenas y unidades, encender y visualizar centenas
-		digitalWrite(D3, HIGH);												 // Apagar decenas
-		digitalWrite(D4, HIGH);												 // Apagar unidades
-		digitalWrite(D2, HIGH);												 // Apagar centenas
-		PORTA = hex_value[int((contador / 100) % 10)]; // Visualizar unidades
-		digitalWrite(D1, LOW);												 // Encender unidades de millar
+		// Apagar decenas, centenas y unidades, encender y visualizar unidades de millar
+		digitalWrite(D3, HIGH);												// Apagar decenas
+		digitalWrite(D4, HIGH);												// Apagar unidades
+		digitalWrite(D2, HIGH);												// Apagar centenas
+		PORTA = hex_value[int((contador / 10) % 10)]; // Visualizar unidades
+		digitalWrite(D1, LOW);												// Encender unidades de millar
 	}
 	estado++;
 	if (estado > 3)
