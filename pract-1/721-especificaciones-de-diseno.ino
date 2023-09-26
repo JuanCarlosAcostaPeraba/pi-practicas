@@ -123,6 +123,7 @@ ISR(INT3_vect)
 	}
 }
 
+// Funcion que muestra el menu de opciones
 void menu()
 {
 	Serial.println(" -- TURNOMATIC -- ");
@@ -131,90 +132,90 @@ void menu()
 	Serial.println("3.- Modo reducido-superior de visualizacion (dos digitos): decenas-unidades-OFF-OFF");
 }
 
-// Función que enciende tres digitos: OFF-centenas-decenas-unidades
+// Funcion que enciende tres digitos: OFF-centenas-decenas-unidades
 void mode_1()
 {
 	// Encender display
 	if (estado == 0)
 	{
 		// Apagar decenas y centetas, encender y visualizar unidades
-		digitalWrite(D3, HIGH);						// Apagar decenas
-		digitalWrite(D2, HIGH);						// Apagar centenas
-		digitalWrite(D1, HIGH);						// Apagar unidades de millar
-		PORTA = hex_value[contador % 10]; // Visualizar unidades
-		digitalWrite(D4, LOW);						// Encender unidades
+		digitalWrite(D3, HIGH);								 // Apagar decenas
+		digitalWrite(D2, HIGH);								 // Apagar centenas
+		digitalWrite(D1, HIGH);								 // Apagar unidades de millar
+		PORTA = hex_value[int(contador % 10)]; // Visualizar unidades
+		digitalWrite(D4, LOW);								 // Encender unidades
 		estado++;
 	}
 	else if (estado == 1)
 	{
 		// Apagar unidades y centenas, encender y visualizar decenas
-		digitalWrite(D4, HIGH);									 // Apagar unidades
-		digitalWrite(D2, HIGH);									 // Apagar centenas
-		digitalWrite(D1, HIGH);									 // Apagar unidades de millar
-		PORTA = hex_value[(contador / 10) % 10]; // Visualizar decenas
-		digitalWrite(D3, LOW);									 // Encender decenas
+		digitalWrite(D4, HIGH);												// Apagar unidades
+		digitalWrite(D2, HIGH);												// Apagar centenas
+		digitalWrite(D1, HIGH);												// Apagar unidades de millar
+		PORTA = hex_value[int((contador / 10) % 10)]; // Visualizar decenas
+		digitalWrite(D3, LOW);												// Encender decenas
 		estado++;
 	}
 	else
 	{
 		// Apagar decenas y unidades, encender y visualizar centenas
-		digitalWrite(D3, HIGH);										// Apagar decenas
-		digitalWrite(D4, HIGH);										// Apagar unidades
-		digitalWrite(D1, HIGH);										// Apagar unidades de millar
-		PORTA = hex_value[(contador / 100) % 10]; // Visualizar unidades
-		digitalWrite(D2, LOW);										// Encender unidades
+		digitalWrite(D3, HIGH);												 // Apagar decenas
+		digitalWrite(D4, HIGH);												 // Apagar unidades
+		digitalWrite(D1, HIGH);												 // Apagar unidades de millar
+		PORTA = hex_value[int((contador / 100) % 10)]; // Visualizar unidades
+		digitalWrite(D2, LOW);												 // Encender unidades
 		estado = 0;
 	}
 }
 
-// Función que enciende dos digitos: OFF-OFF-decenas-unidades
+// Funcion que enciende dos digitos: OFF-OFF-decenas-unidades
 void mode_2()
 {
 	// Encender display
 	if (estado == 0)
 	{
 		// Apagar decenas, encender y visualizar unidades
-		digitalWrite(D3, HIGH);						// Apagar decenas
-		digitalWrite(D2, HIGH);						// Apagar centenas
-		digitalWrite(D1, HIGH);						// Apagar unidades de millar
-		PORTA = hex_value[contador % 10]; // Visualizar unidades
-		digitalWrite(D4, LOW);						// Encender unidades
+		digitalWrite(D3, HIGH);								 // Apagar decenas
+		digitalWrite(D2, HIGH);								 // Apagar centenas
+		digitalWrite(D1, HIGH);								 // Apagar unidades de millar
+		PORTA = hex_value[int(contador % 10)]; // Visualizar unidades
+		digitalWrite(D4, LOW);								 // Encender unidades
 		estado++;
 	}
 	else
 	{
 		// Apagar unidades, encender y visualizar decenas
-		digitalWrite(D4, HIGH);									 // Apagar unidades
-		digitalWrite(D2, HIGH);									 // Apagar centenas
-		digitalWrite(D1, HIGH);									 // Apagar unidades de millar
-		PORTA = hex_value[(contador / 10) % 10]; // Visualizar decenas
-		digitalWrite(D3, LOW);									 // Encender decenas
+		digitalWrite(D4, HIGH);												// Apagar unidades
+		digitalWrite(D2, HIGH);												// Apagar centenas
+		digitalWrite(D1, HIGH);												// Apagar unidades de millar
+		PORTA = hex_value[int((contador / 10) % 10)]; // Visualizar decenas
+		digitalWrite(D3, LOW);												// Encender decenas
 		estado = 0;
 	}
 }
 
-// Función que enciende dos digitos: decenas-unidades-OFF-OFF
+// Funcion que enciende dos digitos: decenas-unidades-OFF-OFF
 void mode_3()
 {
 	// Encender display
 	if (estado == 0)
 	{
 		// Apagar millares, encender y visualizar centenenas
-		digitalWrite(D4, HIGH);						// Apagar unidades
-		digitalWrite(D3, HIGH);						// Apagar decenas
-		digitalWrite(D1, HIGH);						// Apagar unidades de millar
-		PORTA = hex_value[contador % 10]; // Visualizar unidades
-		digitalWrite(D2, LOW);						// Encender centenenas
+		digitalWrite(D4, HIGH);								 // Apagar unidades
+		digitalWrite(D3, HIGH);								 // Apagar decenas
+		digitalWrite(D1, HIGH);								 // Apagar unidades de millar
+		PORTA = hex_value[int(contador % 10)]; // Visualizar unidades
+		digitalWrite(D2, LOW);								 // Encender centenenas
 		estado++;
 	}
 	else
 	{
 		// Apagar centenenas, encender y visualizar millares
-		digitalWrite(D4, HIGH);									 // Apagar unidades
-		digitalWrite(D3, HIGH);									 // Apagar decenas
-		digitalWrite(D2, HIGH);									 // Apagar centenas
-		PORTA = hex_value[(contador / 10) % 10]; // Visualizar decenas
-		digitalWrite(D1, LOW);									 // Encender unidades de millar
+		digitalWrite(D4, HIGH);												// Apagar unidades
+		digitalWrite(D3, HIGH);												// Apagar decenas
+		digitalWrite(D2, HIGH);												// Apagar centenas
+		PORTA = hex_value[int((contador / 10) % 10)]; // Visualizar decenas
+		digitalWrite(D1, LOW);												// Encender unidades de millar
 		estado = 0;
 	}
 }
