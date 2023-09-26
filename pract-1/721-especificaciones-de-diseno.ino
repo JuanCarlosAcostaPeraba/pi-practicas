@@ -1,30 +1,30 @@
 /*
-Implementar una aplicación con una funcionalidad similar
+Implementar una aplicacion con una funcionalidad similar
 a la de un Turnomatic (dispositivo para dar un turno en
-una cola de clientes) en el que la visualización en
-el display y la exploración del teclado se haga de forma
-entrelazada y sincronizada por una interrupción cada
+una cola de clientes) en el que la visualizacion en
+el display y la exploracion del teclado se haga de forma
+entrelazada y sincronizada por una interrupcion cada
 5 ms generada por el pin 18 (INT3).
 
-La aplicación se implementará de acuerdo a las siguientes especificaciones:
+La aplicacion se implementara de acuerdo a las siguientes especificaciones:
 
-1. Contador de 3 dígitos
+1. Contador de 3 digitos
 2. Control basado en 4 pulsadores con las siguientes funcionalidades:
 	a. PUP: Incrementa el contador
 	b. PDOWN: Decrementa el contador
 	c. PENTER: Puesta a cero (reset) del contador
-	d. PLEFT: El contador incrementará o decrementará su cuenta de 1 en 1
-	e. PRIGHT: El contador incrementará o decrementará su cuenta de 2 en 2.
-	f. Señal acústica por el altavoz del sistema cada vez cambie
-		el estado del contador para así avisar a los clientes.
-3. Inicialización del contador a cualquier valor, entre 000 y 999 mediante el teclado de 4x3
-	a. Para modificar la cuenta con el teclado bastará
-		con teclear los números y terminar con la tecla
-		“#” que hará la función de “enter o entrar”. Ejemplo; 235#
-4. Mostrar en la pantalla del PC (o en el terminal virtual de Proteus) el siguiente menú de opciones para poder elegir una de las acciones mostradas:
-	1.- Modo normal de visualización (tres dígitos): OFF-centenas-decenas-unidades
-	2.- Modo reducido-inferior de visualización (dos dígitos): OFF-OFF-decenas-unidades
-	3.- Modo reducido-superior de visualización (dos dígitos): decenas-unidades-OFF-OFF
+	d. PLEFT: El contador incrementara o decrementara su cuenta de 1 en 1
+	e. PRIGHT: El contador incrementara o decrementara su cuenta de 2 en 2.
+	f. Señal acustica por el altavoz del sistema cada vez cambie
+		el estado del contador para asi avisar a los clientes.
+3. Inicializacion del contador a cualquier valor, entre 000 y 999 mediante el teclado de 4x3
+	a. Para modificar la cuenta con el teclado bastara
+		con teclear los numeros y terminar con la tecla
+		“#” que hara la funcion de “enter o entrar”. Ejemplo; 235#
+4. Mostrar en la pantalla del PC (o en el terminal virtual de Proteus) el siguiente menu de opciones para poder elegir una de las acciones mostradas:
+	1.- Modo normal de visualizacion (tres digitos): OFF-centenas-decenas-unidades
+	2.- Modo reducido-inferior de visualizacion (dos digitos): OFF-OFF-decenas-unidades
+	3.- Modo reducido-superior de visualizacion (dos digitos): decenas-unidades-OFF-OFF
 */
 
 // Pulsadores
@@ -67,6 +67,7 @@ char teclado_map[][3] = {
 
 volatile int estado;
 int contador;
+volatile char option;
 
 void setup()
 {
@@ -84,10 +85,10 @@ void setup()
 	DDRC = B00000000;	 // Configuramos el pin 0 del puerto C como entrada (0x00)
 	PORTC = B11111111; // Inicializamos el puerto C a 1 (0cFF)
 
-	// Habilitación de la interrupción INT3
+	// Habilitacion de la interrupcion INT3
 	cli();																// Deshabilitamos las interrupciones
 	EICRA |= (1 << ISC31) | (1 << ISC30); // INT3 activada por flanco de subida
-	EIMSK |= (1 << INT3);									// Desenmascaramos la interrupción INT3 para habilitar la interrupción externa 3
+	EIMSK |= (1 << INT3);									// Desenmascaramos la interrupcion INT3 para habilitar la interrupcion externa 3
 	sei();																// Habilitamos las interrupciones
 
 	estado = 0;
@@ -96,9 +97,42 @@ void setup()
 	menu();
 }
 
-void loop() {}
+void loop()
+{
+	while (Serial.available() == 0)
+	{
+	}
+	option = Serial.read();
+}
 
 ISR(INT3_vect)
+{
+	switch (oction)
+	{
+	case '1':
+		mode_1();
+		break;
+	case '2':
+		mode_2();
+		break;
+	case '3':
+		mode_3();
+		break;
+	default:
+		break;
+	}
+}
+
+void menu()
+{
+	Serial.println(" -- TURNOMATIC -- ");
+	Serial.println("1.- Modo normal de visualizacion (tres digitos): OFF-centenas-decenas-unidades");
+	Serial.println("2.- Modo reducido-inferior de visualizacion (dos digitos): OFF-OFF-decenas-unidades");
+	Serial.println("3.- Modo reducido-superior de visualizacion (dos digitos): decenas-unidades-OFF-OFF");
+}
+
+// Función que enciende tres digitos: OFF-centenas-decenas-unidades
+void mode_1()
 {
 	// Encender display
 	if (estado == 0)
@@ -106,6 +140,7 @@ ISR(INT3_vect)
 		// Apagar decenas y centetas, encender y visualizar unidades
 		digitalWrite(D3, HIGH);						// Apagar decenas
 		digitalWrite(D2, HIGH);						// Apagar centenas
+		digitalWrite(D1, HIGH);						// Apagar unidades de millar
 		PORTA = hex_value[contador % 10]; // Visualizar unidades
 		digitalWrite(D4, LOW);						// Encender unidades
 		estado++;
@@ -115,6 +150,7 @@ ISR(INT3_vect)
 		// Apagar unidades y centenas, encender y visualizar decenas
 		digitalWrite(D4, HIGH);						 // Apagar unidades
 		digitalWrite(D2, HIGH);						 // Apagar centenas
+		digitalWrite(D1, HIGH);						 // Apagar unidades de millar
 		PORTA = hex_value[contador % 100]; // Visualizar decenas
 		digitalWrite(D3, LOW);						 // Encender decenas
 		estado++;
@@ -124,16 +160,35 @@ ISR(INT3_vect)
 		// Apagar decenas y unidades, encender y visualizar centenas
 		digitalWrite(D3, HIGH);							// Apagar decenas
 		digitalWrite(D4, HIGH);							// Apagar unidades
+		digitalWrite(D1, HIGH);							// Apagar unidades de millar
 		PORTA = hex_value[contador % 1000]; // Visualizar unidades
 		digitalWrite(D2, LOW);							// Encender unidades
 		estado = 0;
 	}
 }
 
-void menu()
+// Función que enciende dos digitos: OFF-OFF-decenas-unidades
+void mode_2()
 {
-	Serial.println(" -- TURNOMATIC -- ");
-	Serial.println("1.- Modo normal de visualización (tres dígitos): OFF-centenas-decenas-unidades");
-	Serial.println("2.- Modo reducido-inferior de visualización (dos dígitos): OFF-OFF-decenas-unidades");
-	Serial.println("3.- Modo reducido-superior de visualización (dos dígitos): decenas-unidades-OFF-OFF");
+	// Encender display
+	if (estado == 0)
+	{
+		// Apagar decenas y centetas, encender y visualizar unidades
+		digitalWrite(D3, HIGH);						// Apagar decenas
+		digitalWrite(D2, HIGH);						// Apagar centenas
+		digitalWrite(D1, HIGH);						// Apagar unidades de millar
+		PORTA = hex_value[contador % 10]; // Visualizar unidades
+		digitalWrite(D4, LOW);						// Encender unidades
+		estado++;
+	}
+	else
+	{
+		// Apagar unidades, encender y visualizar decenas
+		digitalWrite(D4, HIGH);						 // Apagar unidades
+		digitalWrite(D2, HIGH);						 // Apagar centenas
+		digitalWrite(D1, HIGH);						 // Apagar unidades de millar
+		PORTA = hex_value[contador % 100]; // Visualizar decenas
+		digitalWrite(D3, LOW);						 // Encender decenas
+		estado = 0;
+	}
 }
