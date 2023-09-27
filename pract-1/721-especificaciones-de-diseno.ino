@@ -143,57 +143,65 @@ ISR(INT3_vect)
 	switch (digit)
 	{
 	case 0:
-		// if (option == '1' || option == '2')
-		// {
-		// 	PORTA = hex_value[int(contador % 10)]; // Obtener unidades
-		// }
-		// else
-		// {
-		// 	PORTA = 0x00;
-		// }
+		if (option == '1')
+		{
+			PORTA = hex_value[contador % 10];
+		}
+		else if (option == '2')
+		{
+			PORTA = hex_value[contador % 10];
+		}
+		else
+		{
+			PORTA = 0x00;
+		}
 		PORTL = D4; // Encender unidades
 		keyboard(digit);
 		digit++;
 		break;
 	case 1:
-		// if (option == '1' || option == '2')
-		// {
-		// 	PORTA = hex_value[int((contador / 10) % 10)]; // Obtener decenas
-		// }
-		// else
-		// {
-		// 	PORTA = 0x00;
-		// }
+		if (option == '1')
+		{
+			PORTA = hex_value[(contador / 10) % 10];
+		}
+		else if (option == '2')
+		{
+			PORTA = hex_value[(contador / 10) % 10];
+		}
+		else
+		{
+			PORTA = 0x00;
+		}
 		PORTL = D3; // Encender decenas
 		keyboard(digit);
 		digit++;
 		break;
 	case 2:
-		// if (option == '1')
-		// {
-		// 	PORTA = hex_value[int((contador / 100) % 10)]; // Obtener centenas
-		// }
-		// else if (option == '3')
-		// {
-		// 	PORTA = hex_value[int(contador % 10)]; // Obtener unidades
-		// }
-		// else
-		// {
-		// 	PORTA = 0x00;
-		// }
+		if (option == '1')
+		{
+			PORTA = hex_value[(contador / 100) % 10];
+		}
+		else if (option == '3')
+		{
+			PORTA = hex_value[contador % 10];
+		}
+		else
+		{
+			PORTA = 0x00;
+		}
 		PORTL = D2; // Encender centenas
 		keyboard(digit);
 		digit++;
 		break;
 	case 3:
-		// if (option == '3')
-		// {
-		// 	PORTA = hex_value[int((contador / 10) % 10)]; // Obtener decenas
-		// }
-		// else
-		// {
-		// 	PORTA = 0x00;
-		// }
+		if (option == '3')
+		{
+			PORTA = hex_value[(contador / 10) % 10];
+		}
+		else
+		{
+			PORTA = 0x00;
+		}
 		PORTL = D1; // Encender millares
 		digit = 0;
 		break;
