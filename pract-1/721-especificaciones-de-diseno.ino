@@ -47,22 +47,24 @@ La aplicacion se implementara de acuerdo a las siguientes especificaciones:
 #define ROW2 44 // PL[5] fila 2
 #define ROW3 45 // PL[4] fila 3
 
-// Matriz display 8 segmentos
+// Array display 8 segmentos
 char display_map[4] = {D4, D3, D2, D1};
 
-// Matriz valores hexadecimales
+// Array valores hexadecimales
 char hexadecimal[16] = {
-		'0', '1', '2', '3',
-		'4', '5', '6', '7',
-		'8', '9', 'A', 'B',
-		'C', 'D', 'E', 'F'};
+		'0', '1', '2', '3', // 0, 1, 2, 3
+		'4', '5', '6', '7', // 4, 5, 6, 7
+		'8', '9', 'A', 'B', // 8, 9, A, B
+		'C', 'D', 'E', 'F'	// C, D, E, F
+};
 
-// Matriz valores hexadecimales en binario
+// Array valores hexadecimales en binario
 char hex_value[16] = {
-		0x3F, 0x06, 0x5B, 0x4F,
-		0x66, 0x6D, 0x7D, 0x07,
-		0x7F, 0x6F, 0x77, 0x7C,
-		0x39, 0x5E, 0x79, 0x71};
+		0x3F, 0x06, 0x5B, 0x4F, // 0, 1, 2, 3
+		0x66, 0x6D, 0x7D, 0x07, // 4, 5, 6, 7
+		0x7F, 0x6F, 0x77, 0x7C, // 8, 9, A, B
+		0x39, 0x5E, 0x79, 0x71	// C, D, E, F
+};
 
 // Matriz teclado
 char teclado_map[][3] = {
@@ -70,6 +72,15 @@ char teclado_map[][3] = {
 		{'4', '5', '6'},
 		{'7', '8', '9'},
 		{'*', '0', '#'}};
+
+// Array PORTL para enceder display
+char portl_map[4] = {
+		B11110000, // Apagar display entero
+		B11110001, // Encender unidades
+		B11110010, // Encender decenas
+		B11110100, // Encender centenas
+		B11111000	 // Encender millares
+};
 
 int contador;
 int increment;
@@ -115,7 +126,7 @@ void setup()
 	increment = 1;
 
 	time_old = millis();
-	transition_time = 200;
+	transition_time = 250;
 
 	menu();
 }
@@ -177,30 +188,24 @@ void mode_1()
 	// Encender display
 	if (estado == 0)
 	{
-		// Apagar decenas y centetas, encender y visualizar unidades
-		digitalWrite(D3, HIGH);								 // Apagar decenas
-		digitalWrite(D2, HIGH);								 // Apagar centenas
-		digitalWrite(D1, HIGH);								 // Apagar unidades de millar
-		PORTA = hex_value[int(contador % 10)]; // Visualizar unidades
-		digitalWrite(D4, LOW);								 // Encender unidades
+		// Encender unidades
+		PORTL = portl_map[0];									 // Apagar display entero
+		PORTA = hex_value[int(contador % 10)]; // Obtener unidades
+		PORTL = portl_map[1];									 // Encender unidades
 	}
 	else if (estado == 1)
 	{
-		// Apagar unidades y centenas, encender y visualizar decenas
-		digitalWrite(D4, HIGH);												// Apagar unidades
-		digitalWrite(D2, HIGH);												// Apagar centenas
-		digitalWrite(D1, HIGH);												// Apagar unidades de millar
-		PORTA = hex_value[int((contador / 10) % 10)]; // Visualizar decenas
-		digitalWrite(D3, LOW);												// Encender decenas
+		// Enceder decenas
+		PORTL = portl_map[0];													// Apagar display entero
+		PORTA = hex_value[int((contador / 10) % 10)]; // Obtener decenas
+		PORTL = portl_map[2];													// Encender decenas
 	}
 	else
 	{
-		// Apagar decenas y unidades, encender y visualizar centenas
-		digitalWrite(D3, HIGH);												 // Apagar decenas
-		digitalWrite(D4, HIGH);												 // Apagar unidades
-		digitalWrite(D1, HIGH);												 // Apagar unidades de millar
+		// Enceder centenas
+		PORTL = portl_map[0];													 // Apagar display entero
 		PORTA = hex_value[int((contador / 100) % 10)]; // Visualizar unidades
-		digitalWrite(D2, LOW);												 // Encender unidades
+		PORTL = portl_map[3];													 // Apagar display entero
 	}
 	estado++;
 	if (estado > 2)
