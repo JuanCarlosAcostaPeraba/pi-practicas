@@ -74,7 +74,7 @@ char teclado_map[][3] = {
 		{'*', '0', '#'}};
 
 // Array PORTL para enceder display
-char portl_map[4] = {
+int portl_map[5] = {
 		B11110000, // Apagar display entero
 		B11110001, // Encender unidades
 		B11110010, // Encender decenas
