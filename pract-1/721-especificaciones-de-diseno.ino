@@ -140,44 +140,32 @@ void loop()
 ISR(INT3_vect)
 {
 	PORTA = 0x00;
+	for (int i = 0; i < 4; i++)
+	{
+		digitalWrite(display_map[digit], HIGH);
+	}
 	switch (digit)
 	{
 	case 0:
-		if (option == '1')
+		if (option == '1' || option == '2')
 		{
 			PORTA = hex_value[contador % 10];
 		}
-		else if (option == '2')
-		{
-			PORTA = hex_value[contador % 10];
-		}
-		else
-		{
-			PORTA = 0x00;
-		}
-		PORTL = D4; // Encender unidades
+		digitalWrite(display_map[0], LOW);
 		keyboard(digit);
 		digit++;
 		break;
 	case 1:
-		if (option == '1')
+		if (option == '1' || option == '2')
 		{
 			PORTA = hex_value[(contador / 10) % 10];
 		}
-		else if (option == '2')
-		{
-			PORTA = hex_value[(contador / 10) % 10];
-		}
-		else
-		{
-			PORTA = 0x00;
-		}
-		PORTL = D3; // Encender decenas
+		digitalWrite(display_map[1], LOW);
 		keyboard(digit);
 		digit++;
 		break;
 	case 2:
-		if (option == '1')
+		if (option == '2')
 		{
 			PORTA = hex_value[(contador / 100) % 10];
 		}
@@ -185,11 +173,7 @@ ISR(INT3_vect)
 		{
 			PORTA = hex_value[contador % 10];
 		}
-		else
-		{
-			PORTA = 0x00;
-		}
-		PORTL = D2; // Encender centenas
+		digitalWrite(display_map[2], LOW);
 		keyboard(digit);
 		digit++;
 		break;
@@ -198,11 +182,7 @@ ISR(INT3_vect)
 		{
 			PORTA = hex_value[(contador / 10) % 10];
 		}
-		else
-		{
-			PORTA = 0x00;
-		}
-		PORTL = D1; // Encender millares
+		digitalWrite(display_map[3], LOW);
 		digit = 0;
 		break;
 	}
