@@ -179,27 +179,38 @@ void loop()
 
 ISR(INT2_vect)
 {
-	PORTL = B11110000;
+	digitalWrite(D4, HIGH);
+	digitalWrite(D3, HIGH);
+	digitalWrite(D2, HIGH);
+	digitalWrite(D1, HIGH);
 	switch (digit)
 	{
 	case 0:
+		digitalWrite(D3, HIGH);
 		PORTA = hex_value[unidades];
-		PORTL = B11110001;
+		digitalWrite(D4, LOW);
 		digit++;
 		break;
 	case 1:
+		digitalWrite(D4, HIGH);
 		PORTA = hex_value[decenas];
-		PORTL = B11110010;
+		digitalWrite(D3, LOW);
 		digit++;
 		break;
 	case 2:
+		digitalWrite(D4, HIGH);
+		digitalWrite(D3, HIGH);
+		digitalWrite(D1, HIGH);
 		PORTA = 0x00;
-		PORTL = B11110100;
+		digitalWrite(D2, LOW);
 		digit++;
 		break;
 	case 3:
+		digitalWrite(D4, HIGH);
+		digitalWrite(D3, HIGH);
+		digitalWrite(D2, HIGH);
 		PORTA = 0x00;
-		PORTL = B11111000;
+		digitalWrite(D1, LOW);
 		digit = 0;
 		break;
 	}
