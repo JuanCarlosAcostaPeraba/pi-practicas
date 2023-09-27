@@ -41,18 +41,18 @@ La aplicacion se implementara de acuerdo a las siguientes especificaciones:
 #define D2 47 // Pin 47 - centenas
 #define D1 46 // Pin 46 - unidades de millar
 
+// Array display 8 segmentos
+char display_map[4] = {D4, D3, D2, D1};
+
 // Teclado
 #define ROW0 42 // PL[7] fila 0
 #define ROW1 43 // PL[6] fila 1
 #define ROW2 44 // PL[5] fila 2
 #define ROW3 45 // PL[4] fila 3
 
-// Array display 8 segmentos
-char display_map[4] = {D4, D3, D2, D1};
-
 // Array valores hexadecimales
 char hexadecimal[16] = {
-		'0', '1', '2', '3', // 0, 1, 2, 3
+		'0' 49, '2', '3',		// 0, 1, 2, 3
 		'4', '5', '6', '7', // 4, 5, 6, 7
 		'8', '9', 'A', 'B', // 8, 9, A, B
 		'C', 'D', 'E', 'F'	// C, D, E, F
@@ -68,10 +68,13 @@ char hex_value[16] = {
 
 // Matriz teclado
 char teclado_map[][3] = {
-		{'1', '2', '3'},
-		{'4', '5', '6'},
-		{'7', '8', '9'},
-		{'*', '0', '#'}};
+		49, '2', '3'},
+		 {'4', '5', '6'}, {'7', '8', '9'},
+{
+	'*', '0', '#'
+}
+}
+;
 
 volatile int digit;
 volatile char option;
@@ -140,14 +143,11 @@ void loop()
 ISR(INT3_vect)
 {
 	PORTA = 0x00;
-	for (int i = 0; i < 4; i++)
-	{
-		digitalWrite(display_map[digit], HIGH);
-	}
+	PORTL = B11110000;
 	switch (digit)
 	{
 	case 0:
-		if (option == '1' || option == '2')
+		if (option == 49 || option == 50)
 		{
 			PORTA = hex_value[contador % 10];
 		}
@@ -156,7 +156,7 @@ ISR(INT3_vect)
 		digit++;
 		break;
 	case 1:
-		if (option == '1' || option == '2')
+		if (option == 49 || option == 50)
 		{
 			PORTA = hex_value[(contador / 10) % 10];
 		}
@@ -165,11 +165,11 @@ ISR(INT3_vect)
 		digit++;
 		break;
 	case 2:
-		if (option == '2')
+		if (option == 50)
 		{
 			PORTA = hex_value[(contador / 100) % 10];
 		}
-		else if (option == '3')
+		else if (option == 51)
 		{
 			PORTA = hex_value[contador % 10];
 		}
@@ -178,7 +178,7 @@ ISR(INT3_vect)
 		digit++;
 		break;
 	case 3:
-		if (option == '3')
+		if (option == 51)
 		{
 			PORTA = hex_value[(contador / 10) % 10];
 		}
