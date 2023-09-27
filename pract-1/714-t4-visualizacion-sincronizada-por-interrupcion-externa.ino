@@ -72,7 +72,9 @@ de la visualización entrelazada.
 #define D2 47 // Pin 47 - centenas
 #define D1 46 // Pin 46 - unidades de millar
 
-volatile bool estado;
+// volatile bool estado;
+volatile int digit;
+
 int unidades;
 int decenas;
 
@@ -123,7 +125,8 @@ void setup()
 	DDRC = B00000000;	 // Configuramos el pin 0 del puerto C como entrada (0x00)
 	PORTC = B11111111; // Inicializamos el puerto C a 1 (0cFF)
 
-	estado = false;
+	// estado = false;
+	digit = 0;
 	unidades = 0;
 	decenas = 0;
 	time_old = millis();
@@ -176,23 +179,48 @@ void loop()
 
 ISR(INT2_vect)
 {
-	// Encender display
-	if (estado)
+	PORTL = B11110000;
+	switch (digit)
 	{
-		// Apagar decenas, encender y visualizar unidades
-		digitalWrite(D3, HIGH);
+	case 0:
 		PORTA = hex_value[unidades];
-		digitalWrite(D4, LOW);
-	}
-	else
-	{
-		// Apagar unidades, encender y visualizar decenas
-		digitalWrite(D4, HIGH);
+		PORTL = B11110001;
+		digit++;
+		break;
+	case 1:
 		PORTA = hex_value[decenas];
-		digitalWrite(D3, LOW);
+		PORTL = B11110010;
+		digit++;
+		break;
+	case 2:
+		PORTA = 0x00;
+		PORTL = B11110100;
+		digit++;
+		break;
+	case 3:
+		PORTA = 0x00;
+		PORTL = B11111000;
+		digit = 0;
+		break;
 	}
 
-	estado = !estado;
+	// // Encender display
+	// if (estado)
+	// {
+	// 	// Apagar decenas, encender y visualizar unidades
+	// 	digitalWrite(D3, HIGH);
+	// 	PORTA = hex_value[unidades];
+	// 	digitalWrite(D4, LOW);
+	// }
+	// else
+	// {
+	// 	// Apagar unidades, encender y visualizar decenas
+	// 	digitalWrite(D4, HIGH);
+	// 	PORTA = hex_value[decenas];
+	// 	digitalWrite(D3, LOW);
+	// }
+
+	// estado = !estado;
 }
 
 void logic_99()
