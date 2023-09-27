@@ -73,12 +73,11 @@ char teclado_map[][3] = {
 		{'7', '8', '9'},
 		{'*', '0', '#'}};
 
+volatile int digit;
+volatile char option;
+
 int contador;
 int increment;
-
-volatile int estado;
-volatile char option;
-volatile int row;
 
 int pup;
 int pdown;
@@ -111,9 +110,9 @@ void setup()
 	EIMSK |= (1 << INT3);									// Desenmascaramos la interrupcion INT3 para habilitar la interrupcion externa 3
 	sei();																// Habilitamos las interrupciones
 
-	estado = 0;
+	digit = 0;
+
 	contador = 0;
-	row = 0;
 	increment = 1;
 
 	time_old = millis();
@@ -140,27 +139,64 @@ void loop()
 
 ISR(INT3_vect)
 {
-	switch (option)
+	PORTL = DOFF; // Apagamos todas las filas
+	switch (digit)
 	{
-	case '1':
-		mode_1();
+	case 0:
+		if (option == '1' || option == '2')
+		{
+			PORTA = hex_value[int(contador % 10)]; // Obtener unidades
+		}
+		else
+		{
+			PORTA = 0x00;
+		}
+		PORTL = D4; // Encender unidades
+		keyboard(digit);
+		digit++;
 		break;
-	case '2':
-		mode_2();
+	case 1:
+		if (option == '1' || option == '2')
+		{
+			PORTA = hex_value[int((contador / 10) % 10)]; // Obtener decenas
+		}
+		else
+		{
+			PORTA = 0x00;
+		}
+		PORTL = D3; // Encender decenas
+		keyboard(digit);
+		digit++;
 		break;
-	case '3':
-		mode_3();
+	case 2:
+		if (option == '1')
+		{
+			PORTA = hex_value[int((contador / 100) % 10)]; // Obtener centenas
+		}
+		else if (option == '3')
+		{
+			PORTA = hex_value[int(contador % 10)]; // Obtener unidades
+		}
+		else
+		{
+			PORTA = 0x00;
+		}
+		PORTL = D2; // Encender centenas
+		keyboard(digit);
+		digit++;
 		break;
-	default:
+	case 3:
+		if (option == '3')
+		{
+			PORTA = hex_value[int((contador / 10) % 10)]; // Obtener decenas
+		}
+		else
+		{
+			PORTA = 0x00;
+		}
+		PORTL = D1; // Encender millares
+		digit = 0;
 		break;
-	}
-
-	// Exploracion del teclado
-	keyboard(row);
-	row++;
-	if (row > 3)
-	{
-		row = 0;
 	}
 }
 
@@ -171,129 +207,6 @@ void menu()
 	Serial.println("1.- Modo normal de visualizacion (tres digitos): OFF-centenas-decenas-unidades");
 	Serial.println("2.- Modo reducido-inferior de visualizacion (dos digitos): OFF-OFF-decenas-unidades");
 	Serial.println("3.- Modo reducido-superior de visualizacion (dos digitos): decenas-unidades-OFF-OFF");
-}
-
-// Funcion que enciende tres digitos: OFF-centenas-decenas-unidades
-void mode_1()
-{
-	// Encender display
-	if (estado == 0)
-	{
-		// Encender unidades
-		digitalWrite(D3, HIGH);
-		digitalWrite(D2, HIGH);
-		digitalWrite(D1, HIGH);
-		PORTA = hex_value[int(contador % 10)]; // Obtener unidades
-		digitalWrite(D4, LOW);
-	}
-	else if (estado == 1)
-	{
-		// Encender decenas
-		digitalWrite(D4, HIGH);
-		digitalWrite(D2, HIGH);
-		digitalWrite(D1, HIGH);
-		PORTA = hex_value[int((contador / 10) % 10)]; // Obtener decenas
-		digitalWrite(D3, LOW);
-	}
-	else
-	{
-		// Encender centenas
-		digitalWrite(D4, HIGH);
-		digitalWrite(D3, HIGH);
-		digitalWrite(D1, HIGH);
-		PORTA = hex_value[int((contador / 100) % 10)]; // Visualizar unidades
-		digitalWrite(D2, LOW);
-	}
-	estado++;
-	if (estado > 2)
-	{
-		estado = 0;
-	}
-}
-
-// Funcion que enciende dos digitos: OFF-OFF-decenas-unidades
-void mode_2()
-{
-	// Encender display
-	if (estado == 0)
-	{
-		// Encender unidades
-		digitalWrite(D3, HIGH);
-		digitalWrite(D2, HIGH);
-		digitalWrite(D1, HIGH);
-		PORTA = hex_value[int(contador % 10)]; // Obtener unidades
-		digitalWrite(D4, LOW);
-	}
-	else if (estado == 1)
-	{
-		// Encender decenas
-		digitalWrite(D4, HIGH);
-		digitalWrite(D2, HIGH);
-		digitalWrite(D1, HIGH);
-		PORTA = hex_value[int((contador / 10) % 10)]; // Obtener decenas
-		digitalWrite(D3, LOW);
-	}
-	else
-	{
-		// Encender centenas
-		digitalWrite(D4, HIGH);
-		digitalWrite(D3, HIGH);
-		digitalWrite(D1, HIGH);
-		PORTA = 0x00; // Visualizar unidades
-		digitalWrite(D2, LOW);
-	}
-	estado++;
-	if (estado > 2)
-	{
-		estado = 0;
-	}
-}
-
-// Funcion que enciende dos digitos: decenas-unidades-OFF-OFF
-void mode_3()
-{
-	// Encender display
-	if (estado == 0)
-	{
-		// Encender centenas
-		digitalWrite(D3, HIGH);
-		digitalWrite(D4, HIGH);
-		digitalWrite(D1, HIGH);
-		PORTA = hex_value[int(contador % 10)]; // Obtener unidades
-		digitalWrite(D2, LOW);
-	}
-	else if (estado == 1)
-	{
-		// Encender millares
-		digitalWrite(D4, HIGH);
-		digitalWrite(D2, HIGH);
-		digitalWrite(D3, HIGH);
-		PORTA = hex_value[int((contador / 10) % 10)]; // Obtener decenas
-		digitalWrite(D1, LOW);
-	}
-	else if (estado == 2)
-	{
-		// Encender decenas
-		digitalWrite(D4, HIGH);
-		digitalWrite(D2, HIGH);
-		digitalWrite(D1, HIGH);
-		PORTA = 0x00;
-		digitalWrite(D3, LOW);
-	}
-	else
-	{
-		// Encender decenas
-		digitalWrite(D3, HIGH);
-		digitalWrite(D2, HIGH);
-		digitalWrite(D1, HIGH);
-		PORTA = 0x00;
-		digitalWrite(D1, LOW);
-	}
-	estado++;
-	if (estado > 3)
-	{
-		estado = 0;
-	}
 }
 
 // Funcion para incrementar el contador por botones
