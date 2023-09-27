@@ -271,20 +271,26 @@ void mode_3()
 		PORTA = hex_value[int((contador / 10) % 10)]; // Obtener decenas
 		digitalWrite(D1, LOW);
 	}
-	else
+	else if (estado == 2)
 	{
-		// Encender decenas y unidades
+		// Encender decenas
 		digitalWrite(D4, HIGH);
 		digitalWrite(D2, HIGH);
 		digitalWrite(D1, HIGH);
 		PORTA = 0x00;
 		digitalWrite(D3, LOW);
-		delay(10);
+	}
+	else
+	{
+		// Encender decenas
 		digitalWrite(D3, HIGH);
-		digitalWrite(D4, LOW);
+		digitalWrite(D2, HIGH);
+		digitalWrite(D1, HIGH);
+		PORTA = 0x00;
+		digitalWrite(D1, LOW);
 	}
 	estado++;
-	if (estado > 2)
+	if (estado > 3)
 	{
 		estado = 0;
 	}
