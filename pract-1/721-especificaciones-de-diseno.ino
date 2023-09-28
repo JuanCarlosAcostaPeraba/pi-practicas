@@ -367,7 +367,7 @@ void read_buffer()
 		buffer = "";
 		tone(PSTART, 1000, 100);
 	}
-	else if ((buffer.length() == 1 && buffer.charAt(0) == '#') || (buffer.length() < 4))
+	else if ((buffer.length() == 1 && buffer.charAt(0) == '#') || (buffer.length() > 4))
 	{
 		buffer = "";
 	}
