@@ -326,6 +326,7 @@ void keyboard(int column)
 	while (PINL >> 4 != 15)
 	{
 	}
+	Serial.print(val);
 	switch (val)
 	{
 	case 7:
@@ -336,11 +337,11 @@ void keyboard(int column)
 		Serial.print(teclado_map[1][column]);
 		Serial.print(column);
 		break;
-	case 2:
+	case 13:
 		Serial.print(teclado_map[2][column]);
 		Serial.print(column);
 		break;
-	case 3:
+	case 14:
 		Serial.print(teclado_map[3][column]);
 		Serial.print(column);
 		break;
