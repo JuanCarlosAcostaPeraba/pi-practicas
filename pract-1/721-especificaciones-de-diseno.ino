@@ -367,8 +367,4 @@ void read_buffer()
 		buffer = "";
 		tone(PSTART, 1000, 100);
 	}
-	else
-	{
-		buffer = "";
-	}
 }
