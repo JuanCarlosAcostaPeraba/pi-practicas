@@ -330,15 +330,19 @@ void keyboard(int column)
 	{
 	case 7:
 		Serial.print(teclado_map[0][column]);
+		Serial.print(column);
 		break;
 	case 11:
 		Serial.print(teclado_map[1][column]);
+		Serial.print(column);
 		break;
 	case 2:
 		Serial.print(teclado_map[2][column]);
+		Serial.print(column);
 		break;
 	case 3:
 		Serial.print(teclado_map[3][column]);
+		Serial.print(column);
 		break;
 	}
 }
