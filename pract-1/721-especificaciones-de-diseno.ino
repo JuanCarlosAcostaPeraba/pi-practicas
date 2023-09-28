@@ -51,6 +51,7 @@ char display_map[4] = {D4, D3, D2, D1};
 #define ROW3 45 // PL[4] fila 3
 
 #define DOFF B00001111;
+#define DON B00000000;
 
 // Array valores hexadecimales
 char hexadecimal[16] = {
@@ -153,7 +154,7 @@ ISR(INT3_vect)
 		{
 			PORTA = 0x00;
 		}
-		PORTL = D4;
+		PORTL = B00001110;
 		keyboard(digit);
 		digit++;
 		break;
@@ -166,7 +167,7 @@ ISR(INT3_vect)
 		{
 			PORTA = 0x00;
 		}
-		PORTL = D3;
+		PORTL = B00001101;
 		keyboard(digit);
 		digit++;
 		break;
@@ -183,7 +184,7 @@ ISR(INT3_vect)
 		{
 			PORTA = hex_value[contador % 10];
 		}
-		PORTL = D2;
+		PORTL = B00001011;
 		keyboard(digit);
 		digit++;
 		break;
@@ -196,7 +197,7 @@ ISR(INT3_vect)
 		{
 			PORTA = 0x00;
 		}
-		PORTL = D1;
+		PORTL = B00000111;
 		digit = 0;
 		break;
 	}
