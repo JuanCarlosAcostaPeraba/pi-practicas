@@ -78,6 +78,7 @@ char teclado_map[][3] = {
 
 volatile int digit;
 volatile char option;
+volatile String buffer;
 
 int contador;
 int increment;
@@ -114,6 +115,7 @@ void setup()
 	sei();																// Habilitamos las interrupciones
 
 	digit = 0;
+	buffer = "";
 
 	contador = 0;
 	increment = 1;
@@ -330,15 +332,19 @@ void keyboard(int column)
 	{
 	case 7:
 		Serial.print(teclado_map[0][column]);
+		buffer += teclado_map[0][column];
 		break;
 	case 11:
 		Serial.print(teclado_map[1][column]);
+		buffer += teclado_map[1][column];
 		break;
 	case 13:
 		Serial.print(teclado_map[2][column]);
+		buffer += teclado_map[2][column];
 		break;
 	case 14:
 		Serial.print(teclado_map[3][column]);
+		buffer += teclado_map[3][column];
 		break;
 	}
 }
