@@ -119,7 +119,7 @@ void setup()
 	increment = 1;
 
 	time_old = millis();
-	transition_time = 250;
+	transition_time = 300;
 
 	menu();
 }
