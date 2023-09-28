@@ -316,65 +316,29 @@ void logic(bool pdown)
 }
 
 // Funcion para leer el teclado
-void keyboard(int row)
+void keyboard(int column)
 {
-	switch (row)
+	int val = PINL >> 4;
+	if (val == 15)
 	{
-	case 0:
-		if (digitalRead(ROW0) == 0 && digitalRead(D4) == 0)
-		{
-			Serial.print(teclado_map[0][0]);
-		}
-		if (digitalRead(ROW0) == 0 && digitalRead(D3) == 0)
-		{
-			Serial.print(teclado_map[0][1]);
-		}
-		if (digitalRead(ROW0) == 0 && digitalRead(D2) == 0)
-		{
-			Serial.print(teclado_map[0][2]);
-		}
+		return;
+	}
+	while (PINL >> 4 != 15)
+	{
+	}
+	switch (val)
+	{
+	case 7:
+		Serial.print(teclado_map[0][column]);
 		break;
-	case 1:
-		if (digitalRead(ROW1) == 0 && digitalRead(D4) == 0)
-		{
-			Serial.print(teclado_map[1][0]);
-		}
-		if (digitalRead(ROW1) == 0 && digitalRead(D3) == 0)
-		{
-			Serial.print(teclado_map[1][1]);
-		}
-		if (digitalRead(ROW1) == 0 && digitalRead(D2) == 0)
-		{
-			Serial.print(teclado_map[1][2]);
-		}
+	case 11:
+		Serial.print(teclado_map[1][column]);
 		break;
 	case 2:
-		if (digitalRead(ROW2) == 0 && digitalRead(D4) == 0)
-		{
-			Serial.print(teclado_map[2][0]);
-		}
-		if (digitalRead(ROW2) == 0 && digitalRead(D3) == 0)
-		{
-			Serial.print(teclado_map[2][1]);
-		}
-		if (digitalRead(ROW2) == 0 && digitalRead(D2) == 0)
-		{
-			Serial.print(teclado_map[2][2]);
-		}
+		Serial.print(teclado_map[2][column]);
 		break;
 	case 3:
-		if (digitalRead(ROW3) == 0 && digitalRead(D4) == 0)
-		{
-			Serial.print(teclado_map[3][0]);
-		}
-		if (digitalRead(ROW3) == 0 && digitalRead(D3) == 0)
-		{
-			Serial.print(teclado_map[3][1]);
-		}
-		if (digitalRead(ROW3) == 0 && digitalRead(D2) == 0)
-		{
-			Serial.print(teclado_map[3][2]);
-		}
+		Serial.print(teclado_map[3][column]);
 		break;
 	}
 }
