@@ -72,7 +72,8 @@ de la visualización entrelazada.
 #define D2 47 // Pin 47 - centenas
 #define D1 46 // Pin 46 - unidades de millar
 
-#define DOFF 0xFF // 1111 1111 todos apagados: todos los cátados comunes a "1"
+#define DOFF B00001111;
+#define DON B00000000;
 
 volatile int digit = 0;
 
@@ -110,6 +111,34 @@ char teclado_map[][3] = {
 		{'7', '8', '9'},
 		{'*', '0', '#'}};
 
+ISR(INT2_vect)
+{
+	PORTL = DOFF;
+	switch (digit)
+	{
+	case 0:
+		PORTA = hex_value[unidades];
+		PORTL = B00001110;
+		digit++;
+		break;
+	case 1:
+		PORTA = hex_value[decenas];
+		PORTL = B00001101;
+		digit++;
+		break;
+	case 2:
+		PORTA = 0x00;
+		PORTL = B00001011;
+		digit++;
+		break;
+	case 3:
+		PORTA = 0x00;
+		PORTL = B00000111;
+		digit = 0;
+		break;
+	}
+}
+
 void setup()
 {
 	Serial.begin(9600); // Inicializamos el puerto serie
@@ -146,34 +175,6 @@ void loop()
 	pcenter = digitalRead(PSELECT);
 
 	buttons_logic();
-}
-
-ISR(INT2_vect)
-{
-	PORTL = DOFF;
-	switch (digit)
-	{
-	case 0:
-		PORTA = hex_value[unidades];
-		PORTL = D4;
-		digit++;
-		break;
-	case 1:
-		PORTA = hex_value[decenas];
-		PORTL = D3;
-		digit++;
-		break;
-	case 2:
-		PORTA = 0x00;
-		PORTL = D2;
-		digit++;
-		break;
-	case 3:
-		PORTA = 0x00;
-		PORTL = D1;
-		digit = 0;
-		break;
-	}
 }
 
 void buttons_logic()
