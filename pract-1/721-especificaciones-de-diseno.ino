@@ -326,7 +326,6 @@ void keyboard(int column)
 	while (PINL >> 4 != 15)
 	{
 	}
-	Serial.print(val);
 	switch (val)
 	{
 	case 7:
