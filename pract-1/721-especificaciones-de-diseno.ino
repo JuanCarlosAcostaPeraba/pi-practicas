@@ -54,7 +54,7 @@ char display_map[4] = {D4, D3, D2, D1};
 
 // Array valores hexadecimales
 char hexadecimal[16] = {
-		'0' '1', '2', '3',	// 0, 1, 2, 3
+		'0', '1', '2', '3', // 0, 1, 2, 3
 		'4', '5', '6', '7', // 4, 5, 6, 7
 		'8', '9', 'A', 'B', // 8, 9, A, B
 		'C', 'D', 'E', 'F'	// C, D, E, F
