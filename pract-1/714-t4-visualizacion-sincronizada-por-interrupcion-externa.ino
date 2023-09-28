@@ -72,8 +72,9 @@ de la visualización entrelazada.
 #define D2 47 // Pin 47 - centenas
 #define D1 46 // Pin 46 - unidades de millar
 
-// volatile bool estado;
-volatile int digit;
+#define DOFF 0xFF // 1111 1111 todos apagados: todos los cátados comunes a "1"
+
+volatile int digit = 0;
 
 int unidades;
 int decenas;
@@ -119,16 +120,15 @@ void setup()
 
 	// Puerto L teclado
 	DDRL = B00001111;	 // Configuramos los pines 0, 1, 2 y 3 del puerto L como entrada, y el resto como salida (0x0F)
-	PORTL = B11111111; // Inicializamos el puerto L a 1 (0xFF)
+	PORTL = B11111111; // Pines L apagados
 
 	// Puerto C
 	DDRC = B00000000;	 // Configuramos el pin 0 del puerto C como entrada (0x00)
 	PORTC = B11111111; // Inicializamos el puerto C a 1 (0cFF)
 
-	// estado = false;
-	digit = 0;
 	unidades = 0;
 	decenas = 0;
+
 	time_old = millis();
 	transition_time = 250;
 
@@ -145,6 +145,39 @@ void loop()
 	pdown = digitalRead(PDOWN);
 	pcenter = digitalRead(PSELECT);
 
+	buttons_logic();
+}
+
+ISR(INT2_vect)
+{
+	PORTL = DOFF;
+	switch (digit)
+	{
+	case 0:
+		PORTA = hex_value[unidades];
+		PORTL = D4;
+		digit++;
+		break;
+	case 1:
+		PORTA = hex_value[decenas];
+		PORTL = D3;
+		digit++;
+		break;
+	case 2:
+		PORTA = 0x00;
+		PORTL = D2;
+		digit++;
+		break;
+	case 3:
+		PORTA = 0x00;
+		PORTL = D1;
+		digit = 0;
+		break;
+	}
+}
+
+void buttons_logic()
+{
 	if (pup == 0)
 	{
 		if (millis() - time_old > transition_time)
@@ -175,63 +208,6 @@ void loop()
 			time_old = millis();
 		}
 	}
-}
-
-ISR(INT2_vect)
-{
-	digitalWrite(D4, HIGH);
-	digitalWrite(D3, HIGH);
-	digitalWrite(D2, HIGH);
-	digitalWrite(D1, HIGH);
-	switch (digit)
-	{
-	case 0:
-		digitalWrite(D3, HIGH);
-		PORTA = hex_value[unidades];
-		digitalWrite(D4, LOW);
-		digit++;
-		break;
-	case 1:
-		digitalWrite(D4, HIGH);
-		PORTA = hex_value[decenas];
-		digitalWrite(D3, LOW);
-		digit++;
-		break;
-	case 2:
-		digitalWrite(D4, HIGH);
-		digitalWrite(D3, HIGH);
-		digitalWrite(D1, HIGH);
-		PORTA = 0x00;
-		digitalWrite(D2, LOW);
-		digit++;
-		break;
-	case 3:
-		digitalWrite(D4, HIGH);
-		digitalWrite(D3, HIGH);
-		digitalWrite(D2, HIGH);
-		PORTA = 0x00;
-		digitalWrite(D1, LOW);
-		digit = 0;
-		break;
-	}
-
-	// // Encender display
-	// if (estado)
-	// {
-	// 	// Apagar decenas, encender y visualizar unidades
-	// 	digitalWrite(D3, HIGH);
-	// 	PORTA = hex_value[unidades];
-	// 	digitalWrite(D4, LOW);
-	// }
-	// else
-	// {
-	// 	// Apagar unidades, encender y visualizar decenas
-	// 	digitalWrite(D4, HIGH);
-	// 	PORTA = hex_value[decenas];
-	// 	digitalWrite(D3, LOW);
-	// }
-
-	// estado = !estado;
 }
 
 void logic_99()
