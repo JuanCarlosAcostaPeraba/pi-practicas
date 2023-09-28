@@ -139,6 +139,7 @@ void loop()
 	pleft = digitalRead(PLEFT);
 	pright = digitalRead(PRIGHT);
 
+	read_buffer();
 	buttons_increment();
 }
 
@@ -331,20 +332,43 @@ void keyboard(int column)
 	switch (val)
 	{
 	case 7:
-		Serial.print(teclado_map[0][column]);
 		buffer += teclado_map[0][column];
 		break;
 	case 11:
-		Serial.print(teclado_map[1][column]);
 		buffer += teclado_map[1][column];
 		break;
 	case 13:
-		Serial.print(teclado_map[2][column]);
 		buffer += teclado_map[2][column];
 		break;
 	case 14:
-		Serial.print(teclado_map[3][column]);
 		buffer += teclado_map[3][column];
 		break;
+	}
+}
+
+// Funcion para leer el buffer introducido por el teclado
+void read_buffer()
+{
+	if (buffer.length() == 4 && buffer.charAt(3) == '#')
+	{
+		contador = (buffer.substring(0, 4)).toInt();
+		buffer = "";
+		tone(PSTART, 1000, 100);
+	}
+	else if (buffer.length() == 3 && buffer.charAt(2) == '#')
+	{
+		contador = (buffer.substring(0, 3)).toInt();
+		buffer = "";
+		tone(PSTART, 1000, 100);
+	}
+	else if (buffer.length() == 2 && buffer.charAt(1) == '#')
+	{
+		contador = (buffer.substring(0, 2)).toInt();
+		buffer = "";
+		tone(PSTART, 1000, 100);
+	}
+	else
+	{
+		buffer = "";
 	}
 }
