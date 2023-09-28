@@ -78,7 +78,7 @@ char teclado_map[][3] = {
 
 volatile int digit;
 volatile char option;
-volatile String buffer;
+String buffer;
 
 int contador;
 int increment;
