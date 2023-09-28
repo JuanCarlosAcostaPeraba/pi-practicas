@@ -50,6 +50,8 @@ char display_map[4] = {D4, D3, D2, D1};
 #define ROW2 44 // PL[5] fila 2
 #define ROW3 45 // PL[4] fila 3
 
+#define DOFF B00001111;
+
 // Array valores hexadecimales
 char hexadecimal[16] = {
 		'0' 49, '2', '3',		// 0, 1, 2, 3
@@ -142,47 +144,62 @@ void loop()
 
 ISR(INT3_vect)
 {
-	PORTA = 0x00;
-	PORTL = B11110000;
+	PORTL = DOFF;
 	switch (digit)
 	{
 	case 0:
-		if (option == 49 || option == 50)
+		if (option == '1' || option == '2')
 		{
 			PORTA = hex_value[contador % 10];
 		}
-		digitalWrite(display_map[0], LOW);
+		else if (option == '3')
+		{
+			PORTA = 0x00;
+		}
+		PORTL = D4;
 		keyboard(digit);
 		digit++;
 		break;
 	case 1:
-		if (option == 49 || option == 50)
+		if (option == '1' || option == '2')
 		{
 			PORTA = hex_value[(contador / 10) % 10];
 		}
-		digitalWrite(display_map[1], LOW);
+		else if (option == '3')
+		{
+			PORTA = 0x00;
+		}
+		PORTL = D3;
 		keyboard(digit);
 		digit++;
 		break;
 	case 2:
-		if (option == 50)
+		if (option == '1')
 		{
 			PORTA = hex_value[(contador / 100) % 10];
 		}
-		else if (option == 51)
+		else if (option == '2')
+		{
+			PORTA = 0x00;
+		}
+		else if (option == '3')
 		{
 			PORTA = hex_value[contador % 10];
 		}
-		digitalWrite(display_map[2], LOW);
+		PORTL = D2;
 		keyboard(digit);
 		digit++;
 		break;
 	case 3:
-		if (option == 51)
+		if (option == '3')
 		{
 			PORTA = hex_value[(contador / 10) % 10];
 		}
-		digitalWrite(display_map[3], LOW);
+		else
+		{
+			PORTA = 0x00;
+		}
+		PORTL = D1;
 		digit = 0;
 		break;
 	}
