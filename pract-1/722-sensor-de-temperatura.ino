@@ -53,7 +53,7 @@ char display_map[4] = {D4, D3, D2, D1};
 #define DOFF B00001111;
 #define DON B00000000;
 
-#define TEMP 19 // Sensor de temperatura
+#define TEMP A1 // Sensor de temperatura
 
 // Array valores hexadecimales
 char hexadecimal[16] = {
@@ -223,7 +223,7 @@ ISR(INT3_vect)
 	}
 	else
 	{
-		temperature = digitalRead(TEMP);
+		temperature = analogRead(TEMP);
 		temp_degree = ((temperature / 1024.0) * 5000) / 10;
 
 		Serial.print("Temperatura: ");
