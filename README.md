@@ -12,3 +12,4 @@ Prácticas de la asignatura de Periféricos e Interfaces.
    3. [Tarea 3 (No entregable)](./pract-1/713-t3-sincronizacion-por-consulta-de-estado.ino)
    4. [Tarea 4 (No entregable)](./pract-1/714-t4-visualizacion-sincronizada-por-interrupcion-externa.ino)
    5. [Práctica entregable](./pract-1/721-especificaciones-de-diseno.ino)
+   6. [Sensor de temperatura](./pract-1/722-sensor-de-temperatura.ino)
