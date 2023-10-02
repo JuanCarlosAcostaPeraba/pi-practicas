@@ -80,7 +80,7 @@ char teclado_map[][3] = {
 
 volatile int digit;
 volatile int temperature_selector;
-volatile float temp_degree;
+volatile int temp_degree;
 volatile char option;
 
 int temperature;
@@ -223,7 +223,7 @@ ISR(INT3_vect)
 	else
 	{
 		temperature = analogRead(TEMP);
-		temp_degree = int(((temperature / 1024.0) * 5000) / 10);
+		temp_degree = ((temperature / 1024.0) * 5000) / 10;
 
 		switch (digit)
 		{
