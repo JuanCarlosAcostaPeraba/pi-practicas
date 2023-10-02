@@ -123,7 +123,6 @@ void setup()
 
 	digit = 0;
 	temperature_selector = 0;
-	option = '1';
 
 	temperature = analogRead(TEMP);
 	temp_degree = ((temperature / 1024.0) * 5000) / 10;
