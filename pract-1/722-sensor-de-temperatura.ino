@@ -79,11 +79,11 @@ char teclado_map[][3] = {
 		{'*', '0', '#'}};
 
 volatile int digit;
-volatile int temperture_selector;
+volatile int temperature_selector;
 volatile float temp_degree;
 volatile char option;
 
-int temperture;
+int temperature;
 
 String buffer;
 
@@ -122,11 +122,11 @@ void setup()
 	sei();																// Habilitamos las interrupciones
 
 	digit = 0;
-	temperture_selector = 0;
+	temperature_selector = 0;
 	option = '1';
 
-	temperture = digitalRead(TEMP);
-	temp_degree = ((temperture / 1024.0) * 5000) / 10;
+	temperature = analogRead(TEMP);
+	temp_degree = ((temperature / 1024.0) * 5000) / 10;
 
 	buffer = "";
 
@@ -158,7 +158,7 @@ void loop()
 
 ISR(INT3_vect)
 {
-	if (temperture_selector <= 1000) // 5 segundos
+	if (temperature_selector <= 1000) // 5 segundos
 	{
 		PORTL = DOFF;
 		switch (digit)
@@ -219,19 +219,19 @@ ISR(INT3_vect)
 			digit = 0;
 			break;
 		}
-		temperture_selector++;
+		temperature_selector++;
 	}
 	else
 	{
-		temperture = digitalRead(TEMP);
-		temp_degree = ((temperture / 1024.0) * 5000) / 10;
+		temperature = digitalRead(TEMP);
+		temp_degree = ((temperature / 1024.0) * 5000) / 10;
 
 		Serial.print("Temperatura: ");
 		Serial.println(temp_degree);
-		temperture_selector++;
-		if (temperture_selector == 2000)
+		temperature_selector++;
+		if (temperature_selector == 2000)
 		{
-			temperture_selector = 0;
+			temperature_selector = 0;
 		}
 	}
 }
