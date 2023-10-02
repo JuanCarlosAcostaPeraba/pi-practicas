@@ -158,7 +158,7 @@ void loop()
 ISR(INT3_vect)
 {
 	PORTL = DOFF;
-	if (temperature_selector <= 250)
+	if (temperature_selector <= 500)
 	{
 		switch (digit)
 		{
@@ -245,7 +245,7 @@ ISR(INT3_vect)
 		}
 
 		temperature_selector++;
-		if (temperature_selector == 500)
+		if (temperature_selector == 1000)
 		{
 			temperature_selector = 0;
 		}
