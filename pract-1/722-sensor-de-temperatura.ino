@@ -79,8 +79,9 @@ char teclado_map[][3] = {
 		{'*', '0', '#'}};
 
 volatile int digit;
-volatile int temperature_selector;
 volatile int temp_degree;
+volatile int temp_selector;
+volatile bool temperature_selector;
 volatile char option;
 
 int temperature;
@@ -122,7 +123,8 @@ void setup()
 	sei();																// Habilitamos las interrupciones
 
 	digit = 0;
-	temperature_selector = 0;
+	temperature_selector = false;
+	temp_selector = 0;
 
 	temperature = analogRead(TEMP);
 	temp_degree = ((temperature / 1024.0) * 5000) / 10;
@@ -158,7 +160,7 @@ void loop()
 ISR(INT3_vect)
 {
 	PORTL = DOFF;
-	if (temperature_selector <= 500)
+	if (!temperature_selector)
 	{
 		switch (digit)
 		{
@@ -218,7 +220,7 @@ ISR(INT3_vect)
 			digit = 0;
 			break;
 		}
-		temperature_selector++;
+		calc_temp_selector();
 	}
 	else
 	{
@@ -244,11 +246,19 @@ ISR(INT3_vect)
 			break;
 		}
 
-		temperature_selector++;
-		if (temperature_selector == 1000)
-		{
-			temperature_selector = 0;
-		}
+		calc_temp_selector();
+	}
+}
+
+// Funcion para calcular el selector de temperatura
+void calc_temp_selector()
+{
+	temp_selector++;
+	if (temp_selector == 500)
+	{
+		temp_selector = 0;
+		temperature_selector = !temperature_selector;
+		digit = 0;
 	}
 }
 
