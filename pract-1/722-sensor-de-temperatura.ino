@@ -223,10 +223,27 @@ ISR(INT3_vect)
 	else
 	{
 		temperature = analogRead(TEMP);
-		temp_degree = ((temperature / 1024.0) * 5000) / 10;
+		temp_degree = int(((temperature / 1024.0) * 5000) / 10);
 
-		Serial.print("Temperatura: ");
-		Serial.println(temp_degree);
+		switch (digit)
+		{
+		case 0:
+			PORTA = 0x63;
+			PORTL = B00001110;
+			digit++;
+			break;
+		case 1:
+			PORTA = hex_value[int(temp_degree % 10)];
+			PORTL = B00001101;
+			digit++;
+			break;
+		case 2:
+			PORTA = hex_value[int((temp_degree / 10) % 10)];
+			PORTL = B00001011;
+			digit = 0;
+			break;
+		}
+
 		temperature_selector++;
 		if (temperature_selector == 500)
 		{
