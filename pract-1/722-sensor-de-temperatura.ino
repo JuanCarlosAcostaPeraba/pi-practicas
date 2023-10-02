@@ -157,9 +157,9 @@ void loop()
 
 ISR(INT3_vect)
 {
-	if (temperature_selector <= 500)
+	PORTL = DOFF;
+	if (temperature_selector <= 250)
 	{
-		PORTL = DOFF;
 		switch (digit)
 		{
 		case 0:
@@ -222,15 +222,13 @@ ISR(INT3_vect)
 	}
 	else
 	{
-		PORTL = DOFF;
-
 		temperature = analogRead(TEMP);
 		temp_degree = ((temperature / 1024.0) * 5000) / 10;
 
 		Serial.print("Temperatura: ");
 		Serial.println(temp_degree);
 		temperature_selector++;
-		if (temperature_selector == 1000)
+		if (temperature_selector == 500)
 		{
 			temperature_selector = 0;
 		}
