@@ -13,3 +13,5 @@ Prácticas de la asignatura de Periféricos e Interfaces.
    4. [Tarea 4 (No entregable)](./pract-1/714-t4-visualizacion-sincronizada-por-interrupcion-externa.ino)
    5. [Práctica entregable](./pract-1/721-especificaciones-de-diseno.ino)
    6. [Sensor de temperatura](./pract-1/722-sensor-de-temperatura.ino)
+2. [Práctica 2](./pract-2/) - [Proyecto base 2](./pract-2/23-24_plab2_base.pdsprj)
+   1. [Tarea 1 (No entregable)](./pract-2/411-t1-generacion-de-senales-en-modo-normal.ino)
