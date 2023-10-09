@@ -72,6 +72,12 @@ void setup()
 	// Puerto C
 	DDRC = B00000000;	 // Configuramos el pin 0 del puerto C como entrada (0x00)
 	PORTC = B11111111; // Inicializamos el puerto C a 1 (0cFF)
+
+	TCCR3A = B00000000; // Modo normal
+	TCCR3B = B00000000; // Modo normal
+	TCNT3 = 0;					// Inicializamos el contador a 0
+	OCR3A = 0x0001;			// Valor del registro A de comparación del timer
+	OCR3C = 0x7FFF;			// Valor del registro C de comparación del timer
 }
 
 void loop()
