@@ -74,18 +74,26 @@ void setup()
 	PORTC = B11111111; // Inicializamos el puerto C a 1 (0cFF)
 
 	// Modo normal
-	// f = 16MHz / (2 * N * 65536)
-	// N = 1, tclk = 62,5 ns, f = 122 Hz, T = 8,19 ms
+	// TOP = 0xFFFF -> 65535
+	// T = 65.536ms
+	// f = 1/T = 15.2587Hz
+	// fclk = 16MHz
+	// Formula: f = (fclk / (2 * N * (1 + TOP)))
+	// N = 8.00004669
+
+	pinMode(5, OUTPUT);
+	pinMode(3, OUTPUT);
+	pinMode(2, OUTPUT);
 
 	TCCR3A = TCCR3B = TCCR3C = 0;
 
 	TCNT3 = 0;
 
-	OCR3A = 0x0001;
+	OCR3A = 0x000F;
 	OCR3C = 0x3FFF;
 
 	TCCR3A = B01010100;
-	TCCR3B = B00000001;
+	TCCR3B = B00000010;
 }
 
 void loop()
