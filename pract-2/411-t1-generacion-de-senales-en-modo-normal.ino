@@ -73,20 +73,19 @@ void setup()
 	DDRC = B00000000;	 // Configuramos el pin 0 del puerto C como entrada (0x00)
 	PORTC = B11111111; // Inicializamos el puerto C a 1 (0cFF)
 
-	pinMode(5, OUTPUT);
-	pinMode(3, OUTPUT);
+	// Modo normal
+	// f = 16MHz / (2 * N * 65536)
+	// N = 1, tclk = 62,5 ns, f = 122 Hz, T = 8,19 ms
 
-	TCCR3A = TCCR3C = 0; // Eliminar la configuración por defecto del timer 3
+	TCCR3A = TCCR3B = TCCR3C = 0;
 
-	TCNT3 = 0; // Borrar cualquier valor que hubiera en el contador del timer 3
+	TCNT3 = 0;
 
-	// MAX = 0xFFFF; Valor máxmimo al que llega el timer 3 (65535)
+	OCR3A = 0x0001;
+	OCR3C = 0x3FFF;
 
-	OCR3A = 0x0000; // Valor de comparación del registro A para generar la señal de onda cuadrada
-	OCR3C = 0x7FFF; // Valor de comparación del registro C para generar la señal de onda cuadrada
-
-	TCCR3A = B00000000; // Modo normal del timer 3
-	TCCR3B = B00000001; // Prescaler 1
+	TCCR3A |= (1 << COM3A0) | (1 << COM3C0);
+	TCCR3B |= (1 << WGM32);
 }
 
 void loop()
