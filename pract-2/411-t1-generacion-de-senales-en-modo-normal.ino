@@ -73,6 +73,9 @@ void setup()
 	DDRC = B00000000;	 // Configuramos el pin 0 del puerto C como entrada (0x00)
 	PORTC = B11111111; // Inicializamos el puerto C a 1 (0cFF)
 
+	pinMode(5, OUTPUT);
+	pinMode(3, OUTPUT);
+
 	TCCR3A = TCCR3C = 0; // Eliminar la configuración por defecto del timer 3
 
 	TCNT3 = 0; // Borrar cualquier valor que hubiera en el contador del timer 3
