@@ -84,8 +84,8 @@ void setup()
 	OCR3A = 0x0001;
 	OCR3C = 0x3FFF;
 
-	TCCR3A |= (1 << COM3A0) | (1 << COM3C0);
-	TCCR3B |= (1 << WGM32);
+	TCCR3A = B01010100;
+	TCCR3B = B00000001;
 }
 
 void loop()
