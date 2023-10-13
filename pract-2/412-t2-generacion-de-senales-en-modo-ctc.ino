@@ -89,8 +89,8 @@ void setup()
 	TCNT3 = 0; // Inicializamos el contador del timer 3 a 0
 
 	OCR3A = 0x0001; // Registro de comparación A del timer 3
-	OCR3B = 0x1FFF; // Registro de comparación B del timer 3
-	OCR3C = 0x03FF; // Registro de comparación C del timer 3
+	OCR3B = 0x1387; // Registro de comparación B del timer 3
+	OCR3C = 0x04E1; // Registro de comparación C del timer 3
 
 	ICR3 = 0x4E1F; // Registro de comparación del timer 3
 
