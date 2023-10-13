@@ -79,21 +79,21 @@ void setup()
 	// f = 1/T = 15.2587Hz
 	// fclk = 16MHz
 	// Formula: f = (fclk / (2 * N * (1 + TOP)))
-	// N = 8.00004669
+	// N = 8.00004669 -> 8
 
 	pinMode(5, OUTPUT);
 	pinMode(3, OUTPUT);
 	pinMode(2, OUTPUT);
 
-	TCCR3A = TCCR3B = TCCR3C = 0;
+	TCCR3A = TCCR3B = TCCR3C = 0; // Desactivamos todas las salidas del timer 3
 
-	TCNT3 = 0;
+	TCNT3 = 0; // Inicializamos el contador del timer 3 a 0
 
-	OCR3A = 0x0001;
-	OCR3C = 0x3FFF;
+	OCR3A = 0x0001; // Registro de comparación A del timer 3
+	OCR3C = 0x3FFF; // Registro de comparación C del timer 3
 
-	TCCR3A = B01000100;
-	TCCR3B = B00000010;
+	TCCR3A = B01000100; // Modo normal, toggle OC3A y OC3C en comparación
+	TCCR3B = B00000010; // Prescaler 8
 }
 
 void loop()
