@@ -76,27 +76,26 @@ void setup()
 	DDRC = B00000000;	 // Configuramos el pin 0 del puerto C como entrada (0x00)
 	PORTC = B11111111; // Inicializamos el puerto C a 1 (0cFF)
 
-	// Modo normal
-	// TOP = 0xFFFF -> 65535
-	// T = 65.536ms
-	// f = 1/T = 15.2587Hz
-	// fclk = 16MHz
+	// Modo CTC
 	// Formula: f = (fclk / (2 * N * (1 + TOP)))
-	// N = 8.00004669 -> 8
+	// f = 1/T = 50Hz; T = 20ms; fclk = 16MHz; N = 8; TOP = ??
 
-	pinMode(5, OUTPUT);
-	pinMode(3, OUTPUT);
-	pinMode(2, OUTPUT);
+	pinMode(5, OUTPUT); // OC3A
+	pinMode(2, OUTPUT); // OC3B
+	pinMode(3, OUTPUT); // OC3C
 
 	TCCR3A = TCCR3B = TCCR3C = 0; // Desactivamos todas las salidas del timer 3
 
 	TCNT3 = 0; // Inicializamos el contador del timer 3 a 0
 
 	OCR3A = 0x0001; // Registro de comparación A del timer 3
-	OCR3C = 0x3FFF; // Registro de comparación C del timer 3
+	OCR3B = 0x1FFF; // Registro de comparación B del timer 3
+	OCR3C = 0x03FF; // Registro de comparación C del timer 3
 
-	TCCR3A = B01000100; // Modo normal, toggle OC3A y OC3C en comparación
-	TCCR3B = B00000010; // Prescaler 8
+	ICR3 = 0x4E1F; // Registro de comparación del timer 3
+
+	TCCR3A = B01010100; // Modo CTC, toggle OC3A y OC3C en comparación
+	TCCR3B = B00011010; // Prescaler 8
 }
 
 void loop()
