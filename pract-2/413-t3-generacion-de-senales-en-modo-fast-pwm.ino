@@ -87,23 +87,19 @@ void setup()
 
 	// Modo CTC
 	// Formula: f = (fclk / (2 * N * (1 + TOP)))
-	// f = 1/T = 50Hz; T = 20ms; fclk = 16MHz; N = 8; TOP = ??
+	// f = 1/T = 250; T = 4ms; fclk = 16MHz; N = 8; TOP = ??
 
-	pinMode(5, OUTPUT); // OC3A
+	// pinMode(5, OUTPUT); // OC3A
 	pinMode(2, OUTPUT); // OC3B
-	pinMode(3, OUTPUT); // OC3C
+	// pinMode(3, OUTPUT); // OC3C
 
 	TCCR3A = TCCR3B = TCCR3C = 0; // Desactivamos todas las salidas del timer 3
 
 	TCNT3 = 0; // Inicializamos el contador del timer 3 a 0
 
-	OCR3A = 0x0001; // Registro de comparación A del timer 3
-	OCR3B = 0x1FFF; // Registro de comparación B del timer 3
-	OCR3C = 0xFC00; // Registro de comparación C del timer 3
+	OCR3A = 0x1F3F; // TOP
 
-	ICR3 = 0x4E1F; // Registro de comparación del timer 3
-
-	TCCR3A = B01010100; // Modo CTC, toggle OC3A y OC3C en comparación
+	TCCR3A = B00010011; // Modo CTC, toggle OC3A y OC3C en comparación
 	TCCR3B = B00011010; // Prescaler 8
 }
 
