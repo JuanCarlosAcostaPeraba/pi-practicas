@@ -16,3 +16,4 @@ Prácticas de la asignatura de Periféricos e Interfaces.
 2. [Práctica 2](./pract-2/) - [Proyecto base 2](./pract-2/23-24_plab2_base.pdsprj)
    1. [Tarea 1 (No entregable)](./pract-2/411-t1-generacion-de-senales-en-modo-normal.ino)
    2. [Tarea 2 (No entregable)](./pract-2/412-t2-generacion-de-senales-en-modo-ctc.ino)
+   3. [Tarea 2 (No entregable)](./pract-2/413-t3-generacion-de-senales-en-modo-fast-pwm.ino)
