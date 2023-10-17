@@ -89,8 +89,8 @@ void setup()
 	DDRC = B00000000;	 // Configuramos el pin 0 del puerto C como entrada (0x00)
 	PORTC = B11111111; // Inicializamos el puerto C a 1 (0cFF)
 
-	// Modo CTC
-	// Formula: f = (fclk / (2 * N * (1 + TOP)))
+	// Modo FAST PWM
+	// Formula: f = (fclk / (N * (1 + TOP)))
 	// f = 1/T = 250; T = 4ms; fclk = 16MHz; N = 8; TOP = ??
 
 	// pinMode(5, OUTPUT); // OC3A
