@@ -101,14 +101,13 @@ void setup()
 
 	TCNT3 = 0; // Inicializamos el contador del timer 3 a 0
 
-	OCR3A = TOP;		// TOP
 	OCR3B = 0x0001; // Registro de comparación B del timer 3 para verlo en el osciloscopio
 
-	TCCR3A = B10101011; // Modo CTC, toggle OC3A y OC3C en comparación
+	TCCR3A = B00010011; // Modo CTC, toggle OC3A y OC3C en comparación
 	TCCR3B = B00011010; // Prescaler 8
 
-	TIMSK3 = B00100000; // Mascara para habilitar interrupciones del timer 3
-	sei();							// Habilitamos las interrupciones
+	TIMSK3 = B00100000; // Interrupción
+	sei();
 }
 
 void loop()
@@ -117,8 +116,5 @@ void loop()
 
 ISR(TIMER3_COMPA_vect)
 {
-	conv = analogRead(POTE);					 // Leemos el valor del potenciómetro
-	conv = map(conv, 0, 1023, 0, TOP); // Mapeamos el valor del potenciómetro a un valor entre 0% y 100%
-
-	OCR3B = conv; // Actualizamos el valor del registro de comparación B del timer 3
+	OCR3A = map(analogRead(POTE), 0, 1023, 0, TOP);
 }
