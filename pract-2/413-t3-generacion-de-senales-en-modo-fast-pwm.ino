@@ -93,9 +93,9 @@ void setup()
 	// Formula: f = (fclk / (N * (1 + TOP)))
 	// f = 1/T = 250; T = 4ms; fclk = 16MHz; N = 8; TOP = ??
 
-	// pinMode(5, OUTPUT); // OC3A
+	pinMode(5, OUTPUT); // OC3A
 	pinMode(2, OUTPUT); // OC3B
-	// pinMode(3, OUTPUT); // OC3C
+	pinMode(3, OUTPUT); // OC3C
 
 	TCCR3A = TCCR3B = TCCR3C = 0; // Desactivamos todas las salidas del timer 3
 
