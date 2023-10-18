@@ -116,7 +116,7 @@ void setup()
 
 	ICR3 = TOP; // TOP
 
-	TCCR3A = B10000010; // Modo Fast PWM
+	TCCR3A = B11000010; // Modo Fast PWM
 	TCCR3B = B00010010; // Prescaler 8
 }
 
