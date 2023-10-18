@@ -101,10 +101,10 @@ void setup()
 
 	TCNT3 = 0; // Inicializamos el contador del timer 3 a 0
 
-	OCR3A = TOP; // Registro de comparación A del timer 3
-	OCR3C = OCR3A / 8;
+	OCR3B = 0x0FA0;
+	OCR3C = 0x0000;
 
-	TCCR3A = B10101011; // Modo Fast PWM
+	TCCR3A = B00010011; // Modo Fast PWM
 	TCCR3B = B00011010; // Prescaler 8
 
 	TIMSK3 = B00100000; // Interrupción
