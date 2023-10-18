@@ -46,7 +46,7 @@ char display_map[4] = {D4, D3, D2, D1};
 
 #define POTE A0
 
-#define TOP 0x1F3F
+#define TOP 0x1F3F // 7999
 
 unsigned int conv = 0;
 
@@ -101,9 +101,10 @@ void setup()
 
 	TCNT3 = 0; // Inicializamos el contador del timer 3 a 0
 
-	OCR3B = 0x0001; // Registro de comparación B del timer 3 para verlo en el osciloscopio
+	OCR3A = TOP; // Registro de comparación A del timer 3
+	OCR3C = OCR3A / 8;
 
-	TCCR3A = B00010011; // Modo CTC, toggle OC3A y OC3C en comparación
+	TCCR3A = B10101011; // Modo Fast PWM
 	TCCR3B = B00011010; // Prescaler 8
 
 	TIMSK3 = B00100000; // Interrupción
