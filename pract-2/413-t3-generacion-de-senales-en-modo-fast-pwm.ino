@@ -104,7 +104,7 @@ void setup()
 	OCR3B = 0x0FA0;
 	OCR3C = 0x0000;
 
-	TCCR3A = B10101011; // Modo Fast PWM
+	TCCR3A = B00100011; // Modo Fast PWM
 	TCCR3B = B00011010; // Prescaler 8
 }
 
