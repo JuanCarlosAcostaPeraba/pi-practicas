@@ -104,18 +104,11 @@ void setup()
 	OCR3B = 0x0FA0;
 	OCR3C = 0x0000;
 
-	TCCR3A = B00010011; // Modo Fast PWM
+	TCCR3A = B10101011; // Modo Fast PWM
 	TCCR3B = B00011010; // Prescaler 8
-
-	TIMSK3 = B00100000; // Interrupción
-	sei();
 }
 
 void loop()
-{
-}
-
-ISR(TIMER3_COMPA_vect)
 {
 	OCR3A = map(analogRead(POTE), 0, 1023, 0, TOP);
 }
