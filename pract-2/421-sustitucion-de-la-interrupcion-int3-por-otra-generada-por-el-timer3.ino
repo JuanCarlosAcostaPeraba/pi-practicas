@@ -143,10 +143,10 @@ void setup()
 	OCR3B = 0;
 	OCR3C = 0;
 
-	TCCR3A = B01010100; // Modo CTC
+	TCCR3A = B01000000; // Modo CTC
 	TCCR3B = B00001010; // Modo CTC, prescaler 8
 
-	TIMSK3 = B00100000; // Habilitamos la interrupcion OCIE3A
+	TIMSK3 = B00000010; // Habilitamos la interrupcion OCIE3A
 	sei();							// Habilitamos las interrupciones
 
 	digit = 0;
