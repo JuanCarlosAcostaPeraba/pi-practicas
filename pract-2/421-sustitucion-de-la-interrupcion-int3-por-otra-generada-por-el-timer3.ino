@@ -130,6 +130,11 @@ void setup()
 	// Timer 3 en modo CTC (modo 4)
 	// f = 16 MHz / (2 * N * (1 + TOP))
 	// f = 10Hz; N = 8; TOP = 0x270F
+
+	pinMode(5, OUTPUT); // OC3A
+	pinMode(2, OUTPUT); // OC3B
+	pinMode(3, OUTPUT); // OC3C
+
 	cli();												// Deshabilitamos las interrupciones
 	TCCR3A = TCCR3B = TCCR3C = 0; // Deshabilitamos el temporizador
 	TCNT3 = 0;										// Inicializamos el contador
