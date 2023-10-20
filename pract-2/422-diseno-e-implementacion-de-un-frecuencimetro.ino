@@ -172,17 +172,6 @@ ISR(TIMER3_CAPT_vect)
 	periodo = ICR3_new - ICR3_old;
 
 	frecuencia = periodo * 0.0000005;
-
-	if (frecuencia > 9999)
-	{
-		Serial.print(frecuencia);
-		Serial.println(" Hz - ");
-	}
-	else
-	{
-		bakcup = contador;
-		contador = frecuencia;
-	}
 }
 
 ISR(TIMER3_COMPA_vect)
@@ -443,5 +432,20 @@ void read_buffer()
 	else if ((buffer.length() == 1 && buffer.charAt(0) == '#') || (buffer.length() > 4))
 	{
 		buffer = "";
+	}
+}
+
+// Funcion para mostar el valor del fecuencimetro
+void frecuencimetro()
+{
+	if (frecuencia > 9999)
+	{
+		Serial.print(frecuencia);
+		Serial.println(" Hz - ");
+	}
+	else
+	{
+		bakcup = contador;
+		contador = frecuencia;
 	}
 }
