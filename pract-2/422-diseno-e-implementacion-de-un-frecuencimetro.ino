@@ -80,6 +80,8 @@ String buffer;
 
 int contador;
 int increment;
+int frecuencia;
+int bakcup;
 
 int pup;
 int pdown;
@@ -166,15 +168,19 @@ ISR(TIMER3_COMPA_vect)
 	case 0:
 		if (option == '1' || option == '2')
 		{
+			contador = bakcup;	 // Recuperamos el valor del contador
+			bakcup = frecuencia; // Guardamos el valor de la frecuencia
 			PORTA = hex_value[contador % 10];
 		}
 		else if (option == '3')
 		{
+			contador = bakcup;	 // Recuperamos el valor del contador
+			bakcup = frecuencia; // Guardamos el valor de la frecuencia
 			PORTA = 0x00;
 		}
 		else if (option == '4')
 		{
-			Serial.println("frecuencimetro");
+			frecuencimetro();
 		}
 		PORTL = B00001110;
 		keyboard(digit);
@@ -183,15 +189,19 @@ ISR(TIMER3_COMPA_vect)
 	case 1:
 		if (option == '1' || option == '2')
 		{
+			contador = bakcup;	 // Recuperamos el valor del contador
+			bakcup = frecuencia; // Guardamos el valor de la frecuencia
 			PORTA = hex_value[(contador / 10) % 10];
 		}
 		else if (option == '3')
 		{
+			contador = bakcup;	 // Recuperamos el valor del contador
+			bakcup = frecuencia; // Guardamos el valor de la frecuencia
 			PORTA = 0x00;
 		}
 		else if (option == '4')
 		{
-			Serial.println("frecuencimetro");
+			frecuencimetro();
 		}
 		PORTL = B00001101;
 		keyboard(digit);
@@ -200,6 +210,8 @@ ISR(TIMER3_COMPA_vect)
 	case 2:
 		if (option == '1')
 		{
+			contador = bakcup;	 // Recuperamos el valor del contador
+			bakcup = frecuencia; // Guardamos el valor de la frecuencia
 			PORTA = hex_value[(contador / 100) % 10];
 		}
 		else if (option == '2')
@@ -208,11 +220,13 @@ ISR(TIMER3_COMPA_vect)
 		}
 		else if (option == '3')
 		{
+			contador = bakcup;	 // Recuperamos el valor del contador
+			bakcup = frecuencia; // Guardamos el valor de la frecuencia
 			PORTA = hex_value[contador % 10];
 		}
 		else if (option == '4')
 		{
-			Serial.println("frecuencimetro");
+			frecuencimetro();
 		}
 		PORTL = B00001011;
 		keyboard(digit);
@@ -221,15 +235,17 @@ ISR(TIMER3_COMPA_vect)
 	case 3:
 		if (option == '3')
 		{
+			contador = bakcup;	 // Recuperamos el valor del contador
+			bakcup = frecuencia; // Guardamos el valor de la frecuencia
 			PORTA = hex_value[(contador / 10) % 10];
+		}
+		else if (option == '4')
+		{
+			frecuencimetro();
 		}
 		else
 		{
 			PORTA = 0x00;
-		}
-		else if (option == '4')
-		{
-			Serial.println("frecuencimetro");
 		}
 		PORTL = B00000111;
 		digit = 0;
@@ -408,4 +424,18 @@ void read_buffer()
 // Funcion para mostrar la frecuencia
 void frecuencimetro()
 {
+	TIMSK = B00100000;
+	ISR(TIMER3_CAPT_vect)
+	{
+		frecuencia = ICR3;
+	}
+	if (frecuencia > 9999)
+	{
+		Serial.println(frecuencia);
+	}
+	else
+	{
+		bakcup = contador;		 // Guardamos el valor del contador
+		contador = frecuencia; // Mostramos la frecuencia
+	}
 }
