@@ -63,6 +63,8 @@ char display_map[4] = {D4, D3, D2, D1};
 
 #define TEMP A1 // Sensor de temperatura
 
+#define TOP 0x270F // 9999
+
 // Array valores hexadecimales
 char hexadecimal[16] = {
 		'0', '1', '2', '3', // 0, 1, 2, 3
@@ -125,10 +127,22 @@ void setup()
 	PORTC = B11111111; // Inicializamos el puerto C a 1 (0cFF)
 
 	// Habilitacion de la interrupcion INT3
-	cli();																// Deshabilitamos las interrupciones
-	EICRA |= (1 << ISC31) | (1 << ISC30); // INT3 activada por flanco de subida
-	EIMSK |= (1 << INT3);									// Desenmascaramos la interrupcion INT3 para habilitar la interrupcion externa 3
-	sei();																// Habilitamos las interrupciones
+	// Timer 3 en modo CTC (modo 4)
+	// f = 16 MHz / (2 * N * (1 + TOP))
+	// f = 10Hz; N = 8; TOP = 0x270F
+	cli();												// Deshabilitamos las interrupciones
+	TCCR3A = TCCR3B = TCCR3C = 0; // Deshabilitamos el temporizador
+	TCNT3 = 0;										// Inicializamos el contador
+
+	OCR3A = TOP; // Establecemos el valor de comparacion
+	OCR3B = 0;
+	OCR3C = 0;
+
+	TCCR3A = B00000000; // Modo CTC
+	TCCR3B = B00001010; // Modo CTC, prescaler 8
+
+	TIMSK3 = B00100000; // Habilitamos la interrupcion OCIE3A
+	sei();							// Habilitamos las interrupciones
 
 	digit = 0;
 	temperature_selector = false;
@@ -165,7 +179,7 @@ void loop()
 	buttons_increment();
 }
 
-ISR(INT3_vect)
+ISR(TIMER3_COMPA_vect)
 {
 	PORTL = DOFF;
 	if (!temperature_selector)
