@@ -80,12 +80,12 @@ String buffer;
 
 int contador;
 int increment;
-int frecuencia;
 int bakcup;
 
-bool sw = true;
-int t;
-int t2;
+int frecuencia;
+int ICR3_old = 0;
+int ICR3_new = 0;
+int periodo = 0;
 
 int pup;
 int pdown;
@@ -129,10 +129,10 @@ void setup()
 	OCR3B = 0;
 	OCR3C = 0;
 
-	TCCR3A = B01000000; // Modo CTC
+	TCCR3A = B00000000; // Modo CTC
 	TCCR3B = B00001010; // Modo CTC, prescaler 8
 
-	TIMSK3 = B00000010; // Habilitamos la interrupcion OCIE3A y la interrupcion ICIE3 con el bit 1
+	TIMSK3 = B00100010; // Habilitamos la interrupcion OCIE3A y la interrupcion ICIE3 con el bit 1
 	sei();
 
 	digit = 0;
@@ -162,6 +162,27 @@ void loop()
 
 	read_buffer();
 	buttons_increment();
+}
+
+ISR(TIMER3_CAPT_vect)
+{
+
+	ICR3_old = ICR3_new;
+	ICR3_new = ICR3;
+
+	periodo = ICR3_new - ICR3_old;
+
+	frecuencia = periodo * 0.0000005;
+
+	if (frecuencia > 9999)
+	{
+		Serial.println(frecuencia);
+	}
+	else
+	{
+		bakcup = contador;
+		contador = frecuencia;
+	}
 }
 
 ISR(TIMER3_COMPA_vect)
@@ -423,26 +444,4 @@ void read_buffer()
 	{
 		buffer = "";
 	}
-}
-
-// Funcion para mostrar la frecuencia
-void frecuencimetro()
-{
-	if (ICF3 == 1 && sw)
-	{
-		t = ICR3;
-		sw = false;
-	}
-	else if (ICF3 == 1 && !sw)
-	{
-		t2 = ICR3;
-		sw = true;
-	}
-
-	Serial.println(t);
-	Serial.println(t2);
-	Serial.println(abs(t - t2));
-
-	bakcup = contador;		 // Guardamos el valor del contador
-	contador = frecuencia; // Mostramos la frecuencia
 }
