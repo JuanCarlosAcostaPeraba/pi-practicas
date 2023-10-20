@@ -61,8 +61,6 @@ char display_map[4] = {D4, D3, D2, D1};
 #define DOFF B00001111;
 #define DON B00000000;
 
-#define TEMP A1 // Sensor de temperatura
-
 #define TOP 0x270F // 9999
 
 // Array valores hexadecimales
@@ -89,13 +87,7 @@ char teclado_map[][3] = {
 		{'*', '0', '#'}};
 
 volatile int digit;
-volatile int temp_degree;
-volatile int temp_selector;
-volatile bool temperature_selector;
 volatile char option;
-
-int temperature;
-
 String buffer;
 
 int contador;
@@ -147,22 +139,16 @@ void setup()
 	TCCR3B = B00001010; // Modo CTC, prescaler 8
 
 	TIMSK3 = B00000010; // Habilitamos la interrupcion OCIE3A
-	sei();							// Habilitamos las interrupciones
+	sei();
 
 	digit = 0;
-	temperature_selector = false;
-	temp_selector = 0;
-
-	temperature = analogRead(TEMP);
-	temp_degree = ((temperature / 1024.0) * 5000) / 10;
-
 	buffer = "";
 
 	contador = 0;
 	increment = 1;
 
 	time_old = millis();
-	transition_time = 250;
+	transition_time = 550;
 
 	menu();
 }
@@ -187,105 +173,63 @@ void loop()
 ISR(TIMER3_COMPA_vect)
 {
 	PORTL = DOFF;
-	if (!temperature_selector)
+	switch (digit)
 	{
-		switch (digit)
+	case 0:
+		if (option == '1' || option == '2')
 		{
-		case 0:
-			if (option == '1' || option == '2')
-			{
-				PORTA = hex_value[contador % 10];
-			}
-			else if (option == '3')
-			{
-				PORTA = 0x00;
-			}
-			PORTL = B00001110;
-			keyboard(digit);
-			digit++;
-			break;
-		case 1:
-			if (option == '1' || option == '2')
-			{
-				PORTA = hex_value[(contador / 10) % 10];
-			}
-			else if (option == '3')
-			{
-				PORTA = 0x00;
-			}
-			PORTL = B00001101;
-			keyboard(digit);
-			digit++;
-			break;
-		case 2:
-			if (option == '1')
-			{
-				PORTA = hex_value[(contador / 100) % 10];
-			}
-			else if (option == '2')
-			{
-				PORTA = 0x00;
-			}
-			else if (option == '3')
-			{
-				PORTA = hex_value[contador % 10];
-			}
-			PORTL = B00001011;
-			keyboard(digit);
-			digit++;
-			break;
-		case 3:
-			if (option == '3')
-			{
-				PORTA = hex_value[(contador / 10) % 10];
-			}
-			else
-			{
-				PORTA = 0x00;
-			}
-			PORTL = B00000111;
-			digit = 0;
-			break;
+			PORTA = hex_value[contador % 10];
 		}
-		calc_temp_selector();
-	}
-	else
-	{
-		temperature = analogRead(TEMP);
-		temp_degree = ((temperature / 1024.0) * 5000) / 10;
-
-		switch (digit)
+		else if (option == '3')
 		{
-		case 0:
-			PORTA = 0x63;
-			PORTL = B00001110;
-			digit++;
-			break;
-		case 1:
-			PORTA = hex_value[int(temp_degree % 10)];
-			PORTL = B00001101;
-			digit++;
-			break;
-		case 2:
-			PORTA = hex_value[int((temp_degree / 10) % 10)];
-			PORTL = B00001011;
-			digit = 0;
-			break;
+			PORTA = 0x00;
 		}
-
-		calc_temp_selector();
-	}
-}
-
-// Funcion para calcular el selector de temperatura
-void calc_temp_selector()
-{
-	temp_selector++;
-	if (temp_selector == 500)
-	{
-		temp_selector = 0;
-		temperature_selector = !temperature_selector;
+		PORTL = B00001110;
+		keyboard(digit);
+		digit++;
+		break;
+	case 1:
+		if (option == '1' || option == '2')
+		{
+			PORTA = hex_value[(contador / 10) % 10];
+		}
+		else if (option == '3')
+		{
+			PORTA = 0x00;
+		}
+		PORTL = B00001101;
+		keyboard(digit);
+		digit++;
+		break;
+	case 2:
+		if (option == '1')
+		{
+			PORTA = hex_value[(contador / 100) % 10];
+		}
+		else if (option == '2')
+		{
+			PORTA = 0x00;
+		}
+		else if (option == '3')
+		{
+			PORTA = hex_value[contador % 10];
+		}
+		PORTL = B00001011;
+		keyboard(digit);
+		digit++;
+		break;
+	case 3:
+		if (option == '3')
+		{
+			PORTA = hex_value[(contador / 10) % 10];
+		}
+		else
+		{
+			PORTA = 0x00;
+		}
+		PORTL = B00000111;
 		digit = 0;
+		break;
 	}
 }
 
