@@ -166,7 +166,6 @@ void loop()
 
 ISR(TIMER3_CAPT_vect)
 {
-
 	ICR3_old = ICR3_new;
 	ICR3_new = ICR3;
 
