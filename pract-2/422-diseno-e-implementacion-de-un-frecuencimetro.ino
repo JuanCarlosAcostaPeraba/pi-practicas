@@ -175,7 +175,8 @@ ISR(TIMER3_CAPT_vect)
 
 	if (frecuencia > 9999)
 	{
-		Serial.println(frecuencia);
+		Serial.print(frecuencia);
+		Serial.println(" Hz - ");
 	}
 	else
 	{
