@@ -132,7 +132,7 @@ void setup()
 	TCCR3A = B01000000; // Modo CTC
 	TCCR3B = B00001010; // Modo CTC, prescaler 8
 
-	TIMSK3 = B00100010; // Habilitamos la interrupcion OCIE3A y la interrupcion ICIE3 con el bit 1
+	TIMSK3 = B00000010; // Habilitamos la interrupcion OCIE3A y la interrupcion ICIE3 con el bit 1
 	sei();
 
 	digit = 0;
