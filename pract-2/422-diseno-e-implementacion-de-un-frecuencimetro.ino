@@ -197,6 +197,7 @@ ISR(TIMER3_COMPA_vect)
 		{
 			if (frecuencia > 9999)
 			{
+				PORTA = 0x00;
 				Serial.print(frecuencia);
 				Serial.println(" Hz - ");
 			}
@@ -222,6 +223,7 @@ ISR(TIMER3_COMPA_vect)
 		{
 			if (frecuencia > 9999)
 			{
+				PORTA = 0x00;
 				Serial.print(frecuencia);
 				Serial.println(" Hz - ");
 			}
@@ -251,6 +253,7 @@ ISR(TIMER3_COMPA_vect)
 		{
 			if (frecuencia > 9999)
 			{
+				PORTA = 0x00;
 				Serial.print(frecuencia);
 				Serial.println(" Hz - ");
 			}
@@ -276,6 +279,7 @@ ISR(TIMER3_COMPA_vect)
 		{
 			if (frecuencia > 9999)
 			{
+				PORTA = 0x00;
 				Serial.print(frecuencia);
 				Serial.println(" Hz - ");
 			}
