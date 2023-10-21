@@ -75,7 +75,7 @@ char teclado_map[][3] = {
 		{'*', '0', '#'}};
 
 volatile int digit;
-volatile char option = 1;
+volatile char option;
 String buffer;
 
 int contador;
