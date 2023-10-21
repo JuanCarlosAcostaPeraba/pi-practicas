@@ -129,7 +129,7 @@ void setup()
 	OCR3B = 0;
 	OCR3C = 0;
 
-	TCCR3A = B00000000; // Modo CTC
+	TCCR3A = B01000000; // Modo CTC
 	TCCR3B = B00001010; // Modo CTC, prescaler 8
 
 	TIMSK3 = B00100010; // Habilitamos la interrupcion OCIE3A y la interrupcion ICIE3 con el bit 1
@@ -170,6 +170,11 @@ ISR(TIMER3_CAPT_vect)
 	ICR3_new = ICR3;
 
 	periodo = ICR3_new - ICR3_old;
+
+	if (periodo < 0)
+	{
+		periodo = TOP - ICR3_old + ICR3_new;
+	}
 
 	frecuencia = periodo * 0.0000005;
 }
