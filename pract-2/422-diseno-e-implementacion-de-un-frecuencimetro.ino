@@ -198,9 +198,7 @@ ISR(TIMER3_COMPA_vect)
 		{
 			if (frecuencia > 9999)
 			{
-				PORTA = 0x00;
-				Serial.print(frecuencia);
-				Serial.println(" Hz - ");
+				frec_logic();
 			}
 			else
 			{
@@ -224,9 +222,7 @@ ISR(TIMER3_COMPA_vect)
 		{
 			if (frecuencia > 9999)
 			{
-				PORTA = 0x00;
-				Serial.print(frecuencia);
-				Serial.println(" Hz - ");
+				frec_logic();
 			}
 			else
 			{
@@ -254,9 +250,7 @@ ISR(TIMER3_COMPA_vect)
 		{
 			if (frecuencia > 9999)
 			{
-				PORTA = 0x00;
-				Serial.print(frecuencia);
-				Serial.println(" Hz - ");
+				frec_logic();
 			}
 			else
 			{
@@ -280,9 +274,7 @@ ISR(TIMER3_COMPA_vect)
 		{
 			if (frecuencia > 9999)
 			{
-				PORTA = 0x00;
-				Serial.print(frecuencia);
-				Serial.println(" Hz - ");
+				frec_logic();
 			}
 			else
 			{
@@ -461,4 +453,12 @@ void read_buffer()
 	{
 		buffer = "";
 	}
+}
+
+// Funcion para mostrar la frecuencia
+void frec_logic()
+{
+	PORTA = 0x00;
+	Serial.print(frecuencia);
+	Serial.println(" Hz");
 }
