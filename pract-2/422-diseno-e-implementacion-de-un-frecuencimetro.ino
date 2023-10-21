@@ -80,7 +80,6 @@ String buffer;
 
 int contador;
 int increment;
-int backup = -1;
 
 volatile int frecuencia;
 volatile int periodo;
@@ -188,10 +187,6 @@ ISR(TIMER3_COMPA_vect)
 	case 0:
 		if (option == '1' || option == '2')
 		{
-			if (backup != -1)
-			{
-				contador = backup; // Recuperamos el valor del contador
-			}
 			PORTA = hex_value[contador % 10];
 		}
 		else if (option == '3')
@@ -200,7 +195,15 @@ ISR(TIMER3_COMPA_vect)
 		}
 		else if (option == '4')
 		{
-			frecuencimetro();
+			if (frecuencia > 9999)
+			{
+				Serial.print(frecuencia);
+				Serial.println(" Hz - ");
+			}
+			else
+			{
+				PORTA = hex_value[frecuencia % 10];
+			}
 		}
 		PORTL = B00001110; // Visualizacion de unidades
 		keyboard(digit);
@@ -209,10 +212,6 @@ ISR(TIMER3_COMPA_vect)
 	case 1:
 		if (option == '1' || option == '2')
 		{
-			if (backup != -1)
-			{
-				contador = backup; // Recuperamos el valor del contador
-			}
 			PORTA = hex_value[(contador / 10) % 10];
 		}
 		else if (option == '3')
@@ -221,7 +220,15 @@ ISR(TIMER3_COMPA_vect)
 		}
 		else if (option == '4')
 		{
-			frecuencimetro();
+			if (frecuencia > 9999)
+			{
+				Serial.print(frecuencia);
+				Serial.println(" Hz - ");
+			}
+			else
+			{
+				PORTA = hex_value[(frecuencia / 10) % 10];
+			}
 		}
 		PORTL = B00001101; // Visualizacion de decenas
 		keyboard(digit);
@@ -230,10 +237,6 @@ ISR(TIMER3_COMPA_vect)
 	case 2:
 		if (option == '1')
 		{
-			if (backup != -1)
-			{
-				contador = backup; // Recuperamos el valor del contador
-			}
 			PORTA = hex_value[(contador / 100) % 10];
 		}
 		else if (option == '2')
@@ -242,15 +245,19 @@ ISR(TIMER3_COMPA_vect)
 		}
 		else if (option == '3')
 		{
-			if (backup != -1)
-			{
-				contador = backup; // Recuperamos el valor del contador
-			}
 			PORTA = hex_value[contador % 10];
 		}
 		else if (option == '4')
 		{
-			frecuencimetro();
+			if (frecuencia > 9999)
+			{
+				Serial.print(frecuencia);
+				Serial.println(" Hz - ");
+			}
+			else
+			{
+				PORTA = hex_value[(frecuencia / 100) % 10];
+			}
 		}
 		PORTL = B00001011; // Visualizacion de centenas
 		keyboard(digit);
@@ -263,15 +270,19 @@ ISR(TIMER3_COMPA_vect)
 		}
 		else if (option == '3')
 		{
-			if (backup != -1)
-			{
-				contador = backup; // Recuperamos el valor del contador
-			}
 			PORTA = hex_value[(contador / 10) % 10];
 		}
 		else if (option == '4')
 		{
-			frecuencimetro();
+			if (frecuencia > 9999)
+			{
+				Serial.print(frecuencia);
+				Serial.println(" Hz - ");
+			}
+			else
+			{
+				PORTA = hex_value[(frecuencia / 1000) % 10];
+			}
 		}
 		PORTL = B00000111; // Visualizacion de unidades de millar
 		digit = 0;
@@ -444,20 +455,5 @@ void read_buffer()
 	else if ((buffer.length() == 1 && buffer.charAt(0) == '#') || (buffer.length() > 4))
 	{
 		buffer = "";
-	}
-}
-
-// Funcion para mostar el valor del fecuencimetro
-void frecuencimetro()
-{
-	if (frecuencia > 9999)
-	{
-		Serial.print(frecuencia);
-		Serial.println(" Hz - ");
-	}
-	else
-	{
-		backup = contador;
-		contador = frecuencia;
 	}
 }
