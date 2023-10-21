@@ -20,3 +20,4 @@ Prácticas de la asignatura de Periféricos e Interfaces.
    4. [Tarea 4 (No entregable)](./pract-2/414-t4-generacion-de-senales-en-modo-pwm-phase-correct.ino)
    5. [Sustitución de la interrupción INT3 por otra generada por el Timer 3 (Entregable parte 1)](./pract-2/421-sustitucion-de-la-interrupcion-int3-por-otra-generada-por-el-timer3.ino)
    6. [Diseño e implementación de un frecuencímetro (Entregable parte 2)](./pract-2/422-diseno-e-implementacion-de-un-frecuencimetro.ino)
+   7. [Mejoras de la aplicación (Opcional)](./pract-2/423-mejoras-de-la-aplicacion.ino)
