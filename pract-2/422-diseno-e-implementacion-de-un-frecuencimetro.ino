@@ -83,8 +83,8 @@ int increment;
 
 volatile int frecuencia;
 volatile float periodo;
-int ICR3_old;
-int ICR3_new;
+volatile int ICR3_old;
+volatile int ICR3_new;
 
 int pup;
 int pdown;
