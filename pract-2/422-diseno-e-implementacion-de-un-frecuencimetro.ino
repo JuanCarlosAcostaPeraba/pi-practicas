@@ -82,10 +82,10 @@ int contador;
 int increment;
 int bakcup;
 
-int frecuencia;
+volatile int frecuencia;
+volatile int periodo;
 int ICR3_old;
 int ICR3_new;
-volatile int periodo;
 
 int pup;
 int pdown;
