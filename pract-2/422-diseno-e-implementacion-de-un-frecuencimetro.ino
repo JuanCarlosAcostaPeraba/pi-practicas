@@ -203,7 +203,6 @@ ISR(TIMER3_COMPA_vect)
 			else
 			{
 				PORTA = hex_value[frecuencia % 10];
-				PORTA = hex_value[0];
 			}
 		}
 		PORTL = B00001110; // Visualizacion de unidades
@@ -229,7 +228,6 @@ ISR(TIMER3_COMPA_vect)
 			else
 			{
 				PORTA = hex_value[(frecuencia / 10) % 10];
-				PORTA = hex_value[0];
 			}
 		}
 		PORTL = B00001101; // Visualizacion de decenas
@@ -259,7 +257,6 @@ ISR(TIMER3_COMPA_vect)
 			else
 			{
 				PORTA = hex_value[(frecuencia / 100) % 10];
-				PORTA = hex_value[0];
 			}
 		}
 		PORTL = B00001011; // Visualizacion de centenas
@@ -285,7 +282,6 @@ ISR(TIMER3_COMPA_vect)
 			else
 			{
 				PORTA = hex_value[(frecuencia / 1000) % 10];
-				PORTA = hex_value[0];
 			}
 		}
 		PORTL = B00000111; // Visualizacion de unidades de millar
