@@ -302,7 +302,7 @@ void menu()
 	Serial.println("1.- Modo normal de visualizacion (tres digitos): OFF-centenas-decenas-unidades");
 	Serial.println("2.- Modo reducido-inferior de visualizacion (dos digitos): OFF-OFF-decenas-unidades");
 	Serial.println("3.- Modo reducido-superior de visualizacion (dos digitos): decenas-unidades-OFF-OFF");
-	Serial.println("4.- Modo frecuencímetro");
+	Serial.println("4.- Modo frecuencimetro");
 }
 
 // Funcion para incrementar el contador por botones
