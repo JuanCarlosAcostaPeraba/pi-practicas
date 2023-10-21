@@ -82,7 +82,7 @@ int contador;
 int increment;
 
 volatile int frecuencia;
-volatile int periodo;
+volatile float periodo;
 int ICR3_old;
 int ICR3_new;
 
