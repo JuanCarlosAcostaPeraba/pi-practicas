@@ -196,7 +196,7 @@ ISR(TIMER3_COMPA_vect)
 		}
 		else if (option == '4')
 		{
-			if (frecuencia > 9999)
+			if ((frecuencia > 9999) || (frecuencia < 200))
 			{
 				frec_logic();
 			}
@@ -220,7 +220,7 @@ ISR(TIMER3_COMPA_vect)
 		}
 		else if (option == '4')
 		{
-			if (frecuencia > 9999)
+			if ((frecuencia > 9999) || (frecuencia < 200))
 			{
 				frec_logic();
 			}
@@ -248,7 +248,7 @@ ISR(TIMER3_COMPA_vect)
 		}
 		else if (option == '4')
 		{
-			if (frecuencia > 9999)
+			if ((frecuencia > 9999) || (frecuencia < 200))
 			{
 				frec_logic();
 			}
@@ -272,7 +272,7 @@ ISR(TIMER3_COMPA_vect)
 		}
 		else if (option == '4')
 		{
-			if (frecuencia > 9999)
+			if ((frecuencia > 9999) || (frecuencia < 200))
 			{
 				frec_logic();
 			}
