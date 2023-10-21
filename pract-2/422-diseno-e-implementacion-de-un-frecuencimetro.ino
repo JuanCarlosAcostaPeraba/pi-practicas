@@ -80,7 +80,7 @@ String buffer;
 
 int contador;
 int increment;
-int bakcup;
+int backup = -1;
 
 volatile int frecuencia;
 volatile int periodo;
@@ -188,7 +188,10 @@ ISR(TIMER3_COMPA_vect)
 	case 0:
 		if (option == '1' || option == '2')
 		{
-			contador = bakcup; // Recuperamos el valor del contador
+			if (backup != -1)
+			{
+				contador = backup; // Recuperamos el valor del contador
+			}
 			PORTA = hex_value[contador % 10];
 		}
 		else if (option == '3')
@@ -206,7 +209,10 @@ ISR(TIMER3_COMPA_vect)
 	case 1:
 		if (option == '1' || option == '2')
 		{
-			contador = bakcup; // Recuperamos el valor del contador
+			if (backup != -1)
+			{
+				contador = backup; // Recuperamos el valor del contador
+			}
 			PORTA = hex_value[(contador / 10) % 10];
 		}
 		else if (option == '3')
@@ -224,7 +230,10 @@ ISR(TIMER3_COMPA_vect)
 	case 2:
 		if (option == '1')
 		{
-			contador = bakcup; // Recuperamos el valor del contador
+			if (backup != -1)
+			{
+				contador = backup; // Recuperamos el valor del contador
+			}
 			PORTA = hex_value[(contador / 100) % 10];
 		}
 		else if (option == '2')
@@ -233,7 +242,10 @@ ISR(TIMER3_COMPA_vect)
 		}
 		else if (option == '3')
 		{
-			contador = bakcup; // Recuperamos el valor del contador
+			if (backup != -1)
+			{
+				contador = backup; // Recuperamos el valor del contador
+			}
 			PORTA = hex_value[contador % 10];
 		}
 		else if (option == '4')
@@ -251,7 +263,10 @@ ISR(TIMER3_COMPA_vect)
 		}
 		else if (option == '3')
 		{
-			contador = bakcup; // Recuperamos el valor del contador
+			if (backup != -1)
+			{
+				contador = backup; // Recuperamos el valor del contador
+			}
 			PORTA = hex_value[(contador / 10) % 10];
 		}
 		else if (option == '4')
@@ -442,7 +457,7 @@ void frecuencimetro()
 	}
 	else
 	{
-		bakcup = contador;
+		backup = contador;
 		contador = frecuencia;
 	}
 }
