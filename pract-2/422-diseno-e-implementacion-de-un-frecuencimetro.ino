@@ -83,9 +83,9 @@ int increment;
 int bakcup;
 
 int frecuencia;
-int ICR3_old = 0;
-int ICR3_new = 0;
-int periodo = 0;
+int ICR3_old;
+int ICR3_new;
+volatile int periodo;
 
 int pup;
 int pdown;
@@ -149,6 +149,7 @@ void setup()
 
 void loop()
 {
+	frecuencia = 1 / periodo;
 	if (Serial.available() > 0)
 	{
 		option = Serial.read();
@@ -176,7 +177,7 @@ ISR(TIMER3_CAPT_vect)
 		periodo = TOP - ICR3_old + ICR3_new;
 	}
 
-	frecuencia = periodo * 0.0000005;
+	periodo *= 0.0000005;
 }
 
 ISR(TIMER3_COMPA_vect)
