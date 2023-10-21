@@ -75,7 +75,7 @@ char teclado_map[][3] = {
 		{'*', '0', '#'}};
 
 volatile int digit;
-volatile char option;
+volatile char option = 1;
 String buffer;
 
 int contador;
@@ -188,50 +188,43 @@ ISR(TIMER3_COMPA_vect)
 	case 0:
 		if (option == '1' || option == '2')
 		{
-			contador = bakcup;	 // Recuperamos el valor del contador
-			bakcup = frecuencia; // Guardamos el valor de la frecuencia
+			contador = bakcup; // Recuperamos el valor del contador
 			PORTA = hex_value[contador % 10];
 		}
 		else if (option == '3')
 		{
-			contador = bakcup;	 // Recuperamos el valor del contador
-			bakcup = frecuencia; // Guardamos el valor de la frecuencia
 			PORTA = 0x00;
 		}
 		else if (option == '4')
 		{
 			frecuencimetro();
 		}
-		PORTL = B00001110;
+		PORTL = B00001110; // Visualizacion de unidades
 		keyboard(digit);
 		digit++;
 		break;
 	case 1:
 		if (option == '1' || option == '2')
 		{
-			contador = bakcup;	 // Recuperamos el valor del contador
-			bakcup = frecuencia; // Guardamos el valor de la frecuencia
+			contador = bakcup; // Recuperamos el valor del contador
 			PORTA = hex_value[(contador / 10) % 10];
 		}
 		else if (option == '3')
 		{
-			contador = bakcup;	 // Recuperamos el valor del contador
-			bakcup = frecuencia; // Guardamos el valor de la frecuencia
 			PORTA = 0x00;
 		}
 		else if (option == '4')
 		{
 			frecuencimetro();
 		}
-		PORTL = B00001101;
+		PORTL = B00001101; // Visualizacion de decenas
 		keyboard(digit);
 		digit++;
 		break;
 	case 2:
 		if (option == '1')
 		{
-			contador = bakcup;	 // Recuperamos el valor del contador
-			bakcup = frecuencia; // Guardamos el valor de la frecuencia
+			contador = bakcup; // Recuperamos el valor del contador
 			PORTA = hex_value[(contador / 100) % 10];
 		}
 		else if (option == '2')
@@ -240,34 +233,32 @@ ISR(TIMER3_COMPA_vect)
 		}
 		else if (option == '3')
 		{
-			contador = bakcup;	 // Recuperamos el valor del contador
-			bakcup = frecuencia; // Guardamos el valor de la frecuencia
+			contador = bakcup; // Recuperamos el valor del contador
 			PORTA = hex_value[contador % 10];
 		}
 		else if (option == '4')
 		{
 			frecuencimetro();
 		}
-		PORTL = B00001011;
+		PORTL = B00001011; // Visualizacion de centenas
 		keyboard(digit);
 		digit++;
 		break;
 	case 3:
-		if (option == '3')
+		if (option == '1' || option == '2')
 		{
-			contador = bakcup;	 // Recuperamos el valor del contador
-			bakcup = frecuencia; // Guardamos el valor de la frecuencia
+			PORTA = 0x00;
+		}
+		else if (option == '3')
+		{
+			contador = bakcup; // Recuperamos el valor del contador
 			PORTA = hex_value[(contador / 10) % 10];
 		}
 		else if (option == '4')
 		{
 			frecuencimetro();
 		}
-		else
-		{
-			PORTA = 0x00;
-		}
-		PORTL = B00000111;
+		PORTL = B00000111; // Visualizacion de unidades de millar
 		digit = 0;
 		break;
 	}
