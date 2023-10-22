@@ -31,7 +31,7 @@ del pitido (o señal acustica) que se oira por el zumbador/altavoz.
 char display_map[] = {D4, D3, D2, D1};
 
 // Matriz teclado
-char teclado_map[][3] = {
+char keyboard_map[][3] = {
 		{'1', '2', '3'},
 		{'4', '5', '6'},
 		{'7', '8', '9'},
@@ -63,7 +63,7 @@ void loop()
 	{
 		for (int j = 0; j < 3; j++)
 		{
-			Serial.print(teclado_map[i][j]);
+			Serial.print(keyboard_map[i][j]);
 		}
 	}
 

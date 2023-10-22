@@ -70,7 +70,7 @@ char hex_value[16] = {
 };
 
 // Matriz teclado
-char teclado_map[][3] = {
+char keyboard_map[][3] = {
 		{'1', '2', '3'},
 		{'4', '5', '6'},
 		{'7', '8', '9'},
@@ -80,7 +80,7 @@ volatile int digit;
 volatile char option;
 String buffer;
 
-int contador;
+int counter;
 int increment;
 
 int pup;
@@ -117,7 +117,7 @@ void setup()
 	digit = 0;
 	buffer = "";
 
-	contador = 0;
+	counter = 0;
 	increment = 1;
 
 	time_old = millis();
@@ -151,7 +151,7 @@ ISR(INT3_vect)
 	case 0:
 		if (option == '1' || option == '2')
 		{
-			PORTA = hex_value[contador % 10];
+			PORTA = hex_value[counter % 10];
 		}
 		else if (option == '3')
 		{
@@ -164,7 +164,7 @@ ISR(INT3_vect)
 	case 1:
 		if (option == '1' || option == '2')
 		{
-			PORTA = hex_value[(contador / 10) % 10];
+			PORTA = hex_value[(counter / 10) % 10];
 		}
 		else if (option == '3')
 		{
@@ -177,7 +177,7 @@ ISR(INT3_vect)
 	case 2:
 		if (option == '1')
 		{
-			PORTA = hex_value[(contador / 100) % 10];
+			PORTA = hex_value[(counter / 100) % 10];
 		}
 		else if (option == '2')
 		{
@@ -185,7 +185,7 @@ ISR(INT3_vect)
 		}
 		else if (option == '3')
 		{
-			PORTA = hex_value[contador % 10];
+			PORTA = hex_value[counter % 10];
 		}
 		PORTL = B00001011;
 		keyboard(digit);
@@ -194,7 +194,7 @@ ISR(INT3_vect)
 	case 3:
 		if (option == '3')
 		{
-			PORTA = hex_value[(contador / 10) % 10];
+			PORTA = hex_value[(counter / 10) % 10];
 		}
 		else
 		{
@@ -215,7 +215,7 @@ void menu()
 	Serial.println("3.- Modo reducido-superior de visualizacion (dos digitos): decenas-unidades-OFF-OFF");
 }
 
-// Funcion para incrementar el contador por botones
+// Funcion para incrementar el counter por botones
 void buttons_increment()
 {
 	if (pup == 0)
@@ -240,7 +240,7 @@ void buttons_increment()
 	{
 		if (millis() - time_old > transition_time)
 		{
-			contador = 0;
+			counter = 0;
 			tone(PSTART, 1000, 100);
 			time_old = millis();
 		}
@@ -263,57 +263,57 @@ void buttons_increment()
 	}
 }
 
-// Funcion para que el contador cambie
+// Funcion para que el counter cambie
 void logic(bool pdown)
 {
 	if (increment == 1 && !pdown)
 	{
-		contador++;
+		counter++;
 	}
 	else if (increment == 1 && pdown)
 	{
-		contador--;
+		counter--;
 	}
 	if (increment == 1)
 	{
-		if (contador > 999)
+		if (counter > 999)
 		{
-			contador = 0;
+			counter = 0;
 		}
-		else if (contador < 0)
+		else if (counter < 0)
 		{
-			contador = 999;
+			counter = 999;
 		}
 	}
 
 	if (increment == 2 && !pdown)
 	{
-		if (contador == 998)
+		if (counter == 998)
 		{
-			contador = 0;
+			counter = 0;
 		}
-		else if (contador == 999)
+		else if (counter == 999)
 		{
-			contador = 1;
+			counter = 1;
 		}
 		else
 		{
-			contador += 2;
+			counter += 2;
 		}
 	}
 	else if (increment == 2 && pdown)
 	{
-		if (contador == 1)
+		if (counter == 1)
 		{
-			contador = 999;
+			counter = 999;
 		}
-		else if (contador == 0)
+		else if (counter == 0)
 		{
-			contador = 998;
+			counter = 998;
 		}
 		else
 		{
-			contador -= 2;
+			counter -= 2;
 		}
 	}
 }
@@ -332,16 +332,16 @@ void keyboard(int column)
 	switch (val)
 	{
 	case 7:
-		buffer += teclado_map[0][column];
+		buffer += keyboard_map[0][column];
 		break;
 	case 11:
-		buffer += teclado_map[1][column];
+		buffer += keyboard_map[1][column];
 		break;
 	case 13:
-		buffer += teclado_map[2][column];
+		buffer += keyboard_map[2][column];
 		break;
 	case 14:
-		buffer += teclado_map[3][column];
+		buffer += keyboard_map[3][column];
 		break;
 	}
 }
@@ -351,19 +351,19 @@ void read_buffer()
 {
 	if (buffer.length() == 4 && buffer.charAt(3) == '#')
 	{
-		contador = (buffer.substring(0, 4)).toInt();
+		counter = (buffer.substring(0, 4)).toInt();
 		buffer = "";
 		tone(PSTART, 1000, 100);
 	}
 	else if (buffer.length() == 3 && buffer.charAt(2) == '#')
 	{
-		contador = (buffer.substring(0, 3)).toInt();
+		counter = (buffer.substring(0, 3)).toInt();
 		buffer = "";
 		tone(PSTART, 1000, 100);
 	}
 	else if (buffer.length() == 2 && buffer.charAt(1) == '#')
 	{
-		contador = (buffer.substring(0, 2)).toInt();
+		counter = (buffer.substring(0, 2)).toInt();
 		buffer = "";
 		tone(PSTART, 1000, 100);
 	}

@@ -31,7 +31,7 @@ digitos del display sera todos los segmentos encendidos):
 
 char option;
 char back;
-char caracter;
+char character;
 
 // Matriz display 8 segmentos
 char display_map[4] = {D4, D3, D2, D1};
@@ -51,7 +51,7 @@ char hex_value[16] = {
 		0x39, 0x5E, 0x79, 0x71};
 
 // Matriz teclado
-char teclado_map[][3] = {
+char keyboard_map[][3] = {
 		{'1', '2', '3'},
 		{'4', '5', '6'},
 		{'7', '8', '9'},
@@ -160,18 +160,18 @@ void hexadecimal_selection()
 	while (Serial.available() == 0)
 	{
 	}
-	caracter = Serial.read();
-	if (caracter >= 48 && caracter <= 57) // Si es un numero (0-9)
+	character = Serial.read();
+	if (character >= 48 && character <= 57) // Si es un numero (0-9)
 	{
-		PORTA = hex_value[caracter - 48]; //
+		PORTA = hex_value[character - 48]; //
 	}
-	else if (caracter >= 65 && caracter <= 70) // Si es una letra (A-F)
+	else if (character >= 65 && character <= 70) // Si es una letra (A-F)
 	{
-		PORTA = hex_value[caracter - 55];
+		PORTA = hex_value[character - 55];
 	}
-	else if (caracter >= 97 && caracter <= 102) // Si es una letra (a-f)
+	else if (character >= 97 && character <= 102) // Si es una letra (a-f)
 	{
-		PORTA = hex_value[caracter - 87];
+		PORTA = hex_value[character - 87];
 	}
 	else
 	{

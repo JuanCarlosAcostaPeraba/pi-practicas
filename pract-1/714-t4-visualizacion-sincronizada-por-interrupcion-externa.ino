@@ -77,8 +77,8 @@ de la visualización entrelazada.
 
 volatile int digit = 0;
 
-int unidades;
-int decenas;
+int units;
+int tens;
 
 int pup;
 int pdown;
@@ -105,7 +105,7 @@ char hex_value[16] = {
 		0x39, 0x5E, 0x79, 0x71};
 
 // Matriz teclado
-char teclado_map[][3] = {
+char keyboard_map[][3] = {
 		{'1', '2', '3'},
 		{'4', '5', '6'},
 		{'7', '8', '9'},
@@ -127,8 +127,8 @@ void setup()
 	DDRC = B00000000;	 // Configuramos el pin 0 del puerto C como entrada (0x00)
 	PORTC = B11111111; // Inicializamos el puerto C a 1 (0cFF)
 
-	unidades = 0;
-	decenas = 0;
+	units = 0;
+	tens = 0;
 
 	time_old = millis();
 	transition_time = 250;
@@ -155,12 +155,12 @@ ISR(INT2_vect)
 	switch (digit)
 	{
 	case 0:
-		PORTA = hex_value[unidades];
+		PORTA = hex_value[units];
 		PORTL = B00001110;
 		digit++;
 		break;
 	case 1:
-		PORTA = hex_value[decenas];
+		PORTA = hex_value[tens];
 		PORTL = B00001101;
 		digit++;
 		break;
@@ -183,7 +183,7 @@ void buttons_logic()
 	{
 		if (millis() - time_old > transition_time)
 		{
-			unidades++;
+			units++;
 			tone(PSTART, 1000, 100);
 			logic_99();
 			time_old = millis();
@@ -193,7 +193,7 @@ void buttons_logic()
 	{
 		if (millis() - time_old > transition_time)
 		{
-			unidades--;
+			units--;
 			tone(PSTART, 1000, 100);
 			logic_00();
 			time_old = millis();
@@ -203,8 +203,8 @@ void buttons_logic()
 	{
 		if (millis() - time_old > transition_time)
 		{
-			unidades = 0;
-			decenas = 0;
+			units = 0;
+			tens = 0;
 			tone(PSTART, 1000, 100);
 			time_old = millis();
 		}
@@ -214,27 +214,27 @@ void buttons_logic()
 void logic_99()
 {
 	// logica para que no se pase de 99
-	if (unidades > 9)
+	if (units > 9)
 	{
-		unidades = 0;
-		decenas++;
+		units = 0;
+		tens++;
 	}
-	if (decenas > 9)
+	if (tens > 9)
 	{
-		decenas = 0;
+		tens = 0;
 	}
 }
 
 void logic_00()
 {
 	// logica para que no se pase de 00
-	if (unidades < 0)
+	if (units < 0)
 	{
-		unidades = 9;
-		decenas--;
+		units = 9;
+		tens--;
 	}
-	if (decenas < 0)
+	if (tens < 0)
 	{
-		decenas = 9;
+		tens = 9;
 	}
 }
