@@ -299,13 +299,13 @@ ISR(TIMER3_COMPA_vect)
 			}
 			else if (frecuencia > 9999)
 			{
-				frecuencia /= 10000;
+				frecuencia /= 1000;
 				PORTA = hex_value[contador % 10];
-				frecuencia *= 10000;
+				frecuencia *= 1000;
 			}
 			else
 			{
-				PORTA = hex_value[frecuencia / 1000];
+				PORTA = hex_value[(frecuencia / 1000) % 10];
 			}
 		}
 		PORTL = B00000111; // Visualizacion de unidades de millar
