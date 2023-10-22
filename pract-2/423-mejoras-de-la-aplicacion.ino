@@ -83,7 +83,7 @@ String buffer;
 int contador;
 int increment;
 
-volatile int frecuencia;
+volatile float frecuencia;
 volatile float periodo;
 volatile int ICR3_old;
 volatile int ICR3_new;
@@ -204,10 +204,7 @@ ISR(TIMER3_COMPA_vect)
 			}
 			else if (frecuencia > 9999)
 			{
-				frecuencia /= 10;
-				PORTA = hex_value[frecuencia % 10];
-				frecuencia *= 10;
-				Serial.println(frecuencia);
+				PORTA = hex_value[(frecuencia / 10) % 10];
 			}
 			else
 			{
@@ -235,9 +232,7 @@ ISR(TIMER3_COMPA_vect)
 			}
 			else if (frecuencia > 9999)
 			{
-				frecuencia /= 100;
-				PORTA = hex_value[frecuencia % 10];
-				frecuencia *= 100;
+				PORTA = hex_value[(frecuencia / 100) % 10];
 			}
 			else
 			{
@@ -269,9 +264,7 @@ ISR(TIMER3_COMPA_vect)
 			}
 			else if (frecuencia > 9999)
 			{
-				frecuencia /= 1000;
-				PORTA = hex_value_point[frecuencia % 10];
-				frecuencia *= 1000;
+				PORTA = hex_value_point[(frecuencia / 1000) % 10];
 			}
 			else
 			{
@@ -299,9 +292,7 @@ ISR(TIMER3_COMPA_vect)
 			}
 			else if (frecuencia > 9999)
 			{
-				frecuencia /= 1000;
-				PORTA = hex_value[contador % 10];
-				frecuencia *= 1000;
+				PORTA = hex_value[(frecuencia / 10000) % 10];
 			}
 			else
 			{
