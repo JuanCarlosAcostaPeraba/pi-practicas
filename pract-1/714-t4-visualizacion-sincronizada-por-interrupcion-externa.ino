@@ -4,7 +4,7 @@ de los dígitos del contador de la tarea anterior,
 la realice una subrutina de servicio de interrupción,
 de forma sistemática, cada 10 ms. Para ello,
 generaremos una interrupción de tipo externa
-cada 10 ms (frecuencia 100 Hz). Utilice un generador
+cada 10 ms (frequency 100 Hz). Utilice un generador
 de señal y, ajústelo adecuadamente, para obtener
 la señal especificada y utilícela para generar una
 interrupción externa de nivel 2, pin 19 de la tarjeta Arduino.
@@ -31,7 +31,7 @@ void setup(){
 ISR (INT2_vect) {
 	/*
 	Rutina de servicio para la visualización entrelazada en el display de 4 dígitos de 7-segmentos y barrido del teclado (si es utilizado).
-	Dependiendo de la frecuencia con la que se interrumpa (cada 10 ms, en nuestro caso) se ejecuta o se entra en esta función.
+	Dependiendo de la frequency con la que se interrumpa (cada 10 ms, en nuestro caso) se ejecuta o se entra en esta función.
 	En cada entrada en esta función se visualiza un dígito (y se explora la columna correspondiente del teclado si queremos integrarlo en la aplicación).
 	Ejemplo:
 	1a interrupción --> visualiza unidades y explora 1a columna teclado
@@ -53,7 +53,7 @@ todos los dígitos y activará el dígito de las decenas (solo
 se visualizará las decenas del contador) y así, sucesivamente,
 de forma alternada cada 10 ms entre unidades, decenas, centenas
 y unidades de millar, dependiendo de cuantos dígitos queramos
-visualizar. Observe que, si baja la frecuencia del generador
+visualizar. Observe que, si baja la frequency del generador
 de señal el display parpadeará y podrá observar el funcionamiento
 de la visualización entrelazada.
 */

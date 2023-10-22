@@ -9,7 +9,7 @@ centenas-D2 (parpadeo 2 seg) -> millares-D1 (parpadeo 2 seg) ->
 unidades-D4 (parpadeo 2 seg) y asi, sucesivamente.
 
 Al cambiar de digito, generar una señal acustica para avisar al usuario.
-Tiene completa libertad para elegir la duracion y la frecuencia
+Tiene completa libertad para elegir la duracion y la frequency
 del pitido (o señal acustica) que se oira por el zumbador/altavoz.
 */
 

@@ -14,13 +14,13 @@ En este apartado se deberá afrontar la complejidad adicional
 de mostrar varios dígitos simultáneamente en el visualizador.
 Para ello, es necesario de un mecanismo de visualización “entrelazada”
 en el que se va alternando la visualización de las unidades
-y las decenas a una cierta frecuencia (100Hz, 10ms).
+y las decenas a una cierta frequency (100Hz, 10ms).
 Por ejemplo: en el primer ciclo (10 ms), se visualizan las unidades
 y se apagan las decenas; en el segundo ciclo, se apagan las unidades
 y se encienden las decenas; en el tercer ciclo se visualizan las
 unidades y se apagan las decenas y así, sucesivamente. Si el
 entrelazado se hace lentamente, se observa un parpadeo en el visualizador.
-Sin embargo, a partir de una cierta frecuencia se ve estático
+Sin embargo, a partir de una cierta frequency se ve estático
 porque el ojo humano no es capaz de apreciar la conmutación entre dígitos.
 A continuación, se muestra la estructura general del programa
 que le puede ayudar a realizar este apartado:
