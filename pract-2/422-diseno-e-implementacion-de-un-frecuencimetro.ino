@@ -111,7 +111,7 @@ void setup()
 	DDRC = B00000000;	 // Configuramos el pin 0 del puerto C como entrada (0x00)
 	PORTC = B11111111; // Inicializamos el puerto C a 1 (0cFF)
 
-	// Habilitacion de la interrupcion INT3
+	// Habilitacion de la interrupcion Timer3
 	// Timer 3 en modo CTC (modo 4)
 	// f = 16 MHz / (2 * N * (1 + TOP))
 	// f = 10Hz; N = 8; TOP = 0x270F
