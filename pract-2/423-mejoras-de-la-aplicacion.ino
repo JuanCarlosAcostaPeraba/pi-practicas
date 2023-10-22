@@ -62,7 +62,7 @@ char hex_value[16] = {
 };
 
 // Array valores hexadecimales en binario con punto
-char hex_value_point[16] = {
+int hex_value_point[16] = {
 		0xBF, 0x86, 0xDB, 0xCF, // 0., 1., 2., 3.
 		0xE6, 0xED, 0xFD, 0x87, // 4., 5., 6., 7.
 		0xFF, 0xEF, 0xF7, 0xFC, // 8., 9., A., B.
@@ -207,6 +207,7 @@ ISR(TIMER3_COMPA_vect)
 				frecuencia /= 10;
 				PORTA = hex_value[frecuencia % 10];
 				frecuencia *= 10;
+				Serial.println(frecuencia);
 			}
 			else
 			{
