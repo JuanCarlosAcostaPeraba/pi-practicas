@@ -334,6 +334,7 @@ void worm()
 {
 	if (sense == 0)
 	{
+		Serial.println("modo gusano derecha");
 		switch (worm_state)
 		{
 		case 0:
@@ -385,6 +386,7 @@ void worm()
 			PORTL = B00000111;
 			break;
 		}
+		Serial.println(worm_state);
 		worm_state++;
 		if (worm_state == 12)
 		{
@@ -393,6 +395,7 @@ void worm()
 	}
 	else if (sense == 1)
 	{
+		Serial.println("modo gusano izquierda");
 		switch (worm_state)
 		{
 		case 0:
@@ -444,6 +447,7 @@ void worm()
 			PORTL = B00000111;
 			break;
 		}
+		Serial.println(worm_state);
 		worm_state--;
 		if (worm_state == -1)
 		{
@@ -539,6 +543,8 @@ ISR(INT0_vect) // Pulsador pright2 (pin 21) - sentido derecha
 	if (millis() - time_old > transition_time)
 	{
 		sense = 0;
+		Serial.println("pright2");
+		Serial.println(sense);
 	}
 }
 
@@ -547,6 +553,8 @@ ISR(INT1_vect) // Pulsador pleft2 (pin 20) - sentido izquierda
 	if (millis() - time_old > transition_time)
 	{
 		sense = 1;
+		Serial.println("pleft2");
+		Serial.println(sense);
 	}
 }
 
