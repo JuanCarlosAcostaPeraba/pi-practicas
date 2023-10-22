@@ -92,120 +92,6 @@ int pright;
 long int time_old;
 int transition_time;
 
-void setup()
-{
-	Serial.begin(9600); // Inicializamos el puerto serie
-
-	// Puerto A salida
-	DDRA = B11111111;	 // Configuramos el puerto A como salida (0xFF)
-	PORTA = B11111111; // Inicializamos el puerto A a 1 (0xFF)
-
-	// Puerto L teclado
-	DDRL = B00001111;	 // Configuramos los pines 0, 1, 2 y 3 del puerto L como entrada, y el resto como salida (0x0F)
-	PORTL = B11111111; // Inicializamos el puerto L a 1 (0xFF)
-
-	// Puerto C
-	DDRC = B00000000;	 // Configuramos el pin 0 del puerto C como entrada (0x00)
-	PORTC = B11111111; // Inicializamos el puerto C a 1 (0cFF)
-
-	// Habilitacion de la interrupcion INT3
-	cli();																// Deshabilitamos las interrupciones
-	EICRA |= (1 << ISC31) | (1 << ISC30); // INT3 activada por flanco de subida
-	EIMSK |= (1 << INT3);									// Desenmascaramos la interrupcion INT3 para habilitar la interrupcion externa 3
-	sei();																// Habilitamos las interrupciones
-
-	digit = 0;
-	buffer = "";
-
-	counter = 0;
-	increment = 1;
-
-	time_old = millis();
-	transition_time = 550;
-
-	menu();
-}
-
-void loop()
-{
-	if (Serial.available() > 0)
-	{
-		option = Serial.read();
-	}
-
-	pup = digitalRead(PUP);
-	pdown = digitalRead(PDOWN);
-	pcenter = digitalRead(PSELECT);
-	pleft = digitalRead(PLEFT);
-	pright = digitalRead(PRIGHT);
-
-	read_buffer();
-	buttons_increment();
-}
-
-ISR(INT3_vect)
-{
-	PORTL = DOFF;
-	switch (digit)
-	{
-	case 0:
-		if (option == '1' || option == '2')
-		{
-			PORTA = hex_value[counter % 10];
-		}
-		else if (option == '3')
-		{
-			PORTA = 0x00;
-		}
-		PORTL = B00001110;
-		keyboard(digit);
-		digit++;
-		break;
-	case 1:
-		if (option == '1' || option == '2')
-		{
-			PORTA = hex_value[(counter / 10) % 10];
-		}
-		else if (option == '3')
-		{
-			PORTA = 0x00;
-		}
-		PORTL = B00001101;
-		keyboard(digit);
-		digit++;
-		break;
-	case 2:
-		if (option == '1')
-		{
-			PORTA = hex_value[(counter / 100) % 10];
-		}
-		else if (option == '2')
-		{
-			PORTA = 0x00;
-		}
-		else if (option == '3')
-		{
-			PORTA = hex_value[counter % 10];
-		}
-		PORTL = B00001011;
-		keyboard(digit);
-		digit++;
-		break;
-	case 3:
-		if (option == '3')
-		{
-			PORTA = hex_value[(counter / 10) % 10];
-		}
-		else
-		{
-			PORTA = 0x00;
-		}
-		PORTL = B00000111;
-		digit = 0;
-		break;
-	}
-}
-
 // Funcion que muestra el menu de opciones
 void menu()
 {
@@ -370,5 +256,119 @@ void read_buffer()
 	else if ((buffer.length() == 1 && buffer.charAt(0) == '#') || (buffer.length() > 4))
 	{
 		buffer = "";
+	}
+}
+
+void setup()
+{
+	Serial.begin(9600); // Inicializamos el puerto serie
+
+	// Puerto A salida
+	DDRA = B11111111;	 // Configuramos el puerto A como salida (0xFF)
+	PORTA = B11111111; // Inicializamos el puerto A a 1 (0xFF)
+
+	// Puerto L teclado
+	DDRL = B00001111;	 // Configuramos los pines 0, 1, 2 y 3 del puerto L como entrada, y el resto como salida (0x0F)
+	PORTL = B11111111; // Inicializamos el puerto L a 1 (0xFF)
+
+	// Puerto C
+	DDRC = B00000000;	 // Configuramos el pin 0 del puerto C como entrada (0x00)
+	PORTC = B11111111; // Inicializamos el puerto C a 1 (0cFF)
+
+	// Habilitacion de la interrupcion INT3
+	cli();																// Deshabilitamos las interrupciones
+	EICRA |= (1 << ISC31) | (1 << ISC30); // INT3 activada por flanco de subida
+	EIMSK |= (1 << INT3);									// Desenmascaramos la interrupcion INT3 para habilitar la interrupcion externa 3
+	sei();																// Habilitamos las interrupciones
+
+	digit = 0;
+	buffer = "";
+
+	counter = 0;
+	increment = 1;
+
+	time_old = millis();
+	transition_time = 550;
+
+	menu();
+}
+
+void loop()
+{
+	if (Serial.available() > 0)
+	{
+		option = Serial.read();
+	}
+
+	pup = digitalRead(PUP);
+	pdown = digitalRead(PDOWN);
+	pcenter = digitalRead(PSELECT);
+	pleft = digitalRead(PLEFT);
+	pright = digitalRead(PRIGHT);
+
+	read_buffer();
+	buttons_increment();
+}
+
+ISR(INT3_vect)
+{
+	PORTL = DOFF;
+	switch (digit)
+	{
+	case 0:
+		if (option == '1' || option == '2')
+		{
+			PORTA = hex_value[counter % 10];
+		}
+		else if (option == '3')
+		{
+			PORTA = 0x00;
+		}
+		PORTL = B00001110;
+		keyboard(digit);
+		digit++;
+		break;
+	case 1:
+		if (option == '1' || option == '2')
+		{
+			PORTA = hex_value[(counter / 10) % 10];
+		}
+		else if (option == '3')
+		{
+			PORTA = 0x00;
+		}
+		PORTL = B00001101;
+		keyboard(digit);
+		digit++;
+		break;
+	case 2:
+		if (option == '1')
+		{
+			PORTA = hex_value[(counter / 100) % 10];
+		}
+		else if (option == '2')
+		{
+			PORTA = 0x00;
+		}
+		else if (option == '3')
+		{
+			PORTA = hex_value[counter % 10];
+		}
+		PORTL = B00001011;
+		keyboard(digit);
+		digit++;
+		break;
+	case 3:
+		if (option == '3')
+		{
+			PORTA = hex_value[(counter / 10) % 10];
+		}
+		else
+		{
+			PORTA = 0x00;
+		}
+		PORTL = B00000111;
+		digit = 0;
+		break;
 	}
 }
