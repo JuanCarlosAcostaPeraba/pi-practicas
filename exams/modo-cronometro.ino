@@ -78,6 +78,7 @@ int pleft;
 int pright;
 
 volatile int crono;
+volatile bool crono_state;
 
 long int time_old;
 int transition_time;
@@ -250,6 +251,48 @@ void read_buffer()
 	}
 }
 
+// Funcion para controlar el cronometro
+void crono_buttons()
+{
+	if (pup == 0)
+	{
+		if (millis() - time_old > transition_time)
+		{
+			crono_state = true;
+			tone(PSTART, 1000, 100);
+			time_old = millis();
+		}
+	}
+	else if (pdown == 0)
+	{
+		if (millis() - time_old > transition_time)
+		{
+			crono_state = false;
+			crono = 0;
+			tone(PSTART, 1000, 100);
+			time_old = millis();
+		}
+	}
+	else if (pcenter == 0)
+	{
+		if (millis() - time_old > transition_time)
+		{
+			crono_state = false;
+			tone(PSTART, 1000, 100);
+			time_old = millis();
+		}
+	}
+}
+
+// Funcions para controlar la logica del cronometro
+void crono_logic()
+{
+	if (crono > 9999)
+	{
+		crono = 0;
+	}
+}
+
 void setup()
 {
 	Serial.begin(9600); // Inicializamos el puerto serie
@@ -279,6 +322,7 @@ void setup()
 	increment = 1;
 
 	crono = 0;
+	crono_state = true;
 
 	time_old = millis();
 	transition_time = 550;
@@ -299,12 +343,9 @@ void loop()
 	pleft = digitalRead(PLEFT);
 	pright = digitalRead(PRIGHT);
 
-	// TODO crono_buttons();
-
-	Serial.println(crono);
-
 	read_buffer();
 	buttons_increment();
+	crono_buttons();
 }
 
 ISR(INT3_vect)
@@ -323,7 +364,12 @@ ISR(INT3_vect)
 		}
 		else if (option == '4')
 		{
-			crono += 5;
+			if (crono_state)
+			{
+				crono += 5;
+			}
+			crono_logic();
+			PORTA = hex_value[crono % 10];
 		}
 		PORTL = B00001110;
 		keyboard(digit);
@@ -340,7 +386,12 @@ ISR(INT3_vect)
 		}
 		else if (option == '4')
 		{
-			crono += 5;
+			if (crono_state)
+			{
+				crono += 5;
+			}
+			crono_logic();
+			PORTA = hex_value[(crono / 10) % 10];
 		}
 		PORTL = B00001101;
 		keyboard(digit);
@@ -361,7 +412,12 @@ ISR(INT3_vect)
 		}
 		else if (option == '4')
 		{
-			crono += 5;
+			if (crono_state)
+			{
+				crono += 5;
+			}
+			crono_logic();
+			PORTA = hex_value[(crono / 100) % 10];
 		}
 		PORTL = B00001011;
 		keyboard(digit);
@@ -378,7 +434,12 @@ ISR(INT3_vect)
 		}
 		else if (option == '4')
 		{
-			crono += 5;
+			if (crono_state)
+			{
+				crono += 5;
+			}
+			crono_logic();
+			PORTA = hex_value[crono / 1000];
 		}
 		PORTL = B00000111;
 		digit = 0;
