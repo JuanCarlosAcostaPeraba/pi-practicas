@@ -161,187 +161,6 @@ char worm_states[12] = {
 long int time_old;
 int transition_time;
 
-void setup()
-{
-	Serial.begin(9600); // Inicializamos el puerto serie
-
-	// Puerto A salida
-	DDRA = B11111111;	 // Configuramos el puerto A como salida (0xFF)
-	PORTA = B11111111; // Inicializamos el puerto A a 1 (0xFF)
-
-	// Puerto L teclado
-	DDRL = B00001111;	 // Configuramos los pines 0, 1, 2 y 3 del puerto L como entrada, y el resto como salida (0x0F)
-	PORTL = B11111111; // Inicializamos el puerto L a 1 (0xFF)
-
-	// Puerto C
-	DDRC = B00000000;	 // Configuramos el pin 0 del puerto C como entrada (0x00)
-	PORTC = B11111111; // Inicializamos el puerto C a 1 (0cFF)
-
-	// Habilitacion de la interrupcion externa INT0 (pin 21, pright2, falling)
-	// Habilitacion de la interrupcion externa INT1 (pin 20, pleft2, falling)
-	cli();
-	pinMode(PRIGHT2, INPUT);
-	pinMode(PLEFT2, INPUT);
-	EICRA = B00001010;
-	EIMSK = B00000011;
-
-	// Modo PWM Phase Correct
-	// f = 16 MHz / (N * 2 * TOP)
-	// f = 250 Hz; N = 64; TOP = 500
-	// Habilitacion de la interrupcion por overflow del Timer 3
-	pinMode(5, OUTPUT); // OC3A
-	pinMode(2, OUTPUT); // OC3B
-	pinMode(3, OUTPUT); // OC3C
-
-	TCCR3A = TCCR3B = TCCR3C = 0; // resetear registros
-	TCNT3 = 0;										// Inicializamos el contador a 0
-
-	OCR3A = 0;
-	OCR3B = 200;
-	OCR3C = 0;
-
-	ICR3 = TOP;
-
-	TCCR3A = B00100010;
-	TCCR3B = B00010011;
-
-	TIMSK3 = B00000101;
-	sei();
-
-	digit = 0;
-	buffer = "";
-
-	counter = 0;
-	increment = 1;
-
-	sense = 0;
-	worm_state = 0;
-
-	time_old = millis();
-	transition_time = 550;
-
-	menu();
-}
-
-void loop()
-{
-	if (Serial.available() > 0)
-	{
-		option = Serial.read();
-	}
-
-	pup = digitalRead(PUP);
-	pdown = digitalRead(PDOWN);
-	pcenter = digitalRead(PSELECT);
-	pleft = digitalRead(PLEFT);
-	pright = digitalRead(PRIGHT);
-
-	pright2 = digitalRead(PRIGHT2);
-	pleft2 = digitalRead(PLEFT2);
-
-	read_buffer();
-	buttons_increment();
-}
-
-ISR(INT0_vect) // Pulsador pright2 (pin 21) - sentido derecha
-{
-	if digitalRead (PRIGHT2)
-	{
-		sense = 0;
-	}
-}
-
-ISR(INT1_vect) // Pulsador pleft2 (pin 20) - sentido izquierda
-{
-	if digitalRead (PLEFT2)
-	{
-		sense = 1;
-	}
-}
-
-ISR(TIMER3_OVF_vect)
-{
-	PORTL = DOFF;
-	switch (digit)
-	{
-	case 0:
-		if (option == '1' || option == '2')
-		{
-			PORTA = hex_value[counter % 10];
-		}
-		else if (option == '3')
-		{
-			PORTA = 0x00;
-		}
-		else if (option == '4')
-		{
-			worm();
-			PORTA = 0x00;
-		}
-		PORTL = B00001110;
-		keyboard(digit);
-		digit++;
-		break;
-	case 1:
-		if (option == '1' || option == '2')
-		{
-			PORTA = hex_value[(counter / 10) % 10];
-		}
-		else if (option == '3')
-		{
-			PORTA = 0x00;
-		}
-		else if (option == '4')
-		{
-			worm();
-			PORTA = 0x00;
-		}
-		PORTL = B00001101;
-		keyboard(digit);
-		digit++;
-		break;
-	case 2:
-		if (option == '1')
-		{
-			PORTA = hex_value[(counter / 100) % 10];
-		}
-		else if (option == '2')
-		{
-			PORTA = 0x00;
-		}
-		else if (option == '3')
-		{
-			PORTA = hex_value[counter % 10];
-		}
-		else if (option == '4')
-		{
-			worm();
-			PORTA = 0x00;
-		}
-		PORTL = B00001011;
-		keyboard(digit);
-		digit++;
-		break;
-	case 3:
-		if (option == '1' || option == '2')
-		{
-			PORTA = 0x00;
-		}
-		else if (option == '3')
-		{
-			PORTA = hex_value[(counter / 10) % 10];
-		}
-		else if (option == '4')
-		{
-			worm();
-			PORTA = 0x00;
-		}
-		PORTL = B00000111;
-		digit = 0;
-		break;
-	}
-}
-
 // Funcion que muestra el menu de opciones
 void menu()
 {
@@ -630,5 +449,186 @@ void worm()
 		{
 			worm_state = 11;
 		}
+	}
+}
+
+void setup()
+{
+	Serial.begin(9600); // Inicializamos el puerto serie
+
+	// Puerto A salida
+	DDRA = B11111111;	 // Configuramos el puerto A como salida (0xFF)
+	PORTA = B11111111; // Inicializamos el puerto A a 1 (0xFF)
+
+	// Puerto L teclado
+	DDRL = B00001111;	 // Configuramos los pines 0, 1, 2 y 3 del puerto L como entrada, y el resto como salida (0x0F)
+	PORTL = B11111111; // Inicializamos el puerto L a 1 (0xFF)
+
+	// Puerto C
+	DDRC = B00000000;	 // Configuramos el pin 0 del puerto C como entrada (0x00)
+	PORTC = B11111111; // Inicializamos el puerto C a 1 (0cFF)
+
+	// Habilitacion de la interrupcion externa INT0 (pin 21, pright2, falling)
+	// Habilitacion de la interrupcion externa INT1 (pin 20, pleft2, falling)
+	cli();
+	pinMode(PRIGHT2, INPUT);
+	pinMode(PLEFT2, INPUT);
+	EICRA = B00001010;
+	EIMSK = B00000011;
+
+	// Modo PWM Phase Correct
+	// f = 16 MHz / (N * 2 * TOP)
+	// f = 250 Hz; N = 64; TOP = 500
+	// Habilitacion de la interrupcion por overflow del Timer 3
+	pinMode(5, OUTPUT); // OC3A
+	pinMode(2, OUTPUT); // OC3B
+	pinMode(3, OUTPUT); // OC3C
+
+	TCCR3A = TCCR3B = TCCR3C = 0; // resetear registros
+	TCNT3 = 0;										// Inicializamos el contador a 0
+
+	OCR3A = 0;
+	OCR3B = 200;
+	OCR3C = 0;
+
+	ICR3 = TOP;
+
+	TCCR3A = B00100010;
+	TCCR3B = B00010011;
+
+	TIMSK3 = B00000101;
+	sei();
+
+	digit = 0;
+	buffer = "";
+
+	counter = 0;
+	increment = 1;
+
+	sense = 0;
+	worm_state = 0;
+
+	time_old = millis();
+	transition_time = 550;
+
+	menu();
+}
+
+void loop()
+{
+	if (Serial.available() > 0)
+	{
+		option = Serial.read();
+	}
+
+	pup = digitalRead(PUP);
+	pdown = digitalRead(PDOWN);
+	pcenter = digitalRead(PSELECT);
+	pleft = digitalRead(PLEFT);
+	pright = digitalRead(PRIGHT);
+
+	pright2 = digitalRead(PRIGHT2);
+	pleft2 = digitalRead(PLEFT2);
+
+	read_buffer();
+	buttons_increment();
+}
+
+ISR(INT0_vect) // Pulsador pright2 (pin 21) - sentido derecha
+{
+	if digitalRead (PRIGHT2)
+	{
+		sense = 0;
+	}
+}
+
+ISR(INT1_vect) // Pulsador pleft2 (pin 20) - sentido izquierda
+{
+	if digitalRead (PLEFT2)
+	{
+		sense = 1;
+	}
+}
+
+ISR(TIMER3_OVF_vect)
+{
+	PORTL = DOFF;
+	switch (digit)
+	{
+	case 0:
+		if (option == '1' || option == '2')
+		{
+			PORTA = hex_value[counter % 10];
+		}
+		else if (option == '3')
+		{
+			PORTA = 0x00;
+		}
+		else if (option == '4')
+		{
+			worm();
+			PORTA = 0x00;
+		}
+		PORTL = B00001110;
+		keyboard(digit);
+		digit++;
+		break;
+	case 1:
+		if (option == '1' || option == '2')
+		{
+			PORTA = hex_value[(counter / 10) % 10];
+		}
+		else if (option == '3')
+		{
+			PORTA = 0x00;
+		}
+		else if (option == '4')
+		{
+			worm();
+			PORTA = 0x00;
+		}
+		PORTL = B00001101;
+		keyboard(digit);
+		digit++;
+		break;
+	case 2:
+		if (option == '1')
+		{
+			PORTA = hex_value[(counter / 100) % 10];
+		}
+		else if (option == '2')
+		{
+			PORTA = 0x00;
+		}
+		else if (option == '3')
+		{
+			PORTA = hex_value[counter % 10];
+		}
+		else if (option == '4')
+		{
+			worm();
+			PORTA = 0x00;
+		}
+		PORTL = B00001011;
+		keyboard(digit);
+		digit++;
+		break;
+	case 3:
+		if (option == '1' || option == '2')
+		{
+			PORTA = 0x00;
+		}
+		else if (option == '3')
+		{
+			PORTA = hex_value[(counter / 10) % 10];
+		}
+		else if (option == '4')
+		{
+			worm();
+			PORTA = 0x00;
+		}
+		PORTL = B00000111;
+		digit = 0;
+		break;
 	}
 }
