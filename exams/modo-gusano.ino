@@ -20,15 +20,15 @@ por el Timer 3 cuando se produzca overflow: ISR(TIMER3_OVF_vect).
 Modo Turnomatic: En las opciones 1, 2 y 3, el sistema trabaja en modo
 Turnomatic según las especificaciones del proyecto base de partida.
 
-Modo gusano: Cuando se entra en opción 4, la variable “sentido”
+Modo gusano: Cuando se entra en opción 4, la variable “sense”
 (modificada por los pulsadores “pright2” y “pleft2”) indicará si el
 desplazamiento del “segmento encendido” se hace hacia la derecha o hacia
 la izquierda. Cada pulsación generará una interrupción que
 será atendida por la correspondiente ISR() que actualizará la
-variable “sentido” de acuerdo a:
+variable “sense” de acuerdo a:
 
-Si se pulsa “pright2” entonces sentido = 0 movimiento a la derecha
-Si se pulsa “pleft2” entonces sentido = 1 movimiento a la izquierda
+Si se pulsa “pright2” entonces sense = 0 movimiento a la derecha
+Si se pulsa “pleft2” entonces sense = 1 movimiento a la izquierda
 
 La estructuración del programa se puede hacer en base a
 las siguientes funciones básicas:
@@ -58,12 +58,12 @@ ISR(¿?)
 
 void loop() {
 	// Si (opción == 1 || opción == 2 || opción == 3) funcionamiento modo Turnomatic
-	// Si (opción == 4)à funcionamiento en modo gusano. Realiza un bucle completo hacia la derecha o hacia la izquierda dependiendo de la variable sentido. El “sentido” en el que se va encendiendo el segmento activo se cambia con los pulsadores “pright2” y “pleft2”. Cuando termina un bucle completo del gusano vuelve a loop() donde comprobará si ha llegado una nueva opción del menú que implique un cambio de modo.
+	// Si (opción == 4)à funcionamiento en modo gusano. Realiza un bucle completo hacia la derecha o hacia la izquierda dependiendo de la variable sense. El “sense” en el que se va encendiendo el segmento activo se cambia con los pulsadores “pright2” y “pleft2”. Cuando termina un bucle completo del worm vuelve a loop() donde comprobará si ha llegado una nueva opción del menú que implique un cambio de modo.
 }
 
 Especificaciones para programar el Timer 3:
-* Modo PWM, Phase correct, TOP = ICR3 , T = 4 ms (periodo señal PWM)
-* Frecuencia de la interrupción: Usar la interrupción por
+* Modo PWM, Phase correct, TOP = ICR3 , T = 4 ms (period señal PWM)
+* frequency de la interrupción: Usar la interrupción por
 overflow (TIMER3_OVF_vect), que se producirá cada 4 ms (cuando
 el contador del timer llega al BOTTOM).
 * TOP (ICR3): Calcular el valor del TOP suponiendo que el preescaler se programa a N=64
@@ -120,7 +120,7 @@ char hex_value[16] = {
 };
 
 // Matriz teclado
-char teclado_map[][3] = {
+char keyboard_map[][3] = {
 		{'1', '2', '3'},
 		{'4', '5', '6'},
 		{'7', '8', '9'},
@@ -130,7 +130,7 @@ volatile int digit;
 volatile char option;
 String buffer;
 
-int contador;
+int counter;
 int increment;
 
 int pup;
@@ -142,9 +142,10 @@ int pright;
 int pright2;
 int pleft2;
 
-volatile int sentido; // 0 derecha, 1 izquierda
+volatile int sense; // 0 derecha, 1 izquierda
+volatile int worm_state;
 
-char gusano_states[12] = {
+char worm_states[12] = {
 		0x1, 0x1, 0x1, 0x1,
 		0x2, 0x4, 0x8, 0x8,
 		0x8, 0x8, 0x10, 0x20};
@@ -210,8 +211,11 @@ void setup()
 	digit = 0;
 	buffer = "";
 
-	contador = 0;
+	counter = 0;
 	increment = 1;
+
+	sense = 0;
+	worm_state = 0;
 
 	time_old = millis();
 	transition_time = 550;
@@ -251,7 +255,7 @@ ISR(TIMER3_OVF_vect)
 	case 0:
 		if (option == '1' || option == '2')
 		{
-			PORTA = hex_value[contador % 10];
+			PORTA = hex_value[counter % 10];
 		}
 		else if (option == '3')
 		{
@@ -259,7 +263,8 @@ ISR(TIMER3_OVF_vect)
 		}
 		else if (option == '4')
 		{
-			gusano();
+			worm();
+			PORTA = 0x00;
 		}
 		PORTL = B00001110;
 		keyboard(digit);
@@ -268,10 +273,15 @@ ISR(TIMER3_OVF_vect)
 	case 1:
 		if (option == '1' || option == '2')
 		{
-			PORTA = hex_value[(contador / 10) % 10];
+			PORTA = hex_value[(counter / 10) % 10];
 		}
 		else if (option == '3')
 		{
+			PORTA = 0x00;
+		}
+		else if (option == '4')
+		{
+			worm();
 			PORTA = 0x00;
 		}
 		PORTL = B00001101;
@@ -281,7 +291,7 @@ ISR(TIMER3_OVF_vect)
 	case 2:
 		if (option == '1')
 		{
-			PORTA = hex_value[(contador / 100) % 10];
+			PORTA = hex_value[(counter / 100) % 10];
 		}
 		else if (option == '2')
 		{
@@ -289,19 +299,29 @@ ISR(TIMER3_OVF_vect)
 		}
 		else if (option == '3')
 		{
-			PORTA = hex_value[contador % 10];
+			PORTA = hex_value[counter % 10];
+		}
+		else if (option == '4')
+		{
+			worm();
+			PORTA = 0x00;
 		}
 		PORTL = B00001011;
 		keyboard(digit);
 		digit++;
 		break;
 	case 3:
-		if (option == '3')
+		if (option == '1' || option == '2')
 		{
-			PORTA = hex_value[(contador / 10) % 10];
+			PORTA = 0x00;
 		}
-		else
+		else if (option == '3')
 		{
+			PORTA = hex_value[(counter / 10) % 10];
+		}
+		else if (option == '4')
+		{
+			worm();
 			PORTA = 0x00;
 		}
 		PORTL = B00000111;
@@ -345,7 +365,7 @@ void buttons_increment()
 	{
 		if (millis() - time_old > transition_time)
 		{
-			contador = 0;
+			counter = 0;
 			tone(PSTART, 1000, 100);
 			time_old = millis();
 		}
@@ -373,52 +393,52 @@ void logic(bool pdown)
 {
 	if (increment == 1 && !pdown)
 	{
-		contador++;
+		counter++;
 	}
 	else if (increment == 1 && pdown)
 	{
-		contador--;
+		counter--;
 	}
 	if (increment == 1)
 	{
-		if (contador > 999)
+		if (counter > 999)
 		{
-			contador = 0;
+			counter = 0;
 		}
-		else if (contador < 0)
+		else if (counter < 0)
 		{
-			contador = 999;
+			counter = 999;
 		}
 	}
 
 	if (increment == 2 && !pdown)
 	{
-		if (contador == 998)
+		if (counter == 998)
 		{
-			contador = 0;
+			counter = 0;
 		}
-		else if (contador == 999)
+		else if (counter == 999)
 		{
-			contador = 1;
+			counter = 1;
 		}
 		else
 		{
-			contador += 2;
+			counter += 2;
 		}
 	}
 	else if (increment == 2 && pdown)
 	{
-		if (contador == 1)
+		if (counter == 1)
 		{
-			contador = 999;
+			counter = 999;
 		}
-		else if (contador == 0)
+		else if (counter == 0)
 		{
-			contador = 998;
+			counter = 998;
 		}
 		else
 		{
-			contador -= 2;
+			counter -= 2;
 		}
 	}
 }
@@ -437,16 +457,16 @@ void keyboard(int column)
 	switch (val)
 	{
 	case 7:
-		buffer += teclado_map[0][column];
+		buffer += keyboard_map[0][column];
 		break;
 	case 11:
-		buffer += teclado_map[1][column];
+		buffer += keyboard_map[1][column];
 		break;
 	case 13:
-		buffer += teclado_map[2][column];
+		buffer += keyboard_map[2][column];
 		break;
 	case 14:
-		buffer += teclado_map[3][column];
+		buffer += keyboard_map[3][column];
 		break;
 	}
 }
@@ -456,24 +476,147 @@ void read_buffer()
 {
 	if (buffer.length() == 4 && buffer.charAt(3) == '#')
 	{
-		contador = (buffer.substring(0, 4)).toInt();
+		counter = (buffer.substring(0, 4)).toInt();
 		buffer = "";
 		tone(PSTART, 1000, 100);
 	}
 	else if (buffer.length() == 3 && buffer.charAt(2) == '#')
 	{
-		contador = (buffer.substring(0, 3)).toInt();
+		counter = (buffer.substring(0, 3)).toInt();
 		buffer = "";
 		tone(PSTART, 1000, 100);
 	}
 	else if (buffer.length() == 2 && buffer.charAt(1) == '#')
 	{
-		contador = (buffer.substring(0, 2)).toInt();
+		counter = (buffer.substring(0, 2)).toInt();
 		buffer = "";
 		tone(PSTART, 1000, 100);
 	}
 	else if ((buffer.length() == 1 && buffer.charAt(0) == '#') || (buffer.length() > 4))
 	{
 		buffer = "";
+	}
+}
+
+// Funcion para el modo gusano
+void worm()
+{
+	if (sense == 0)
+	{
+		switch (worm_state)
+		{
+		case 0:
+			PORTA = worm_states[worm_state];
+			PORTL = B00000111;
+			break;
+		case 1:
+			PORTA = worm_states[worm_state];
+			PORTL = B00001011;
+			break;
+		case 2:
+			PORTA = worm_states[worm_state];
+			PORTL = B00001101;
+			break;
+		case 3:
+			PORTA = worm_states[worm_state];
+			PORTL = B00001110;
+			break;
+		case 4:
+			PORTA = worm_states[worm_state];
+			PORTL = B00001110;
+			break;
+		case 5:
+			PORTA = worm_states[worm_state];
+			PORTL = B00001110;
+			break;
+		case 6:
+			PORTA = worm_states[worm_state];
+			PORTL = B00000111;
+			break;
+		case 7:
+			PORTA = worm_states[worm_state];
+			PORTL = B00001101;
+			break;
+		case 8:
+			PORTA = worm_states[worm_state];
+			PORTL = B00001011;
+			break;
+		case 9:
+			PORTA = worm_states[worm_state];
+			PORTL = B00000111;
+			break;
+		case 10:
+			PORTA = worm_states[worm_state];
+			PORTL = B00000111;
+			break;
+		case 11:
+			PORTA = worm_states[worm_state];
+			PORTL = B00000111;
+			break;
+		}
+		worm_state++;
+		if (worm_state == 12)
+		{
+			worm_state = 0;
+		}
+	}
+	else if (sense == 1)
+	{
+		switch (worm_state)
+		{
+		case 0:
+			PORTA = worm_states[worm_state];
+			PORTL = B00000111;
+			break;
+		case 1:
+			PORTA = worm_states[worm_state];
+			PORTL = B00001011;
+			break;
+		case 2:
+			PORTA = worm_states[worm_state];
+			PORTL = B00001101;
+			break;
+		case 3:
+			PORTA = worm_states[worm_state];
+			PORTL = B00001110;
+			break;
+		case 4:
+			PORTA = worm_states[worm_state];
+			PORTL = B00001110;
+			break;
+		case 5:
+			PORTA = worm_states[worm_state];
+			PORTL = B00001110;
+			break;
+		case 6:
+			PORTA = worm_states[worm_state];
+			PORTL = B00000111;
+			break;
+		case 7:
+			PORTA = worm_states[worm_state];
+			PORTL = B00001101;
+			break;
+		case 8:
+			PORTA = worm_states[worm_state];
+			PORTL = B00001011;
+			break;
+		case 9:
+			PORTA = worm_states[worm_state];
+			PORTL = B00000111;
+			break;
+		case 10:
+			PORTA = worm_states[worm_state];
+			PORTL = B00000111;
+			break;
+		case 11:
+			PORTA = worm_states[worm_state];
+			PORTL = B00000111;
+			break;
+		}
+		worm_state--;
+		if (worm_state == -1)
+		{
+			worm_state = 11;
+		}
 	}
 }
