@@ -192,8 +192,8 @@ void setup()
 	pinMode(2, OUTPUT); // OC3B
 	pinMode(3, OUTPUT); // OC3C
 
-	TCCR3A = TCCRB = TCCR3C = 0; // resetear registros
-	TCNT3 = 0;									 // Inicializamos el contador a 0
+	TCCR3A = TCCR3B = TCCR3C = 0; // resetear registros
+	TCNT3 = 0;										// Inicializamos el contador a 0
 
 	OCR3A = 0;
 	OCR3B = 0x0001;
