@@ -385,7 +385,6 @@ void worm()
 			PORTL = B00000111;
 			break;
 		}
-		delay(200);
 		worm_state++;
 		if (worm_state == 12)
 		{
@@ -445,7 +444,6 @@ void worm()
 			PORTL = B00000111;
 			break;
 		}
-		delay(200);
 		worm_state--;
 		if (worm_state == -1)
 		{
