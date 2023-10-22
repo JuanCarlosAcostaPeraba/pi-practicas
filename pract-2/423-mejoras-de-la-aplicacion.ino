@@ -1,26 +1,20 @@
 /*
-Añadir a la aplicación del apartado anterior una nueva
-opción al menú (opción 4) para seleccionar otra funcionalidad
-para el sistema correspondiente a un frecuencímetro (instrumento que mide la
-frecuencia de una señal) suponiendo que el Timer 3 está
-programado según el apartado anterior. Esa programación
-nos condiciona el rango de frecuencias a medir (frecuencia mínima y frecuencia
-máxima). Las opciones del menú quedan ahora como:
+Una vez calculadas las frecuencias mínimas y
+máximas del apartado anterior, trate de visualizar
+todos los rangos de frecuencias en el display
+de 7 segmentos de acuerdo a las siguientes
+especificaciones:
 
-4.- Modo frecuencímetro
+* Visualizar todos los rangos de frecuencias
+en el display de 7 segmentos de modo que
+cuando la frecuencia sea superior a 9999 Hz
+sea divida por 1000 y se presente de forma
+escalada en el display de 7 segmentos.
+Ejemplos de visualización:
 
-Para ello, utilizaremos las capacidades que tiene el
-Timer 3 para medir el tiempo entre eventos (por
-ejemplo, medir el tiempo entre dos flancos de bajada
-o de subida) haciendo uso de la sección de
-captura (registro ICR3 y circuitería asociada). Con
-ello ya se tendría el periodo de la señal cuya
-inversa sería la frecuencia y que, luego, se mostraría
-en el display de 7 segmentos.
-
-La señal de la que queremos medir la frecuencia
-se conecta al pin ICP3 (pata 9 del
-microcontrolador, no disponible en los conectores del Arduino mega).
+i. 7834 (7834 Hz)
+ii. 11.34 (11348 Hz). Activar el punto del
+dígito de las centenas y no visualice las unidades.
 */
 
 // Pulsadores
