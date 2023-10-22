@@ -197,7 +197,7 @@ void setup()
 	TCNT3 = 0;										// Inicializamos el contador a 0
 
 	OCR3A = 0;
-	OCR3B = 0x0001;
+	OCR3B = 200;
 	OCR3C = 0;
 
 	ICR3 = TOP;
