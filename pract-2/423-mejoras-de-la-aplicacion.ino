@@ -83,7 +83,7 @@ String buffer;
 int contador;
 int increment;
 
-volatile float frecuencia;
+volatile int frecuencia;
 volatile float periodo;
 volatile int ICR3_old;
 volatile int ICR3_new;
