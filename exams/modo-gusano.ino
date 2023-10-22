@@ -334,7 +334,6 @@ void worm()
 {
 	if (sense == 0)
 	{
-		Serial.println("modo gusano derecha");
 		switch (worm_state)
 		{
 		case 0:
@@ -386,7 +385,7 @@ void worm()
 			PORTL = B00000111;
 			break;
 		}
-		Serial.println(worm_state);
+		delay(200);
 		worm_state++;
 		if (worm_state == 12)
 		{
@@ -395,7 +394,6 @@ void worm()
 	}
 	else if (sense == 1)
 	{
-		Serial.println("modo gusano izquierda");
 		switch (worm_state)
 		{
 		case 0:
@@ -447,7 +445,7 @@ void worm()
 			PORTL = B00000111;
 			break;
 		}
-		Serial.println(worm_state);
+		delay(200);
 		worm_state--;
 		if (worm_state == -1)
 		{
