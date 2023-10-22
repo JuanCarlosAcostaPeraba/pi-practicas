@@ -536,7 +536,7 @@ void loop()
 
 ISR(INT0_vect) // Pulsador pright2 (pin 21) - sentido derecha
 {
-	if digitalRead (PRIGHT2)
+	if (millis() - time_old > transition_time)
 	{
 		sense = 0;
 	}
@@ -544,7 +544,7 @@ ISR(INT0_vect) // Pulsador pright2 (pin 21) - sentido derecha
 
 ISR(INT1_vect) // Pulsador pleft2 (pin 20) - sentido izquierda
 {
-	if digitalRead (PLEFT2)
+	if (millis() - time_old > transition_time)
 	{
 		sense = 1;
 	}
