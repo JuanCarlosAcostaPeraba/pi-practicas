@@ -305,7 +305,7 @@ ISR(TIMER3_COMPA_vect)
 			}
 			else
 			{
-				PORTA = hex_value[(frecuencia / 1000) % 10];
+				PORTA = hex_value[frecuencia / 1000];
 			}
 		}
 		PORTL = B00000111; // Visualizacion de unidades de millar
