@@ -184,14 +184,11 @@ void setup()
 	pinMode(PLEFT2, INPUT);
 	EICRA = B00001010;
 	EIMSK = B00000011;
-	sei();
 
 	// Modo PWM Phase Correct
 	// f = 16 MHz / (N * 2 * TOP)
 	// f = 250 Hz; N = 64; TOP = 500
 	// Habilitacion de la interrupcion por overflow del Timer 3
-	cli(); // Deshabilitamos las interrupciones
-
 	pinMode(5, OUTPUT); // OC3A
 	pinMode(2, OUTPUT); // OC3B
 	pinMode(3, OUTPUT); // OC3C
@@ -208,7 +205,7 @@ void setup()
 	TCCR3A = B00100010;
 	TCCR3B = B00010011;
 
-	TIMSK3 = B00000001;
+	TIMSK3 = B00000101;
 	sei();
 
 	digit = 0;
