@@ -98,8 +98,8 @@ char display_map[4] = {D4, D3, D2, D1};
 #define DOFF B00001111;
 #define DON B00000000;
 
-#define PRIGHT2 21 // INT0
-#define PLEFT2 20	 // INT1
+#define PRIGHT2 21 // INT0 (pin 21) - pulsador right2 sentido derecha
+#define PLEFT2 20	 // INT1 (pin 20) - pulsador left2 sentido izquierda
 
 #define TOP 0x01F4 // 500
 
@@ -117,6 +117,14 @@ char hex_value[16] = {
 		0x66, 0x6D, 0x7D, 0x07, // 4, 5, 6, 7
 		0x7F, 0x6F, 0x77, 0x7C, // 8, 9, A, B
 		0x39, 0x5E, 0x79, 0x71	// C, D, E, F
+};
+
+// Array valores hexadecimales en binario con punto
+int hex_value_point[16] = {
+		0xBF, 0x86, 0xDB, 0xCF, // 0., 1., 2., 3.
+		0xE6, 0xED, 0xFD, 0x87, // 4., 5., 6., 7.
+		0xFF, 0xEF, 0xF7, 0xFC, // 8., 9., A., B.
+		0xB9, 0xDE, 0xF9, 0xF1	// C., D., E., F.
 };
 
 // Matriz teclado
@@ -243,9 +251,21 @@ void loop()
 	buttons_increment();
 }
 
-// TODO ISR(INT0_vect)
+ISR(INT0_vect) // Pulsador pright2 (pin 21) - sentido derecha
+{
+	if digitalRead (PRIGHT2)
+	{
+		sense = 0;
+	}
+}
 
-// TODO ISR(INT1_vect)
+ISR(INT1_vect) // Pulsador pleft2 (pin 20) - sentido izquierda
+{
+	if digitalRead (PLEFT2)
+	{
+		sense = 1;
+	}
+}
 
 ISR(TIMER3_OVF_vect)
 {
