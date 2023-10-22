@@ -178,17 +178,12 @@ void setup()
 	PORTC = B11111111; // Inicializamos el puerto C a 1 (0cFF)
 
 	// Habilitacion de la interrupcion externa INT0 (pin 21, pright2, falling)
-	cli();
-	pinMode(PRIGHT2, INPUT);
-	EICRA = B00000010; // Configuramos la interrupcion externa INT0 para que se produzca en flanco de bajada (0x02)
-	EIMSK = B00000001; // Habilitamos la interrupcion externa INT0 (0x01)
-	sei();
-
 	// Habilitacion de la interrupcion externa INT1 (pin 20, pleft2, falling)
 	cli();
+	pinMode(PRIGHT2, INPUT);
 	pinMode(PLEFT2, INPUT);
-	EICRA = B00001000; // Configuramos la interrupcion externa INT1 para que se produzca en flanco de bajada (0x08)
-	EIMSK = B00000010; // Habilitamos la interrupcion externa INT1 (0x02)
+	EICRA = B00001010;
+	EIMSK = B00000011;
 	sei();
 
 	// Modo PWM Phase Correct
