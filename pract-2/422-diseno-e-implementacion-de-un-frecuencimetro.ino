@@ -2,9 +2,9 @@
 Añadir a la aplicación del apartado anterior una nueva
 opción al menú (opción 4) para seleccionar otra funcionalidad
 para el sistema correspondiente a un frecuencímetro (instrumento que mide la
-frecuencia de una señal) suponiendo que el Timer 3 está
+frequency de una señal) suponiendo que el Timer 3 está
 programado según el apartado anterior. Esa programación
-nos condiciona el rango de frecuencias a medir (frecuencia mínima y frecuencia
+nos condiciona el rango de frequencys a medir (frequency mínima y frequency
 máxima). Las opciones del menú quedan ahora como:
 
 4.- Modo frecuencímetro
@@ -14,11 +14,11 @@ Timer 3 para medir el tiempo entre eventos (por
 ejemplo, medir el tiempo entre dos flancos de bajada
 o de subida) haciendo uso de la sección de
 captura (registro ICR3 y circuitería asociada). Con
-ello ya se tendría el periodo de la señal cuya
-inversa sería la frecuencia y que, luego, se mostraría
+ello ya se tendría el period de la señal cuya
+inversa sería la frequency y que, luego, se mostraría
 en el display de 7 segmentos.
 
-La señal de la que queremos medir la frecuencia
+La señal de la que queremos medir la frequency
 se conecta al pin ICP3 (pata 9 del
 microcontrolador, no disponible en los conectores del Arduino mega).
 */
@@ -68,7 +68,7 @@ char hex_value[16] = {
 };
 
 // Matriz teclado
-char teclado_map[][3] = {
+char keyboard_map[][3] = {
 		{'1', '2', '3'},
 		{'4', '5', '6'},
 		{'7', '8', '9'},
@@ -78,11 +78,11 @@ volatile int digit;
 volatile char option;
 String buffer;
 
-int contador;
+int counter;
 int increment;
 
-volatile int frecuencia;
-volatile float periodo;
+volatile int frequency;
+volatile float period;
 volatile int ICR3_old;
 volatile int ICR3_new;
 
@@ -122,7 +122,7 @@ void setup()
 
 	cli();												// Deshabilitamos las interrupciones
 	TCCR3A = TCCR3B = TCCR3C = 0; // Deshabilitamos el temporizador
-	TCNT3 = 0;										// Inicializamos el contador
+	TCNT3 = 0;										// Inicializamos el counter
 
 	OCR3A = TOP; // Establecemos el valor de comparacion
 	OCR3B = 0;
@@ -137,7 +137,7 @@ void setup()
 	digit = 0;
 	buffer = "";
 
-	contador = 0;
+	counter = 0;
 	increment = 1;
 
 	time_old = millis();
@@ -168,16 +168,16 @@ ISR(TIMER3_CAPT_vect)
 	ICR3_old = ICR3_new;
 	ICR3_new = ICR3;
 
-	periodo = ICR3_new - ICR3_old;
+	period = ICR3_new - ICR3_old;
 
-	if (periodo < 0)
+	if (period < 0)
 	{
-		periodo = TOP - ICR3_old + ICR3_new;
+		period = TOP - ICR3_old + ICR3_new;
 	}
 
-	periodo *= 0.0000005;
+	period *= 0.0000005;
 
-	frecuencia = 1 / periodo;
+	frequency = 1 / period;
 }
 
 ISR(TIMER3_COMPA_vect)
@@ -188,7 +188,7 @@ ISR(TIMER3_COMPA_vect)
 	case 0:
 		if (option == '1' || option == '2')
 		{
-			PORTA = hex_value[contador % 10];
+			PORTA = hex_value[counter % 10];
 		}
 		else if (option == '3')
 		{
@@ -196,13 +196,13 @@ ISR(TIMER3_COMPA_vect)
 		}
 		else if (option == '4')
 		{
-			if ((frecuencia > 9999))
+			if ((frequency > 9999))
 			{
-				frec_logic();
+				freq_logic();
 			}
 			else
 			{
-				PORTA = hex_value[frecuencia % 10];
+				PORTA = hex_value[frequency % 10];
 			}
 		}
 		PORTL = B00001110; // Visualizacion de unidades
@@ -212,7 +212,7 @@ ISR(TIMER3_COMPA_vect)
 	case 1:
 		if (option == '1' || option == '2')
 		{
-			PORTA = hex_value[(contador / 10) % 10];
+			PORTA = hex_value[(counter / 10) % 10];
 		}
 		else if (option == '3')
 		{
@@ -220,13 +220,13 @@ ISR(TIMER3_COMPA_vect)
 		}
 		else if (option == '4')
 		{
-			if ((frecuencia > 9999))
+			if ((frequency > 9999))
 			{
-				frec_logic();
+				freq_logic();
 			}
 			else
 			{
-				PORTA = hex_value[(frecuencia / 10) % 10];
+				PORTA = hex_value[(frequency / 10) % 10];
 			}
 		}
 		PORTL = B00001101; // Visualizacion de decenas
@@ -236,7 +236,7 @@ ISR(TIMER3_COMPA_vect)
 	case 2:
 		if (option == '1')
 		{
-			PORTA = hex_value[(contador / 100) % 10];
+			PORTA = hex_value[(counter / 100) % 10];
 		}
 		else if (option == '2')
 		{
@@ -244,17 +244,17 @@ ISR(TIMER3_COMPA_vect)
 		}
 		else if (option == '3')
 		{
-			PORTA = hex_value[contador % 10];
+			PORTA = hex_value[counter % 10];
 		}
 		else if (option == '4')
 		{
-			if ((frecuencia > 9999))
+			if ((frequency > 9999))
 			{
-				frec_logic();
+				freq_logic();
 			}
 			else
 			{
-				PORTA = hex_value[(frecuencia / 100) % 10];
+				PORTA = hex_value[(frequency / 100) % 10];
 			}
 		}
 		PORTL = B00001011; // Visualizacion de centenas
@@ -268,17 +268,17 @@ ISR(TIMER3_COMPA_vect)
 		}
 		else if (option == '3')
 		{
-			PORTA = hex_value[(contador / 10) % 10];
+			PORTA = hex_value[(counter / 10) % 10];
 		}
 		else if (option == '4')
 		{
-			if ((frecuencia > 9999))
+			if ((frequency > 9999))
 			{
-				frec_logic();
+				freq_logic();
 			}
 			else
 			{
-				PORTA = hex_value[(frecuencia / 1000) % 10];
+				PORTA = hex_value[(frequency / 1000) % 10];
 			}
 		}
 		PORTL = B00000111; // Visualizacion de unidades de millar
@@ -297,7 +297,7 @@ void menu()
 	Serial.println("4.- Modo frecuencimetro");
 }
 
-// Funcion para incrementar el contador por botones
+// Funcion para incrementar el counter por botones
 void buttons_increment()
 {
 	if (pup == 0)
@@ -322,7 +322,7 @@ void buttons_increment()
 	{
 		if (millis() - time_old > transition_time)
 		{
-			contador = 0;
+			counter = 0;
 			tone(PSTART, 1000, 100);
 			time_old = millis();
 		}
@@ -345,57 +345,57 @@ void buttons_increment()
 	}
 }
 
-// Funcion para que el contador cambie
+// Funcion para que el counter cambie
 void logic(bool pdown)
 {
 	if (increment == 1 && !pdown)
 	{
-		contador++;
+		counter++;
 	}
 	else if (increment == 1 && pdown)
 	{
-		contador--;
+		counter--;
 	}
 	if (increment == 1)
 	{
-		if (contador > 999)
+		if (counter > 999)
 		{
-			contador = 0;
+			counter = 0;
 		}
-		else if (contador < 0)
+		else if (counter < 0)
 		{
-			contador = 999;
+			counter = 999;
 		}
 	}
 
 	if (increment == 2 && !pdown)
 	{
-		if (contador == 998)
+		if (counter == 998)
 		{
-			contador = 0;
+			counter = 0;
 		}
-		else if (contador == 999)
+		else if (counter == 999)
 		{
-			contador = 1;
+			counter = 1;
 		}
 		else
 		{
-			contador += 2;
+			counter += 2;
 		}
 	}
 	else if (increment == 2 && pdown)
 	{
-		if (contador == 1)
+		if (counter == 1)
 		{
-			contador = 999;
+			counter = 999;
 		}
-		else if (contador == 0)
+		else if (counter == 0)
 		{
-			contador = 998;
+			counter = 998;
 		}
 		else
 		{
-			contador -= 2;
+			counter -= 2;
 		}
 	}
 }
@@ -414,16 +414,16 @@ void keyboard(int column)
 	switch (val)
 	{
 	case 7:
-		buffer += teclado_map[0][column];
+		buffer += keyboard_map[0][column];
 		break;
 	case 11:
-		buffer += teclado_map[1][column];
+		buffer += keyboard_map[1][column];
 		break;
 	case 13:
-		buffer += teclado_map[2][column];
+		buffer += keyboard_map[2][column];
 		break;
 	case 14:
-		buffer += teclado_map[3][column];
+		buffer += keyboard_map[3][column];
 		break;
 	}
 }
@@ -433,19 +433,19 @@ void read_buffer()
 {
 	if (buffer.length() == 4 && buffer.charAt(3) == '#')
 	{
-		contador = (buffer.substring(0, 4)).toInt();
+		counter = (buffer.substring(0, 4)).toInt();
 		buffer = "";
 		tone(PSTART, 1000, 100);
 	}
 	else if (buffer.length() == 3 && buffer.charAt(2) == '#')
 	{
-		contador = (buffer.substring(0, 3)).toInt();
+		counter = (buffer.substring(0, 3)).toInt();
 		buffer = "";
 		tone(PSTART, 1000, 100);
 	}
 	else if (buffer.length() == 2 && buffer.charAt(1) == '#')
 	{
-		contador = (buffer.substring(0, 2)).toInt();
+		counter = (buffer.substring(0, 2)).toInt();
 		buffer = "";
 		tone(PSTART, 1000, 100);
 	}
@@ -455,10 +455,10 @@ void read_buffer()
 	}
 }
 
-// Funcion para mostrar la frecuencia
-void frec_logic()
+// Funcion para mostrar la frequency
+void freq_logic()
 {
 	PORTA = 0x00;
-	Serial.print(frecuencia);
+	Serial.print(frequency);
 	Serial.println(" Hz");
 }

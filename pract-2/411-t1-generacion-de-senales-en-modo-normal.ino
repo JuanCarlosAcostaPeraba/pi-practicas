@@ -1,7 +1,7 @@
 /*
 Generar dos señales de onda cuadrada desfasadas 90º eléctricos
 con el timer 3 utilizando las salidas OC3A (pin 5) y OC3C (pin 3)
-de periodo T = 65,536 ms (f = 1/T = 15,2587 Hz). Comprobar que
+de period T = 65,536 ms (f = 1/T = 15,2587 Hz). Comprobar que
 las señales generadas por el timer son las correctas haciendo
 uso del osciloscopio del simulador Proteus.
 */
@@ -51,7 +51,7 @@ char hex_value[16] = {
 };
 
 // Matriz teclado
-char teclado_map[][3] = {
+char keyboard_map[][3] = {
 		{'1', '2', '3'},
 		{'4', '5', '6'},
 		{'7', '8', '9'},

@@ -8,7 +8,7 @@ de este canal analógico permitirá luego controlar el
 ciclo de trabajo de la señal PWM entre el 0% (voltaje
 medio mínimo=0v) y el 100% (voltaje medio máximo = 5v).
 
-El periodo de la señal PWM será de T = 4 ms, N=8 (prescaler)
+El period de la señal PWM será de T = 4 ms, N=8 (prescaler)
 y el TOP será definido por el registro OCR3A.
 
 Conecte la señal generada a un LED para ver que
@@ -67,7 +67,7 @@ char hex_value[16] = {
 };
 
 // Matriz teclado
-char teclado_map[][3] = {
+char keyboard_map[][3] = {
 		{'1', '2', '3'},
 		{'4', '5', '6'},
 		{'7', '8', '9'},
@@ -97,6 +97,7 @@ void setup()
 	pinMode(2, OUTPUT); // OC3B
 	pinMode(3, OUTPUT); // OC3C
 
+	cli();
 	TCCR3A = TCCR3B = TCCR3C = 0; // Desactivamos todas las salidas del timer 3
 
 	TCNT3 = 0; // Inicializamos el contador del timer 3 a 0

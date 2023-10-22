@@ -1,9 +1,9 @@
 /*
 Generar tres señales desfasadas 45º eléctricos
 con el timer 3 utilizando las salidas OC3A (pin 5),
-OC3B (pin 2) y OC3C (pin 3) de periodo T = 20 ms.
+OC3B (pin 2) y OC3C (pin 3) de period T = 20 ms.
 Hacer uso del registro ICR3 para definir el
-TOP y escoger N=8 en el divisor de frecuencia del
+TOP y escoger N=8 en el divisor de frequency del
 reloj (prescaler). Comprobar que las señales
 generadas por el timer son las correctas haciendo
 uso del osciloscopio del simulador Proteus.
@@ -54,7 +54,7 @@ char hex_value[16] = {
 };
 
 // Matriz teclado
-char teclado_map[][3] = {
+char keyboard_map[][3] = {
 		{'1', '2', '3'},
 		{'4', '5', '6'},
 		{'7', '8', '9'},
