@@ -496,7 +496,7 @@ void setup()
 	TCCR3A = B00100010;
 	TCCR3B = B00010011;
 
-	TIMSK3 = B00000101;
+	TIMSK3 = B00000001;
 	sei();
 
 	digit = 0;
@@ -539,8 +539,7 @@ ISR(INT0_vect) // Pulsador pright2 (pin 21) - sentido derecha
 	if (millis() - time_old > transition_time)
 	{
 		sense = 0;
-		Serial.println("pright2");
-		Serial.println(sense);
+		Serial.println("Sentido ->");
 	}
 }
 
@@ -549,8 +548,7 @@ ISR(INT1_vect) // Pulsador pleft2 (pin 20) - sentido izquierda
 	if (millis() - time_old > transition_time)
 	{
 		sense = 1;
-		Serial.println("pleft2");
-		Serial.println(sense);
+		Serial.println("<- Sentido");
 	}
 }
 
