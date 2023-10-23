@@ -347,8 +347,14 @@ void loop()
 	pright = digitalRead(PRIGHT);
 
 	read_buffer();
-	buttons_increment();
-	crono_buttons();
+	if (option == '4')
+	{
+		crono_buttons();
+	}
+	else
+	{
+		buttons_increment();
+	}
 }
 
 ISR(INT3_vect)
