@@ -41,6 +41,8 @@ char display_map[4] = {D4, D3, D2, D1};
 #define DOFF B00001111;
 #define DON B00000000;
 
+#define TOP 249
+
 // Array valores hexadecimales
 char hexadecimal[16] = {
 		'0', '1', '2', '3', // 0, 1, 2, 3
@@ -79,6 +81,8 @@ int pright;
 
 volatile int crono;
 volatile bool crono_state;
+
+volatile int timer_count = 0;
 
 long int time_old;
 int transition_time;
@@ -284,12 +288,12 @@ void crono_buttons()
 	}
 }
 
-// Funcions para controlar la logica del cronometro
+// Funcion para controlar la logica del cronometro
 void crono_logic()
 {
 	if (crono > 9999)
 	{
-		crono = 0;
+		crono = 9999;
 	}
 }
 
@@ -310,10 +314,33 @@ void setup()
 	PORTC = B11111111; // Inicializamos el puerto C a 1 (0cFF)
 
 	// Habilitacion de la interrupcion INT3
-	cli();																// Deshabilitamos las interrupciones
-	EICRA |= (1 << ISC31) | (1 << ISC30); // INT3 activada por flanco de subida
-	EIMSK |= (1 << INT3);									// Desenmascaramos la interrupcion INT3 para habilitar la interrupcion externa 3
-	sei();																// Habilitamos las interrupciones
+	// cli();																// Deshabilitamos las interrupciones
+	// EICRA |= (1 << ISC31) | (1 << ISC30); // INT3 activada por flanco de subida
+	// EIMSK |= (1 << INT3);									// Desenmascaramos la interrupcion INT3 para habilitar la interrupcion externa 3
+	// sei();																// Habilitamos las interrupciones
+
+	// Habilitar el timer 3 para cada milisegundo
+	// Modo CTC; TOP = OCR3A
+	// Formula: f = 16MHz / (2 * N * (1 + TOP))
+	// T = 2 ms; f = 500; N = 64; TOP = 249
+
+	pinMode(5, OUTPUT); // OC3A
+	pinMode(2, OUTPUT); // OC3B
+	pinMode(3, OUTPUT); // OC3C
+
+	cli();
+	TCCR3A = TCCR3B = TCCR3C = 0; // Deshabilitamos el temporizador
+	TCNT3 = 0;
+
+	OCR3A = TOP;
+	OCR3B = 0;
+	OCR3C = 0;
+
+	TCCR3A = B00000100; // Modo CTC
+	TCCR3B = B00001011; // Modo CTC, prescaler 64
+
+	TIMSK3 = B00000010;
+	sei();
 
 	digit = 0;
 	buffer = "";
@@ -322,7 +349,7 @@ void setup()
 	increment = 1;
 
 	crono = 0;
-	crono_state = true;
+	crono_state = false;
 
 	time_old = millis();
 	transition_time = 550;
@@ -354,101 +381,119 @@ void loop()
 	}
 }
 
-ISR(INT3_vect)
+ISR(TIMER3_COMPA_vect)
 {
 	PORTL = DOFF;
-	switch (digit)
+	if (option == '4')
 	{
-	case 0:
-		if (option == '1' || option == '2')
+		switch (digit)
 		{
-			PORTA = hex_value[counter % 10];
-		}
-		else if (option == '3')
-		{
-			PORTA = 0x00;
-		}
-		else if (option == '4')
-		{
+		case 0:
 			if (crono_state)
 			{
-				crono += 5;
+				crono++;
 			}
 			crono_logic();
 			PORTA = hex_value[crono % 10];
-		}
-		PORTL = B00001110;
-		keyboard(digit);
-		digit++;
-		break;
-	case 1:
-		if (option == '1' || option == '2')
-		{
-			PORTA = hex_value[(counter / 10) % 10];
-		}
-		else if (option == '3')
-		{
-			PORTA = 0x00;
-		}
-		else if (option == '4')
-		{
+			PORTL = B00001110;
+			digit++;
+			break;
+		case 1:
 			if (crono_state)
 			{
-				crono += 5;
+				crono++;
 			}
 			crono_logic();
 			PORTA = hex_value[(crono / 10) % 10];
-		}
-		PORTL = B00001101;
-		keyboard(digit);
-		digit++;
-		break;
-	case 2:
-		if (option == '1')
-		{
-			PORTA = hex_value[(counter / 100) % 10];
-		}
-		else if (option == '2')
-		{
-			PORTA = 0x00;
-		}
-		else if (option == '3')
-		{
-			PORTA = hex_value[counter % 10];
-		}
-		else if (option == '4')
-		{
+			PORTL = B00001101;
+			digit++;
+			break;
+		case 2:
 			if (crono_state)
 			{
-				crono += 5;
+				crono++;
 			}
 			crono_logic();
 			PORTA = hex_value[(crono / 100) % 10];
-		}
-		PORTL = B00001011;
-		keyboard(digit);
-		digit++;
-		break;
-	case 3:
-		if (option == '1' || option == '2')
-		{
-			PORTA = 0x00;
-		}
-		else if (option == '3')
-		{
-			PORTA = hex_value[(counter / 10) % 10];
-		}
-		else if (option == '4')
-		{
+			PORTL = B00001011;
+			digit++;
+			break;
+		case 3:
 			if (crono_state)
 			{
-				crono += 5;
+				crono++;
 			}
 			crono_logic();
 			PORTA = hex_value[crono / 1000];
+			PORTL = B00000111;
+			digit = 0;
+			break;
 		}
-		PORTL = B00000111;
-		digit = 0;
-		break;
+	}
+	else if (timer_count == 5)
+	{
+		switch (digit)
+		{
+		case 0:
+			if (option == '1' || option == '2')
+			{
+				PORTA = hex_value[counter % 10];
+			}
+			else if (option == '3')
+			{
+				PORTA = 0x00;
+			}
+			PORTL = B00001110;
+			keyboard(digit);
+			digit++;
+			break;
+		case 1:
+			if (option == '1' || option == '2')
+			{
+				PORTA = hex_value[(counter / 10) % 10];
+			}
+			else if (option == '3')
+			{
+				PORTA = 0x00;
+			}
+			PORTL = B00001101;
+			keyboard(digit);
+			digit++;
+			break;
+		case 2:
+			if (option == '1')
+			{
+				PORTA = hex_value[(counter / 100) % 10];
+			}
+			else if (option == '2')
+			{
+				PORTA = 0x00;
+			}
+			else if (option == '3')
+			{
+				PORTA = hex_value[counter % 10];
+			}
+			PORTL = B00001011;
+			keyboard(digit);
+			digit++;
+			break;
+		case 3:
+			if (option == '1' || option == '2')
+			{
+				PORTA = 0x00;
+			}
+			else if (option == '3')
+			{
+				PORTA = hex_value[(counter / 10) % 10];
+			}
+			PORTL = B00000111;
+			digit = 0;
+			break;
+		}
+	}
+	timer_count++;
+	if (timer_count > 5)
+	{
+		timer_count = 0;
 	}
 }
