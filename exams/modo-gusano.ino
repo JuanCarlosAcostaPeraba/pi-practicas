@@ -396,52 +396,76 @@ void worm()
 		switch (worm_state)
 		{
 		case 0:
-			PORTA = worm_states[worm_state];
-			PORTL = B00000111;
+			if (digit == 3)
+			{
+				PORTA = worm_states[worm_state];
+			}
 			break;
 		case 1:
-			PORTA = worm_states[worm_state];
-			PORTL = B00001011;
+			if (digit == 2)
+			{
+				PORTA = worm_states[worm_state];
+			}
 			break;
 		case 2:
-			PORTA = worm_states[worm_state];
-			PORTL = B00001101;
+			if (digit == 1)
+			{
+				PORTA = worm_states[worm_state];
+			}
 			break;
 		case 3:
-			PORTA = worm_states[worm_state];
-			PORTL = B00001110;
+			if (digit == 0)
+			{
+				PORTA = worm_states[worm_state];
+			}
 			break;
 		case 4:
-			PORTA = worm_states[worm_state];
-			PORTL = B00001110;
+			if (digit == 0)
+			{
+				PORTA = worm_states[worm_state];
+			}
 			break;
 		case 5:
-			PORTA = worm_states[worm_state];
-			PORTL = B00001110;
+			if (digit == 0)
+			{
+				PORTA = worm_states[worm_state];
+			}
 			break;
 		case 6:
-			PORTA = worm_states[worm_state];
-			PORTL = B00000111;
+			if (digit == 0)
+			{
+				PORTA = worm_states[worm_state];
+			}
 			break;
 		case 7:
-			PORTA = worm_states[worm_state];
-			PORTL = B00001101;
+			if (digit == 1)
+			{
+				PORTA = worm_states[worm_state];
+			}
 			break;
 		case 8:
-			PORTA = worm_states[worm_state];
-			PORTL = B00001011;
+			if (digit == 2)
+			{
+				PORTA = worm_states[worm_state];
+			}
 			break;
 		case 9:
-			PORTA = worm_states[worm_state];
-			PORTL = B00000111;
+			if (digit == 3)
+			{
+				PORTA = worm_states[worm_state];
+			}
 			break;
 		case 10:
-			PORTA = worm_states[worm_state];
-			PORTL = B00000111;
+			if (digit == 3)
+			{
+				PORTA = worm_states[worm_state];
+			}
 			break;
 		case 11:
-			PORTA = worm_states[worm_state];
-			PORTL = B00000111;
+			if (digit == 3)
+			{
+				PORTA = worm_states[worm_state];
+			}
 			break;
 		}
 		worm_state--;
@@ -569,7 +593,6 @@ ISR(TIMER3_OVF_vect)
 		else if (option == '4')
 		{
 			worm();
-			PORTA = 0x00;
 		}
 		PORTL = B00001110;
 		keyboard(digit);
@@ -587,7 +610,6 @@ ISR(TIMER3_OVF_vect)
 		else if (option == '4')
 		{
 			worm();
-			PORTA = 0x00;
 		}
 		PORTL = B00001101;
 		keyboard(digit);
@@ -609,7 +631,6 @@ ISR(TIMER3_OVF_vect)
 		else if (option == '4')
 		{
 			worm();
-			PORTA = 0x00;
 		}
 		PORTL = B00001011;
 		keyboard(digit);
@@ -627,7 +648,6 @@ ISR(TIMER3_OVF_vect)
 		else if (option == '4')
 		{
 			worm();
-			PORTA = 0x00;
 		}
 		PORTL = B00000111;
 		digit = 0;
