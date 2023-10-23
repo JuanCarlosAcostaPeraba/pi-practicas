@@ -258,7 +258,6 @@ void crono_buttons()
 	{
 		if (millis() - time_old > transition_time)
 		{
-			Serial.print("pup");
 			crono_state = true;
 			tone(PSTART, 1000, 100);
 			time_old = millis();
@@ -268,7 +267,6 @@ void crono_buttons()
 	{
 		if (millis() - time_old > transition_time)
 		{
-			Serial.print("pdown");
 			crono_state = false;
 			tone(PSTART, 1000, 100);
 			time_old = millis();
@@ -278,7 +276,6 @@ void crono_buttons()
 	{
 		if (millis() - time_old > transition_time)
 		{
-			Serial.print("pcenter");
 			crono = 0;
 			crono_state = false;
 			tone(PSTART, 1000, 100);
