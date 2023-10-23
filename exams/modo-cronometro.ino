@@ -254,32 +254,32 @@ void read_buffer()
 // Funcion para controlar el cronometro
 void crono_buttons()
 {
-	if (pup == 0)
+	if (pup == 0) // Inicia el crono
 	{
-		Serial.print("pup");
 		if (millis() - time_old > transition_time)
 		{
+			Serial.print("pup");
 			crono_state = true;
 			tone(PSTART, 1000, 100);
 			time_old = millis();
 		}
 	}
-	else if (pdown == 0)
+	else if (pdown == 0) // para el crono
 	{
-		Serial.print("pdown");
 		if (millis() - time_old > transition_time)
 		{
+			Serial.print("pdown");
 			crono_state = false;
-			crono = 0;
 			tone(PSTART, 1000, 100);
 			time_old = millis();
 		}
 	}
-	else if (pcenter == 0)
+	else if (pcenter == 0) // pone a 0 y para el crono
 	{
-		Serial.print("pcenter");
 		if (millis() - time_old > transition_time)
 		{
+			Serial.print("pcenter");
+			crono = 0;
 			crono_state = false;
 			tone(PSTART, 1000, 100);
 			time_old = millis();
