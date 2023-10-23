@@ -25,3 +25,4 @@ Prácticas de la asignatura de Periféricos e Interfaces.
 ## Exámenes
 
 1. [Gusano](./exams/modo-gusano.ino)
+2. [Cronómetro](./exams/modo-cronometro.ino)
