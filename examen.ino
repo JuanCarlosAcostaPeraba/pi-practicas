@@ -191,24 +191,19 @@ ISR(TIMER3_COMPA_vect)
 		}
 		else if (option == '5')
 		{
-			PORTA = mapeado[estado];
+			if (numero == 0)
+			{
+				PORTA = mapeado[estado];
+			}
+			else
+			{
+				PORTA = 0x00;
+			}
 			estado++;
 			if (estado == 8)
 			{
-				if (numero == 0)
-				{
-					PORTA = mapeado[estado];
-				}
-				else
-				{
-					PORTA = 0x00;
-				}
-				estado++;
-				if (estado == 8)
-				{
-					numero++; // cambiamos de display cuando terminamos todos los estados
-					estado = 0;
-				}
+				numero++; // cambiamos de display cuando terminamos todos los estados
+				estado = 0;
 			}
 		}
 		PORTL = B00001110; // Visualizacion de unidades
@@ -237,24 +232,19 @@ ISR(TIMER3_COMPA_vect)
 		}
 		else if (option == '5')
 		{
-			PORTA = mapeado[estado];
+			if (numero == 1)
+			{
+				PORTA = mapeado[estado];
+			}
+			else
+			{
+				PORTA = 0x00;
+			}
 			estado++;
 			if (estado == 8)
 			{
-				if (numero == 1)
-				{
-					PORTA = mapeado[estado];
-				}
-				else
-				{
-					PORTA = 0x00;
-				}
-				estado++;
-				if (estado == 8)
-				{
-					numero++; // cambiamos de display cuando terminamos todos los estados
-					estado = 0;
-				}
+				numero++; // cambiamos de display cuando terminamos todos los estados
+				estado = 0;
 			}
 		}
 		PORTL = B00001101; // Visualizacion de decenas
@@ -287,24 +277,19 @@ ISR(TIMER3_COMPA_vect)
 		}
 		else if (option == '5')
 		{
-			PORTA = mapeado[estado];
+			if (numero == 2)
+			{
+				PORTA = mapeado[estado];
+			}
+			else
+			{
+				PORTA = 0x00;
+			}
 			estado++;
 			if (estado == 8)
 			{
-				if (numero == 2)
-				{
-					PORTA = mapeado[estado];
-				}
-				else
-				{
-					PORTA = 0x00;
-				}
-				estado++;
-				if (estado == 8)
-				{
-					numero++; // cambiamos de display cuando terminamos todos los estados
-					estado = 0;
-				}
+				numero++; // cambiamos de display cuando terminamos todos los estados
+				estado = 0;
 			}
 		}
 		PORTL = B00001011; // Visualizacion de centenas
@@ -333,24 +318,19 @@ ISR(TIMER3_COMPA_vect)
 		}
 		else if (option == '5')
 		{
-			PORTA = mapeado[estado];
+			if (numero == 3)
+			{
+				PORTA = mapeado[estado];
+			}
+			else
+			{
+				PORTA = 0x00;
+			}
 			estado++;
 			if (estado == 8)
 			{
-				if (numero == 3)
-				{
-					PORTA = mapeado[estado];
-				}
-				else
-				{
-					PORTA = 0x00;
-				}
-				estado++;
-				if (estado == 8)
-				{
-					numero++; // cambiamos de display cuando terminamos todos los estados
-					estado = 0;
-				}
+				numero++; // cambiamos de display cuando terminamos todos los estados
+				estado = 0;
 			}
 		}
 		PORTL = B00000111; // Visualizacion de unidades de millar
