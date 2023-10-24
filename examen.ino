@@ -333,6 +333,11 @@ ISR(TIMER3_COMPA_vect)
 				estado = 0;
 			}
 		}
+		if (estado == 8)
+		{
+			numero++; // cambiamos de display cuando terminamos todos los estados
+			estado = 0;
+		}
 		PORTL = B00000111; // Visualizacion de unidades de millar
 		digit = 0;
 		break;
