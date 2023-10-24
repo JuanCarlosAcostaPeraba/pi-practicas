@@ -52,8 +52,8 @@ char keyboard_map[][3] = {
 		{'*', '0', '#'}};
 
 int mapeado[8] = {
-		0x80, 0x08, 0x48, 0x49,
-		0x41, 0x01, 0x40, 0x08};
+		0x80, 0x08, 0x48, 0x49,	 // ., _, =, E
+		0x41, 0x01, 0x40, 0x08}; // =,
 
 volatile int digit;
 volatile char option;
@@ -75,6 +75,7 @@ int pright;
 
 volatile int estado = 0; // 0 ->  8
 volatile int numero = 0; // 0 ->  3 // indica el numero del display que se esta mostrando
+int direc = 1;					 // 0 -> derecha, 1 -> izquierda
 
 long int time_old;
 int transition_time;
@@ -144,7 +145,14 @@ void loop()
 	pright = digitalRead(PRIGHT);
 
 	read_buffer();
-	buttons_increment();
+	if (option == '5')
+	{
+		direccion();
+	}
+	else
+	{
+		buttons_increment();
+	}
 }
 
 ISR(TIMER3_CAPT_vect)
@@ -191,19 +199,39 @@ ISR(TIMER3_COMPA_vect)
 		}
 		else if (option == '5')
 		{
-			if (numero == 0)
+			if (direc = 1) // izquierda
 			{
-				PORTA = mapeado[estado];
+				if (numero == 0)
+				{
+					PORTA = mapeado[estado];
+				}
+				else
+				{
+					PORTA = 0x00;
+				}
+				estado++;
+				if (estado == 8)
+				{
+					numero++; // cambiamos de display cuando terminamos todos los estados
+					estado = 0;
+				}
 			}
-			else
+			else // derecha
 			{
-				PORTA = 0x00;
-			}
-			estado++;
-			if (estado == 8)
-			{
-				numero++; // cambiamos de display cuando terminamos todos los estados
-				estado = 0;
+				if (numero == 0)
+				{
+					PORTA = mapeado[estado];
+				}
+				else
+				{
+					PORTA = 0x00;
+				}
+				estado++;
+				if (estado == 8)
+				{
+					numero--; // cambiamos de display cuando terminamos todos los estados
+					estado = 0;
+				}
 			}
 		}
 		PORTL = B00001110; // Visualizacion de unidades
@@ -232,19 +260,39 @@ ISR(TIMER3_COMPA_vect)
 		}
 		else if (option == '5')
 		{
-			if (numero == 1)
+			if (direc == 1)
 			{
-				PORTA = mapeado[estado];
+				if (numero == 1)
+				{
+					PORTA = mapeado[estado];
+				}
+				else
+				{
+					PORTA = 0x00;
+				}
+				estado++;
+				if (estado == 8)
+				{
+					numero++; // cambiamos de display cuando terminamos todos los estados
+					estado = 0;
+				}
 			}
 			else
 			{
-				PORTA = 0x00;
-			}
-			estado++;
-			if (estado == 8)
-			{
-				numero++; // cambiamos de display cuando terminamos todos los estados
-				estado = 0;
+				if (numero == 1)
+				{
+					PORTA = mapeado[estado];
+				}
+				else
+				{
+					PORTA = 0x00;
+				}
+				estado++;
+				if (estado == 8)
+				{
+					numero--; // cambiamos de display cuando terminamos todos los estados
+					estado = 0;
+				}
 			}
 		}
 		PORTL = B00001101; // Visualizacion de decenas
@@ -277,19 +325,39 @@ ISR(TIMER3_COMPA_vect)
 		}
 		else if (option == '5')
 		{
-			if (numero == 2)
+			if (direc == 1)
 			{
-				PORTA = mapeado[estado];
+				if (numero == 2)
+				{
+					PORTA = mapeado[estado];
+				}
+				else
+				{
+					PORTA = 0x00;
+				}
+				estado++;
+				if (estado == 8)
+				{
+					numero++; // cambiamos de display cuando terminamos todos los estados
+					estado = 0;
+				}
 			}
 			else
 			{
-				PORTA = 0x00;
-			}
-			estado++;
-			if (estado == 8)
-			{
-				numero++; // cambiamos de display cuando terminamos todos los estados
-				estado = 0;
+				if (numero == 2)
+				{
+					PORTA = mapeado[estado];
+				}
+				else
+				{
+					PORTA = 0x00;
+				}
+				estado++;
+				if (estado == 8)
+				{
+					numero--; // cambiamos de display cuando terminamos todos los estados
+					estado = 0;
+				}
 			}
 		}
 		PORTL = B00001011; // Visualizacion de centenas
@@ -318,19 +386,39 @@ ISR(TIMER3_COMPA_vect)
 		}
 		else if (option == '5')
 		{
-			if (numero == 3)
+			if (direc == 1)
 			{
-				PORTA = mapeado[estado];
+				if (numero == 3)
+				{
+					PORTA = mapeado[estado];
+				}
+				else
+				{
+					PORTA = 0x00;
+				}
+				estado++;
+				if (estado == 8)
+				{
+					numero++; // cambiamos de display cuando terminamos todos los estados
+					estado = 0;
+				}
 			}
 			else
 			{
-				PORTA = 0x00;
-			}
-			estado++;
-			if (estado == 8)
-			{
-				numero++; // cambiamos de display cuando terminamos todos los estados
-				estado = 0;
+				if (numero == 3)
+				{
+					PORTA = mapeado[estado];
+				}
+				else
+				{
+					PORTA = 0x00;
+				}
+				estado++;
+				if (estado == 8)
+				{
+					numero--; // cambiamos de display cuando terminamos todos los estados
+					estado = 0;
+				}
 			}
 		}
 		if (estado == 8)
@@ -338,9 +426,13 @@ ISR(TIMER3_COMPA_vect)
 			numero++; // cambiamos de display cuando terminamos todos los estados
 			estado = 0;
 		}
-		if (numero >= 4)
+		if (numero == 4)
 		{
 			numero = 0;
+		}
+		else if (numero == -1)
+		{
+			numero = 3;
 		}
 		PORTL = B00000111; // Visualizacion de unidades de millar
 		digit = 0;
@@ -357,6 +449,28 @@ void menu()
 	Serial.println("3.- Modo reducido-superior de visualizacion (dos digitos): decenas-unidades-OFF-OFF");
 	Serial.println("4.- Modo frecuencimetro");
 	Serial.println("5.- Modo Animación B. Horizontal");
+}
+
+void direccion()
+{
+	if (pright == 0)
+	{
+		if (millis() - time_old > transition_time)
+		{
+			direc = 0; // derecha
+			numero = 3;
+			time_old = millis();
+		}
+	}
+	else if (pleft == 0)
+	{
+		if (millis() - time_old > transition_time)
+		{
+			direc = 1; // izquierda
+			numero = 0;
+			time_old = millis();
+		}
+	}
 }
 
 // Funcion para incrementar el counter por botones
