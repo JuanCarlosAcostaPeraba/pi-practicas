@@ -107,8 +107,9 @@ char keyboard_map[][3] = {
 		{'*', '0', '#'}};
 
 char option;
-char data;
 char address;
+char data;
+String bufferData;
 
 // Función para mostrar el menú
 void menu()
@@ -125,43 +126,23 @@ void menu()
 void option1()
 {
 	Serial.println("\tOpcion 1:");
-ADDR:
-	Serial.println("Introduce la direccion de memoria (de 0 a 8191):");
-	while (Serial.available() == 0)
+	Serial.println("Introduce la direccion de memoria en formato hexadecimal (0x[AF]):");
+	while (Serial.available() < 3)
 	{
 	}
-	if (Serial.available() > 0)
+	if (Serial.available() > 3)
 	{
 		address = Serial.read();
 	}
-	if (address < 0 || address > 8191)
-	{
-		Serial.println("Error: La direccion de memoria debe estar entre 0 y 8191");
-		goto ADDR;
-	}
-	// pasar direccion de memoria de decimal a hexadecimal
-	char hex_address[4];
-	int i = 0;
-	while (address > 0)
-	{
-		hex_address[i] = hexadecimal[address % 16];
-		address = address / 16;
-		i++;
-	}
-	Serial.print("Direccion de memoria: 0x");
-	for (int j = 3; j >= 0; j--)
-	{
-		Serial.print(hex_address[j]);
-	}
-	Serial.println();
 DATA:
 	Serial.println("Introduce el dato (de 0 a 255):");
-	while (Serial.available() == 0)
+	while (Serial.read() != '\n' && Serial.available() < 1)
 	{
+		bufferData += Serial.read();
 	}
 	if (Serial.available() > 0)
 	{
-		data = Serial.read();
+		data = bufferData.toInt();
 	}
 	if (data < 0 || data > 255)
 	{
@@ -176,7 +157,11 @@ START1:
 	{
 		goto START1;
 	}
-	i2c_wbyte(address); // Escribimos la dirección de memoria
+	i2c_wbyte(address);	 // Escribimos la dirección de memoria (Parte alta)
+	if (i2c_rbit() != 0) // Leer ack del dispositivo; si ok, sigo
+	{
+		goto START1;
+	}
 	Serial.println("Dato guardado correctamente");
 }
 
@@ -322,8 +307,9 @@ void setup()
 	PORTC = B11111111; // Inicializamos el puerto C a 1 (0cFF)
 
 	option = 0;
-	data = 0;
 	address = 0;
+	data = 0;
+	bufferData = "";
 }
 
 void loop()
@@ -341,7 +327,6 @@ void loop()
 	switch (option)
 	{
 	case '1':
-		Serial.println("\tOpcion 1:");
 		option1();
 		break;
 	}
