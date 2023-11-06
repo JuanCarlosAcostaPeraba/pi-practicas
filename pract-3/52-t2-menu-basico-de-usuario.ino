@@ -134,9 +134,10 @@ void option1()
 		}
 		if (Serial.available() > 0)
 		{
-			bufferData += Serial.read();
+			int tempValue = Serial.read().toInt() - 48;
+			bufferData += tempValue;
 		}
-		if (bufferData.length() == 8)
+		if (bufferData.length() == 4)
 		{
 			break;
 		}
