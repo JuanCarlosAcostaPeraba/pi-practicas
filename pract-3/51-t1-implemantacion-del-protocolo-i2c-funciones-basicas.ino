@@ -293,4 +293,8 @@ START:
 	}
 	i2c_stop(); // STOP
 	sei();			// Habilitamos las interrupciones
+
+	while (1) // Bloquear el procesador en un bucle infinito
+	{
+	}
 }
