@@ -127,9 +127,20 @@ void option1()
 {
 	Serial.println("Opcion 1");
 	Serial.println("Dame la direccion de memoria (0-8191): ");
-	while (Serial.read() != '\n')
+	while (true)
 	{
-		bufferData += Serial.read();
+		if (Serial.available() > 0 && Serial.read() != -1)
+		{
+			bufferData *= Serial.read();
+		}
+		if (bufferData.length() == 4)
+		{
+			break;
+		}
+		else
+		{
+			Serial.println(bufferData);
+		}
 	}
 	address = bufferData.toInt();
 	Serial.println(address);
