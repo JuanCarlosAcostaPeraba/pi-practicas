@@ -39,11 +39,23 @@ que serán deducidas de la información proporcionada por el fabricante.
 Por ejemplo, la secuencia para realizar un “BYTE WRITE” sería como se
 especifica en el siguiente cuadro:
 
+START
+Enviar los 7 bits de dirección del dispositivo (1010 000)
+R/W = 0 (W)
+Leer ack del dispositivo; si ok, sigo
+Poner la dirección del byte HIGHT = xxx0 0000 (en este caso 0x00)
+Leer ack del dispositivo; si ok, sigo
+Poner la dirección del byte LOW = 0000 0000 (en este caso 0x00)
+Leer ack del dispositivo; si ok, sigo
+Enviar el dato a escribir, por ejemplo 0101 0101 (0x55)
+Leer ack del dispositivo; si ok, sigo
+STOP
+
 Consultar las correspondientes gráficas presentes en la documentación
 para implementar la secuencia similar a la anterior para las
 otras operaciones que se necesita utilizar. Cuando logramos que esto funcione,
-
-
+ya podemos desarrollar las capas de más alto nivel que nos proporcione un manejo
+secillo y eficiente de acceso a los dispositivos I2C.
 */
 
 // Pulsadores
@@ -252,19 +264,33 @@ void setup()
 	// Puerto C
 	DDRC = B00000000;	 // Configuramos el pin 0 del puerto C como entrada (0x00)
 	PORTC = B11111111; // Inicializamos el puerto C a 1 (0cFF)
-
-	menu();
 }
 
 void loop()
 {
-	// prueba
-	cli();
+	cli(); // Deshabilitamos las interrupciones
 START:
-	i2c_start();
-	i2c_wbyte(0xA0); // 1010 0000
-	if (i2c_rbit() != 0)
+	i2c_start();				 // START
+	i2c_wbyte(0xA0);		 // Enviar los 7 bits de dirección del dispositivo (1010 000) + R/W = 0 (W)
+	if (i2c_rbit() != 0) // Leer ack del dispositivo; si ok, sigo
 	{
 		goto START;
 	}
+	i2c_wbyte(0x00);		 // Poner la dirección del byte HIGHT = xxx0 0000 (en este caso 0x00)
+	if (i2c_rbit() != 0) // Leer ack del dispositivo; si ok, sigo
+	{
+		goto START;
+	}
+	i2c_wbyte(0x00);		 // Poner la dirección del byte LOW = 0000 0000 (en este caso 0x00)
+	if (i2c_rbit() != 0) // Leer ack del dispositivo; si ok, sigo
+	{
+		goto START;
+	}
+	i2c_wbyte(0x55);		 // Enviar el dato a escribir, por ejemplo 0101 0101 (0x55)
+	if (i2c_rbit() != 0) // Leer ack del dispositivo; si ok, sigo
+	{
+		goto START;
+	}
+	i2c_stop(); // STOP
+	sei();			// Habilitamos las interrupciones
 }
