@@ -276,7 +276,7 @@ START:
 	{
 		goto START;
 	}
-	i2c_wbyte(0x00);		 // Poner la dirección del byte HIGHT = xxx0 0000 (en este caso 0x00)
+	i2c_wbyte(0x00);		 // Poner la dirección del byte HIGHT = XXX0 0000 (en este caso 0x00)
 	if (i2c_rbit() != 0) // Leer ack del dispositivo; si ok, sigo
 	{
 		goto START;
