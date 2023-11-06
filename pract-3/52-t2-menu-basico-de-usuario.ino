@@ -106,16 +106,78 @@ char keyboard_map[][3] = {
 		{'7', '8', '9'},
 		{'*', '0', '#'}};
 
+char option;
+char data;
+char address;
+
 // Función para mostrar el menú
 void menu()
 {
 	Serial.println("\t--\tMENU\t--");
-	Serial.println("1. Guardar un dato (de 0 a 255) en cualquier dirección de memoria del dispositivo 24LC64. Tanto el dato como la dirección se han de solicitar al usuario");
-	Serial.println("2. Leer una posición (de 0 a 8191) del 24LC64");
+	Serial.println("1. Guardar un dato (de 0 a 255) en cualquier direccion de memoria del dispositivo 24LC64");
+	Serial.println("2. Leer una posicion (de 0 a 8191) del 24LC64");
 	Serial.println("3. Inicializar un bloque de 256 bytes contiguos de la memoria 24LC64 a un valor");
 	Serial.println("4. Mostrar el contenido de un bloque de 256 bytes contiguos del 24LC64, comenzando en una dirección especificada");
 	Serial.println("5. Inicializar usando 'Page Write' un bloque de 256 bytes contiguos del 24LC64 a un valor");
-	Serial.println("Mostrar el contenido de un bloque de 256 bytes del 24LC64 (usando Sequential Read), comenzando en una dirección especificada");
+	Serial.println("6. Mostrar el contenido de un bloque de 256 bytes del 24LC64 (usando Sequential Read), comenzando en una dirección especificada");
+}
+
+option1()
+{
+	Serial.println("\tOpcion 1:");
+ADDR:
+	Serial.println("Introduce la direccion de memoria (de 0 a 8191):");
+	while (Serial.available() == 0)
+	{
+	}
+	if (Serial.available() > 0)
+	{
+		address = Serial.read();
+	}
+	if (address < 0 || address > 8191)
+	{
+		Serial.println("Error: La direccion de memoria debe estar entre 0 y 8191");
+		goto ADDR;
+	}
+	// pasar direccion de memoria de decimal a hexadecimal
+	char hex_address[4];
+	int i = 0;
+	while (address > 0)
+	{
+		hex_address[i] = hexadecimal[address % 16];
+		address = address / 16;
+		i++;
+	}
+	Serial.print("Direccion de memoria: 0x");
+	for (int j = 3; j >= 0; j--)
+	{
+		Serial.print(hex_address[j]);
+	}
+	Serial.println();
+DATA:
+	Serial.println("Introduce el dato (de 0 a 255):");
+	while (Serial.available() == 0)
+	{
+	}
+	if (Serial.available() > 0)
+	{
+		data = Serial.read();
+	}
+	if (data < 0 || data > 255)
+	{
+		Serial.println("Error: El dato debe estar entre 0 y 255");
+		goto DATA;
+	}
+	cli(); // Deshabilitamos las interrupciones
+START1:
+	i2c_start();				 // Iniciamos el bus I2C
+	i2c_wbyte(0xA0);		 // Escribimos la dirección del dispositivo (0xA0)
+	if (i2c_rbit() != 0) // Leer ack del dispositivo; si ok, sigo
+	{
+		goto START1;
+	}
+	i2c_wbyte(address); // Escribimos la dirección de memoria
+	Serial.println("Dato guardado correctamente");
 }
 
 // Función start para el bus I2C
@@ -259,34 +321,28 @@ void setup()
 	DDRC = B00000000;	 // Configuramos el pin 0 del puerto C como entrada (0x00)
 	PORTC = B11111111; // Inicializamos el puerto C a 1 (0cFF)
 
-	menu();
+	option = 0;
+	data = 0;
+	address = 0;
 }
 
 void loop()
 {
-	cli(); // Deshabilitamos las interrupciones
-START:
-	i2c_start();				 // START
-	i2c_wbyte(0xA0);		 // Enviar los 7 bits de dirección del dispositivo (1010 000) + R/W = 0 (W)
-	if (i2c_rbit() != 0) // Leer ack del dispositivo; si ok, sigo
+	menu();
+	while (Serial.available() == 0)
 	{
-		goto START;
 	}
-	i2c_wbyte(0x00);		 // Poner la dirección del byte HIGHT = XXX0 0000 (en este caso 0x00)
-	if (i2c_rbit() != 0) // Leer ack del dispositivo; si ok, sigo
+
+	if (Serial.available() > 0)
 	{
-		goto START;
+		option = Serial.read();
 	}
-	i2c_wbyte(0x00);		 // Poner la dirección del byte LOW = 0000 0000 (en este caso 0x00)
-	if (i2c_rbit() != 0) // Leer ack del dispositivo; si ok, sigo
+
+	switch (option)
 	{
-		goto START;
+	case '1':
+		Serial.println("\tOpcion 1:");
+		otpion1();
+		break;
 	}
-	i2c_wbyte(0x55);		 // Enviar el dato a escribir, por ejemplo 0101 0101 (0x55)
-	if (i2c_rbit() != 0) // Leer ack del dispositivo; si ok, sigo
-	{
-		goto START;
-	}
-	i2c_stop(); // STOP
-	sei();			// Habilitamos las interrupciones
 }
