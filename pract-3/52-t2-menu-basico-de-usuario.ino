@@ -129,9 +129,12 @@ void option1()
 	Serial.println("Dame la direccion de memoria (0-8191): ");
 	while (true)
 	{
-		if (Serial.available() > 0 && Serial.read() != -1)
+		while (Serial.available() == 0)
 		{
-			bufferData *= Serial.read();
+		}
+		if (Serial.available() > 0)
+		{
+			bufferData += Serial.read();
 		}
 		if (bufferData.length() == 4)
 		{
