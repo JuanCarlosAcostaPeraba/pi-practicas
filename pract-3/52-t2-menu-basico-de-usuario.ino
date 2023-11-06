@@ -342,7 +342,7 @@ void loop()
 	{
 	case '1':
 		Serial.println("\tOpcion 1:");
-		otpion1();
+		option1();
 		break;
 	}
 }
