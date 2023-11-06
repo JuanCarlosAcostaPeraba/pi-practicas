@@ -136,7 +136,7 @@ void option1()
 		{
 			bufferData += Serial.read();
 		}
-		if (bufferData.length() == 4)
+		if (bufferData.length() == 8)
 		{
 			break;
 		}
