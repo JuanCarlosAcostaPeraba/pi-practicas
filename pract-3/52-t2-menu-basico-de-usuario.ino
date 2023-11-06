@@ -107,7 +107,7 @@ char keyboard_map[][3] = {
 		{'*', '0', '#'}};
 
 char option;
-char address;
+int address;
 char data;
 String bufferData;
 
@@ -125,44 +125,14 @@ void menu()
 
 void option1()
 {
-	Serial.println("\tOpcion 1:");
-	Serial.println("Introduce la direccion de memoria en formato hexadecimal (0x[AF]):");
-	while (Serial.available() < 3)
-	{
-	}
-	if (Serial.available() > 3)
-	{
-		address = Serial.read();
-	}
-DATA:
-	Serial.println("Introduce el dato (de 0 a 255):");
-	while (Serial.read() != '\n' && Serial.available() < 1)
+	Serial.println("Opcion 1");
+	Serial.println("Dame la direccion de memoria (0-8191): ");
+	while (Serial.read() != '\n')
 	{
 		bufferData += Serial.read();
 	}
-	if (Serial.available() > 0)
-	{
-		data = bufferData.toInt();
-	}
-	if (data < 0 || data > 255)
-	{
-		Serial.println("Error: El dato debe estar entre 0 y 255");
-		goto DATA;
-	}
-	cli(); // Deshabilitamos las interrupciones
-START1:
-	i2c_start();				 // Iniciamos el bus I2C
-	i2c_wbyte(0xA0);		 // Escribimos la dirección del dispositivo (0xA0)
-	if (i2c_rbit() != 0) // Leer ack del dispositivo; si ok, sigo
-	{
-		goto START1;
-	}
-	i2c_wbyte(address);	 // Escribimos la dirección de memoria (Parte alta)
-	if (i2c_rbit() != 0) // Leer ack del dispositivo; si ok, sigo
-	{
-		goto START1;
-	}
-	Serial.println("Dato guardado correctamente");
+	address = bufferData.toInt();
+	Serial.println(address);
 }
 
 // Función start para el bus I2C
