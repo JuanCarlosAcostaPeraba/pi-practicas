@@ -123,31 +123,44 @@ void menu()
 	Serial.println("6. Mostrar el contenido de un bloque de 256 bytes del 24LC64 (usando Sequential Read), comenzando en una direccion especificada");
 }
 
+// Función para leer un número por teclado
+int number()
+{
+	byte output;
+	int number = 0;
+	while (Serial.available() <= 0)
+	{
+	}
+	while (isdigit(output = Serial.read()))
+	{
+		number = (output - 48) + number * 10;
+	}
+	return number;
+}
+
+// Función para opción 1 del menú
 void option1()
 {
 	Serial.println("Opcion 1");
-	Serial.println("Dame la direccion de memoria (0-8191): ");
-	while (true)
+	Serial.println("Introduzca direccion de memoria (0 - 8191):");
+	// TODO address = readSerial();
+	if (address < 0 || address > 8191)
 	{
-		while (Serial.available() == 0)
+		Serial.println("Error: Direccion de memoria incorrecta");
+	}
+	else
+	{
+		Serial.println("Introduzca valor del dato (0 - 255):");
+		// TODO data = readSerial();
+		if (data < 0 || data > 255)
 		{
-		}
-		if (Serial.available() > 0)
-		{
-			int tempValue = 48 - Serial.read();
-			bufferData += tempValue;
-		}
-		if (bufferData.length() == 4)
-		{
-			break;
+			Serial.println("Error: Valor incorrecto");
 		}
 		else
 		{
-			Serial.println(bufferData);
+			i2c_wbyte
 		}
 	}
-	address = bufferData.toInt();
-	Serial.println(address);
 }
 
 // Función start para el bus I2C
@@ -238,11 +251,11 @@ int i2c_rbit()
 }
 
 // Función para escribir un byte en el bus I2C
-void i2c_wbyte(byte dato)
+void i2c_wbyte(byte data)
 {
 	for (int i = 0; i < 8; i++)
 	{
-		if ((dato & 0x80) != 0)
+		if ((data & 0x80) != 0)
 		{
 			i2c_w1();
 		}
@@ -250,7 +263,7 @@ void i2c_wbyte(byte dato)
 		{
 			i2c_w0();
 		}
-		dato = dato << 1;
+		data = data << 1;
 	}
 }
 
@@ -265,19 +278,41 @@ byte i2c_rbyte()
 	return ibyte;
 }
 
+// Función para escribir un byte en una dirección de memoria del bus I2C
+void i2c_wmemory(int memory_address, byte data)
+{
+	int up_memory_addr = memory_address / 256;	// Parte alta de la dirección de memoria
+	int low_memory_addr = memory_address % 256; // Parte baja de la dirección de memoria
+	cli();
+START:
+	i2c_start();
+	i2c_wbyte(0xA0);
+	if (i2c_rbit() != 0)
+	{
+		goto START;
+	}
+	i2c_wbyte(up_memory_addr);
+	if (i2c_rbit() != 0)
+	{
+		goto START;
+	}
+	i2c_wbyte(low_memory_addr);
+	if (i2c_rbit() != 0)
+	{
+		goto START;
+	}
+	i2c_wbyte(data);
+	if (i2c_rbit() != 0)
+	{
+		goto START;
+	}
+	i2c_stop();
+	sei();
+}
+
 void setup()
 {
 	Serial.begin(9600); // Inicializamos el puerto serie
-
-	// Inicialización de los terminales de entrada
-	pinMode(LEE_SDA, INPUT);
-	pinMode(LEE_SCL, INPUT);
-	// Inicialización de los terminales de salida
-	pinMode(ESC_SDA, OUTPUT);
-	pinMode(ESC_SCL, OUTPUT);
-	// Para asegurarse de no intervenir (bloquear) el bus, poner SDA _out y SCL _out a "1"....
-	digitalWrite(ESC_SDA, HIGH);
-	digitalWrite(ESC_SCL, HIGH);
 
 	// Puerto A salida
 	DDRA = B11111111;	 // Configuramos el puerto A como salida (0xFF)
@@ -291,19 +326,26 @@ void setup()
 	DDRC = B00000000;	 // Configuramos el pin 0 del puerto C como entrada (0x00)
 	PORTC = B11111111; // Inicializamos el puerto C a 1 (0cFF)
 
+	// Inicialización de los terminales de entrada
+	pinMode(LEE_SDA, INPUT);
+	pinMode(LEE_SCL, INPUT);
+	// Inicialización de los terminales de salida
+	pinMode(ESC_SDA, OUTPUT);
+	pinMode(ESC_SCL, OUTPUT);
+	// Para asegurarse de no intervenir (bloquear) el bus, poner SDA _out y SCL _out a "1"....
+	digitalWrite(ESC_SDA, HIGH);
+	digitalWrite(ESC_SCL, HIGH);
+
 	option = 0;
 	address = 0;
 	data = 0;
 	bufferData = "";
+
+	menu();
 }
 
 void loop()
 {
-	menu();
-	while (Serial.available() == 0)
-	{
-	}
-
 	if (Serial.available() > 0)
 	{
 		option = Serial.read();
