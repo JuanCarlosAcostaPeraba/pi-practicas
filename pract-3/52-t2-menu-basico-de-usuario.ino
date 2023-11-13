@@ -126,14 +126,24 @@ void menu()
 // Función para leer un número por teclado
 int readSerial()
 {
-	byte output;
 	int number = 0;
-	while (Serial.available() <= 0)
+	while (true)
 	{
-	}
-	while (isdigit(output = Serial.read()))
-	{
-		number = (output - 48) + number * 10;
+		if (Serial.available() > 0)
+		{
+			char element = Serial.read();
+			if (element == '\n')
+			{
+				break;
+			}
+			else
+			{
+				if (element >= '0' && element <= '9')
+				{
+					number = number * 10 + (element - '0');
+				}
+			}
+		}
 	}
 	return number;
 }
