@@ -196,7 +196,7 @@ void option2()
 	}
 }
 
-// Función para opción 2 del menú
+// Función para opción 3 del menú
 void option3()
 {
 	Serial.println("Opcion 3");
@@ -225,6 +225,37 @@ void option3()
 			menu();
 		}
 	}
+}
+
+// Función para opción 4 del menú
+void option4()
+{
+	Serial.println("Opcion 4");
+	Serial.println("Introduzca direccion de memoria (0 - 8191):");
+	address = readSerial();
+	if (address < 0 || address > 8191)
+	{
+		Serial.println("Error: Direccion de memoria incorrecta");
+	}
+	else
+	{
+		for (int i = 0; i < 256; i++)
+		{
+			Serial.print(i2c_rmemory(address + i));
+			Serial.print(" ");
+			if (i % 8 == 0)
+			{
+				Serial.println();
+			}
+		}
+		option = 0;
+		menu();
+	}
+}
+
+// Función para opción 5 del menú
+void option5()
+{
 }
 
 // Función start para el bus I2C
@@ -462,6 +493,12 @@ void loop()
 		break;
 	case '3':
 		option3();
+		break;
+	case '4':
+		option4();
+		break;
+	case '5':
+		option5();
 		break;
 	}
 }
