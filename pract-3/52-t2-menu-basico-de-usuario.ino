@@ -158,7 +158,10 @@ void option1()
 		}
 		else
 		{
-			i2c_wbyte
+			i2c_wmemory(address, data);
+			Serial.println("Dato guardado correctamente");
+			option = 0;
+			menu();
 		}
 	}
 }
