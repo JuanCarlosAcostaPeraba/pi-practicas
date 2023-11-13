@@ -156,6 +156,7 @@ void option1()
 	Serial.println("Opcion 1");
 	Serial.println("Introduzca direccion de memoria (0 - 8191):");
 	address = readSerial();
+	Serial.println(address);
 	if (address < 0 || address > 8191)
 	{
 		Serial.println("Error: Direccion de memoria incorrecta");
@@ -164,9 +165,10 @@ void option1()
 	{
 		Serial.println("Introduzca valor del dato (0 - 255):");
 		data = readSerial();
+		Serial.println(data);
 		if (data < 0 || data > 255)
 		{
-			Serial.println("Error: Valor incorrecto");
+			Serial.println("Error: Valor del dato incorrecto");
 		}
 		else
 		{
