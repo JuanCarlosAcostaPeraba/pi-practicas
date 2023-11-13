@@ -132,7 +132,7 @@ int readSerial()
 		if (Serial.available() > 0)
 		{
 			char element = Serial.read();
-			if (element == '\n')
+			if (element == '\n') //! Esto no funciona
 			{
 				break;
 			}
@@ -141,6 +141,7 @@ int readSerial()
 				if (element >= '0' && element <= '9')
 				{
 					number = number * 10 + (element - '0');
+					Serial.print(element);
 				}
 			}
 		}
