@@ -216,13 +216,11 @@ void option3()
 		}
 		else
 		{
-			// -- Start time
 			int start_time = millis();
 			for (int i = 0; i < 256; i++)
 			{
 				i2c_wmemory(address + i, data);
 			}
-			// -- End time
 			int end_time = millis();
 			Serial.print("Bloque inicializado correctamente (");
 			Serial.print(end_time - start_time);
@@ -245,6 +243,7 @@ void option4()
 	}
 	else
 	{
+		int start_time = millis();
 		for (int i = 0; i < 256; i++)
 		{
 			Serial.print(i2c_rmemory(address + i));
@@ -254,6 +253,10 @@ void option4()
 				Serial.println();
 			}
 		}
+		int end_time = millis();
+		Serial.print("Tiempo de lectura: ");
+		Serial.print(end_time - start_time);
+		Serial.println(" ms");
 		option = 0;
 		menu();
 	}
