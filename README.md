@@ -23,6 +23,7 @@ Prácticas de la asignatura de Periféricos e Interfaces.
    7. [Mejoras de la aplicación (Opcional)](./pract-2/423-mejoras-de-la-aplicacion.ino)
 3. [Práctica 3](./pract-3/) - [Proyecto base 2](./pract-3/23-24_plab3_base.pdsprj)
    1. [Tarea 1 (No entregable)](./pract-3/51-t1-implemantacion-del-protocolo-i2c-funciones-basicas.ino)
+   2. [Tarea 2 (No entregable)](./pract-3/52-t2-menu-basico-de-usuario.ino)
 
 ## Exámenes
 
