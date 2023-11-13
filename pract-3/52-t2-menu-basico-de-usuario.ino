@@ -178,6 +178,24 @@ void option1()
 	}
 }
 
+// Función para opción 2 del menú
+void option2()
+{
+	Serial.println("Opcion 2");
+	Serial.println("Introduzca direccion de memoria (0 - 8191):");
+	address = readSerial();
+	if (address < 0 || address > 8191)
+	{
+		Serial.println("Error: Direccion de memoria incorrecta");
+	}
+	else
+	{
+		i2c_rmemory(address);
+		option = 0;
+		menu();
+	}
+}
+
 // Función start para el bus I2C
 void i2c_start()
 {
@@ -299,30 +317,59 @@ void i2c_wmemory(int memory_address, byte data)
 	int up_memory_addr = memory_address / 256;	// Parte alta de la dirección de memoria
 	int low_memory_addr = memory_address % 256; // Parte baja de la dirección de memoria
 	cli();
-START:
+WRITE:
 	i2c_start();
 	i2c_wbyte(0xA0);
 	if (i2c_rbit() != 0)
 	{
-		goto START;
+		goto WRITE;
 	}
 	i2c_wbyte(up_memory_addr);
 	if (i2c_rbit() != 0)
 	{
-		goto START;
+		goto WRITE;
 	}
 	i2c_wbyte(low_memory_addr);
 	if (i2c_rbit() != 0)
 	{
-		goto START;
+		goto WRITE;
 	}
 	i2c_wbyte(data);
 	if (i2c_rbit() != 0)
 	{
-		goto START;
+		goto WRITE;
 	}
 	i2c_stop();
 	sei();
+}
+
+// Función para leer un byte de una dirección de memoria del bus I2C
+void i2c_rmemory(int memory_address)
+{
+	int up_memory_addr = memory_address / 256;	// Parte alta de la dirección de memoria
+	int low_memory_addr = memory_address % 256; // Parte baja de la dirección de memoria
+	cli();
+READ:
+	i2c_start();
+	i2c_wbyte(0xA0);
+	if (i2c_rbit() != 0)
+	{
+		goto READ;
+	}
+	i2c_wbyte(up_memory_addr);
+	if (i2c_rbit() != 0)
+	{
+		goto READ;
+	}
+	i2c_wbyte(low_memory_addr);
+	if (i2c_rbit() != 0)
+	{
+		goto READ;
+	}
+	i2c_start();
+	Serial.println(i2c_rbyte());
+	i2c_w0(); // ACK - Enviar un 0 para indicar que se ha recibido el dato
+	i2c_stop();
 }
 
 void setup()
@@ -370,6 +417,9 @@ void loop()
 	{
 	case '1':
 		option1();
+		break;
+	case '2':
+		option2();
 		break;
 	}
 }
