@@ -190,7 +190,7 @@ void option2()
 	}
 	else
 	{
-		i2c_rmemory(address);
+		Serial.println(i2c_rmemory(address));
 		option = 0;
 		menu();
 	}
