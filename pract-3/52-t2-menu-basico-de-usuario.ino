@@ -344,8 +344,9 @@ WRITE:
 }
 
 // Función para leer un byte de una dirección de memoria del bus I2C
-void i2c_rmemory(int memory_address)
+int i2c_rmemory(int memory_address)
 {
+	int dataTemp = 0;
 	int up_memory_addr = memory_address / 256;	// Parte alta de la dirección de memoria
 	int low_memory_addr = memory_address % 256; // Parte baja de la dirección de memoria
 	cli();
@@ -367,9 +368,16 @@ READ:
 		goto READ;
 	}
 	i2c_start();
-	Serial.println(i2c_rbyte());
-	i2c_w0(); // ACK - Enviar un 0 para indicar que se ha recibido el dato
+	i2c_wbyte(0xA1);
+	if (i2c_rbit() != 0)
+	{
+		goto READ;
+	}
+	dataTemp = i2c_rbyte();
+	i2c_w1(); // ACK - Enviamos un 1 para indicar que no queremos leer más datos
 	i2c_stop();
+	sei();
+	return dataTemp;
 }
 
 void setup()
