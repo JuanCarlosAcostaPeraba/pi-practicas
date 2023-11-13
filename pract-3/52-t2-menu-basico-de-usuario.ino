@@ -108,7 +108,7 @@ char keyboard_map[][3] = {
 
 char option;
 int address;
-char data;
+int data;
 String bufferData;
 
 // Función para mostrar el menú
