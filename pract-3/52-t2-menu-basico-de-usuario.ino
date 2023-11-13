@@ -124,7 +124,7 @@ void menu()
 }
 
 // Función para leer un número por teclado
-int number()
+int readSerial()
 {
 	byte output;
 	int number = 0;
@@ -143,7 +143,7 @@ void option1()
 {
 	Serial.println("Opcion 1");
 	Serial.println("Introduzca direccion de memoria (0 - 8191):");
-	// TODO address = readSerial();
+	address = readSerial();
 	if (address < 0 || address > 8191)
 	{
 		Serial.println("Error: Direccion de memoria incorrecta");
@@ -151,7 +151,7 @@ void option1()
 	else
 	{
 		Serial.println("Introduzca valor del dato (0 - 255):");
-		// TODO data = readSerial();
+		data = readSerial();
 		if (data < 0 || data > 255)
 		{
 			Serial.println("Error: Valor incorrecto");
