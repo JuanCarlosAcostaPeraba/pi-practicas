@@ -21,11 +21,12 @@ Prácticas de la asignatura de Periféricos e Interfaces.
    5. [Sustitución de la interrupción INT3 por otra generada por el Timer 3 (Entregable parte 1)](./pract-2/421-sustitucion-de-la-interrupcion-int3-por-otra-generada-por-el-timer3.ino)
    6. [Diseño e implementación de un frecuencímetro (Entregable parte 2)](./pract-2/422-diseno-e-implementacion-de-un-frecuencimetro.ino)
    7. [Mejoras de la aplicación (Opcional)](./pract-2/423-mejoras-de-la-aplicacion.ino)
-3. [Práctica 3](./pract-3/) - [Proyecto base 2](./pract-3/23-24_plab3_base.pdsprj)
-   1. [Tarea 1 (No entregable)](./pract-3/51-t1-implemantacion-del-protocolo-i2c-funciones-basicas.ino)
-   2. [Tarea 2 (No entregable)](./pract-3/52-t2-menu-basico-de-usuario.ino)
+3. [Práctica 3](./pract-3/) - [Proyecto base 3](./pract-3/23-24_plab3_base.pdsprj)
+   1. [Implementación del protocolo I2C: funciones básicas (Entregable parte 1)](./pract-3/51-t1-implemantacion-del-protocolo-i2c-funciones-basicas.ino)
+   2. [Menú básico de usuario (Entregable)](./pract-3/52-t2-menu-basico-de-usuario.ino)
+   3. [Dispositivo de Reloj de Tiempo Real (RTC) (Opcional)](./pract-3/53-t3-dispositivo-de-reloj-de-tiempo-real.ino)
 
-## Exámenes
+## Exámenes de años anteriores
 
 1. [Gusano](./exams/modo-gusano.ino)
 2. [Cronómetro](./exams/modo-cronometro.ino)
