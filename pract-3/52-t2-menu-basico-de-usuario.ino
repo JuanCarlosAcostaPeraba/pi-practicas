@@ -246,9 +246,11 @@ void option4()
 		int start_time = millis();
 		for (int i = 0; i < 256; i++)
 		{
-			Serial.print(i2c_rmemory(address + i));
+			Serial.print("0x");
+			Serial.print(hexadecimal[i2c_rmemory(address + i) / 16]); // Parte alta
+			Serial.print(hexadecimal[i2c_rmemory(address + i) % 16]); // Parte baja
 			Serial.print(" ");
-			if (i % 8 == 0)
+			if (i % 16 == 0)
 			{
 				Serial.println();
 			}
@@ -282,14 +284,44 @@ void option5()
 		}
 		else
 		{
-			for (int i = 0; i < 256; i++)
+			int start_time = millis();
+			for (int i = 0; i < 8; i++)
 			{
-				i2c_wmemory(address + i, data);
+				i2c_wpage(address + (i * 32), data);
 			}
-			Serial.println("Bloque inicializado correctamente");
+			int end_time = millis();
+			Serial.print("Pagina inicializada correctamente (");
+			Serial.print(end_time - start_time);
+			Serial.println(" ms)");
 			option = 0;
 			menu();
 		}
+	}
+}
+
+// Función para opción 6 del menú
+void option6()
+{
+	Serial.println("Opcion 6");
+	Serial.println("Introduzca direccion de memoria (0 - 8191):");
+	address = readSerial();
+	if (address < 0 || address > 8191)
+	{
+		Serial.println("Error: Direccion de memoria incorrecta");
+	}
+	else
+	{
+		int start_time = millis();
+		for (int i = 0; i < 8; i++)
+		{
+			i2c_rpage(address + (i * 32));
+		}
+		int end_time = millis();
+		Serial.print("Tiempo de lectura: ");
+		Serial.print(end_time - start_time);
+		Serial.println(" ms");
+		option = 0;
+		menu();
 	}
 }
 
@@ -477,6 +509,92 @@ READ:
 	return dataTemp;
 }
 
+// Función para escribir una página
+void i2c_wpage(int memory_address, byte data)
+{
+	int up_memory_addr = memory_address / 256;	// Parte alta de la dirección de memoria
+	int low_memory_addr = memory_address % 256; // Parte baja de la dirección de memoria
+	cli();
+WRITEPAGE:
+	i2c_start();
+	i2c_wbyte(0xA0);
+	if (i2c_rbit() != 0)
+	{
+		goto WRITEPAGE;
+	}
+	i2c_wbyte(up_memory_addr);
+	if (i2c_rbit() != 0)
+	{
+		goto WRITEPAGE;
+	}
+	i2c_wbyte(low_memory_addr);
+	if (i2c_rbit() != 0)
+	{
+		goto WRITEPAGE;
+	}
+	for (int i = 0; i < 32; i++)
+	{
+		i2c_wbyte(data);
+		if (i2c_rbit() != 0)
+		{
+			goto WRITEPAGE;
+		}
+	}
+	i2c_stop();
+	sei();
+}
+
+// Función para leer una página
+void i2c_rpage(int memory_address)
+{
+	int dataTemp = 0;
+	int up_memory_addr = memory_address / 256;	// Parte alta de la dirección de memoria
+	int low_memory_addr = memory_address % 256; // Parte baja de la dirección de memoria
+	cli();
+READPAGE:
+	i2c_start();
+	i2c_wbyte(0xA0);
+	if (i2c_rbit() != 0)
+	{
+		goto READPAGE;
+	}
+	i2c_wbyte(up_memory_addr);
+	if (i2c_rbit() != 0)
+	{
+		goto READPAGE;
+	}
+	i2c_wbyte(low_memory_addr);
+	if (i2c_rbit() != 0)
+	{
+		goto READPAGE;
+	}
+	i2c_start();
+	i2c_wbyte(0xA1);
+	if (i2c_rbit() != 0)
+	{
+		goto READPAGE;
+	}
+	for (int i = 0; i < 32; i++)
+	{
+		dataTemp = i2c_rbyte();
+		Serial.print("0x");
+		Serial.print(hexadecimal[dataTemp / 16]); // Parte alta
+		Serial.print(hexadecimal[dataTemp % 16]); // Parte baja
+		Serial.print(" ");
+		if (i % 16 == 0)
+		{
+			Serial.println();
+		}
+		if (i != 31)
+		{
+			i2c_w0(); // ACK - Enviamos un 0 para indicar que queremos leer más datos
+		}
+	}
+	i2c_w1(); // ACK - Enviamos un 1 para indicar que no queremos leer más datos
+	i2c_stop();
+	sei();
+}
+
 void setup()
 {
 	Serial.begin(9600); // Inicializamos el puerto serie
@@ -534,6 +652,9 @@ void loop()
 		break;
 	case '5':
 		option5();
+		break;
+	case '6':
+		option6();
 		break;
 	}
 }
