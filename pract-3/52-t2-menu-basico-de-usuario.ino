@@ -109,7 +109,6 @@ char keyboard_map[][3] = {
 char option;
 int address;
 int data;
-String bufferData;
 
 // Función para mostrar el menú
 void menu()
@@ -624,7 +623,6 @@ void setup()
 	option = 0;
 	address = 0;
 	data = 0;
-	bufferData = "";
 
 	menu();
 }
