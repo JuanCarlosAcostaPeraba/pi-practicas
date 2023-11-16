@@ -17,6 +17,10 @@ La información del RTC DS3232 (su "Slave Address" es "1101 000"), también la
 tienen accesible a través de Proteus, abriendo propiedades y pulsando el botón "Data".
 */
 
+// Importamos las librerías necesarias
+#include <Wire.h>		// Librería para el bus I2C
+#include <RTClib.h> // Librería para el RTC
+
 // Pulsadores
 #define PRIGHT 30	 // PC[7] pulsador right
 #define PDOWN 31	 // PC[6] pulsador down
@@ -74,6 +78,7 @@ char keyboard_map[][3] = {
 char option;
 int address;
 int data;
+RTC_DS3232 rtc;
 
 // Función para mostrar el menú
 void menu()
@@ -295,6 +300,23 @@ void option6()
 void option7()
 {
 	Serial.println("Opcion 7");
+
+	DateTime now = rtc.now();
+	Serial.print(now.day(), DEC);
+	Serial.print('/');
+	Serial.print(now.month(), DEC);
+	Serial.print('/');
+	Serial.print(now.year(), DEC);
+	Serial.print(' ');
+	Serial.print(now.hour(), DEC);
+	Serial.print(':');
+	Serial.print(now.minute(), DEC);
+	Serial.print(':');
+	Serial.print(now.second(), DEC);
+	Serial.println();
+
+	option = 0;
+	menu();
 }
 
 // Función para opción 8 del menú
