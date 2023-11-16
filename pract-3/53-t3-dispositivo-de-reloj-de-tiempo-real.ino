@@ -17,10 +17,6 @@ La información del RTC DS3232 (su "Slave Address" es "1101 000"), también la
 tienen accesible a través de Proteus, abriendo propiedades y pulsando el botón "Data".
 */
 
-// Importamos las librerías necesarias
-#include <Wire.h>		// Librería para el bus I2C
-#include <RTClib.h> // Librería para el RTC
-
 // Pulsadores
 #define PRIGHT 30	 // PC[7] pulsador right
 #define PDOWN 31	 // PC[6] pulsador down
@@ -300,19 +296,7 @@ void option6()
 void option7()
 {
 	Serial.println("Opcion 7");
-	DateTime now = rtc.now();
-	Serial.print(now.day(), DEC);
-	Serial.print('/');
-	Serial.print(now.month(), DEC);
-	Serial.print('/');
-	Serial.print(now.year(), DEC);
-	Serial.print(' ');
-	Serial.print(now.hour(), DEC);
-	Serial.print(':');
-	Serial.print(now.minute(), DEC);
-	Serial.print(':');
-	Serial.print(now.second(), DEC);
-	Serial.println();
+	// TODO - Mostrar en pantalla la fecha y hora, tomándola del RTC
 	option = 0;
 	menu();
 }
@@ -321,8 +305,7 @@ void option7()
 void option8()
 {
 	Serial.println("Opcion 8");
-	Serial.print(rtc.getTemperature());
-	Serial.println(" ºC");
+	// TODO - Mostrar en Pantalla la Temperatura leyendo del termómetro interno del RTC
 	option = 0;
 	menu();
 }
