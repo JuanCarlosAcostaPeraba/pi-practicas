@@ -300,7 +300,6 @@ void option6()
 void option7()
 {
 	Serial.println("Opcion 7");
-
 	DateTime now = rtc.now();
 	Serial.print(now.day(), DEC);
 	Serial.print('/');
@@ -314,7 +313,6 @@ void option7()
 	Serial.print(':');
 	Serial.print(now.second(), DEC);
 	Serial.println();
-
 	option = 0;
 	menu();
 }
@@ -323,6 +321,10 @@ void option7()
 void option8()
 {
 	Serial.println("Opcion 8");
+	Serial.print(rtc.getTemperature());
+	Serial.println(" ºC");
+	option = 0;
+	menu();
 }
 
 // Función start para el bus I2C
