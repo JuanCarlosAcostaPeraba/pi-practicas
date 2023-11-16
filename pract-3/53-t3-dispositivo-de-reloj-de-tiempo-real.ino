@@ -1,55 +1,20 @@
 /*
-Una vez implementadas las funciones básicas de bus I2C,
-procederemos en esta tarea a la implementación de un menú,
-con 6 opciones básicas, que permita al usuario la verificación y el uso de la memoria.
+Como mejoras a la práctica básica se propone el uso de otro dispositivo I2C,
+como puede ser un Reloj de Tiempo Real (RTC) que nos permite disponer de la
+fecha y hora en un sistema microcomputador como el nuestro, entre otras funciones.
 
-Se puede seguir un procedimiento de menos a más como, por ejemplo:
+Para la implementación de esta tarea, se añadirán dos nuevas opciones al
+menú básico: opción 7 y opción 8.
 
-1. Comprobar el funcionamiento escribiendo un valor a una posición fija y leyéndolo después.
-	a. En el Proteus podemos ver lo que contiene la memoria 24LC64, pulsando "Pause" y
-	activándolo en el menú "Debug" si es necesario (primera vez o fase inical).
-	b. Además, en Proteus se puede usar el Osciloscopio o el "I2C Debugger", muy útiles al
-	principio o cuando surge algún problema. Se explicará su uso aparte, a interesados.
-2. Comprobar la memoria completa escribiendo una secuencia de bytes y luego leer los bytes escritos
-(o también verlos en el Debbuger).
+Opción 7 (0.5 puntos): Mostrar en pantalla la fecha y hora, tomándola del RTC;
+en el Anexo se muestra resumen de los registros del RTC, pero lo mejor es
+consultar la documentación del fabricante del DS3232 en el Moodle (Hay dos versiones).
 
-Utilizando la experiencia anterior, procederemos a la implementación de la aplicación de usuario
-consistente en un menú, a mostrar en el “Terminal Virtual” de Proteus, y que permitirá el uso de la
-memoria a través de sus diferentes opciones.
+Opción 8 (0.5 puntos) : Mostrar en Pantalla la Temperatura (la pueden cambiar
+en propiedades) leyendo del termómetro interno del RTC.
 
-1. Guardar un dato (de 0 a 255) en cualquier dirección de memoria del dispositivo
-24LC64. Tanto el dato como la dirección se han de solicitar al usuario. (pidiéndolos
-por teclado/pantalla)
-2. Leer una posición (de 0 a 8191) del 24LC64 (pidiendo la posición por pantalla)
-3. Inicializar un bloque de 256 bytes contiguos de la memoria 24LC64 a un valor (la
-dirección del primer elemento y el valor a escribir se solicitan por pantalla; medir el
-tiempo el tiempo empleado en acceso a la memoria)
-4. Mostrar el contenido de un bloque de 256 bytes contiguos del 24LC64,
-comenzando en una dirección especificada (en una matriz de 8 0 16 columnas, en
-hexadecimal; medir el tiempo que consume el acceso a la memoria)
-5. Inicializar usando "Page Write" un bloque de 256 bytes contiguos del 24LC64 a un
-valor (la dirección del primer elemento y el valor a escribir se solicitan por pantalla;
-medir el tiempo que consume el acceso a la memoria)
-6. Mostrar el contenido de un bloque de 256 bytes del 24LC64 (usando Sequential
-Read), comenzando en una dirección especificada (en una matriz de 8 o 16
-columnas, en hexadecimal; medir el tiempo que consume el acceso a la memoria)
-
-Cuando se ejecute el programa, se mostrará el menú anterior y permanecerá a la espera de que se le
-solicite una de las opciones. Cuando se haya completado la toma de datos y/o visualización de resultados,
-se volverá al principio, es decir, mostrar el menú y permanecer a la espera. En la lectura de valores, se
-comprobará siempre la validez de los datos proporcionados por el usuario, y se implementará el
-tratamiento de errores necesario.
-
-Para lo anterior resultará útil crear procedimientos que sirvan de vínculo para programar más
-cómodamente. Por ejemplo, crear, al menos, un procedimiento que podríamos denominar
-“Escribe-en-Mem-I2C(dir,valor)” para escribir un “valor” en una determinada dirección “dir”;
-y otro procedimiento para “Lee-de-Mem-I2C(dir)”, para leer una posición “dir” de la memoria.
-Para implementar procedimientos que transfieran bloques mayores, pero recuérdese que el
-máximo número de bytes que podemos transferir en una sola operación de escritura
-(PAGE WRITE) es de 32 bytes (en otros chips puede ser diferente).
-
-Ejemplo de listado del contenido de 128 bytes de memoria en 8 columnas (Se pide mostrar 256 bytes,
-duplicando el número de filas o el de columnas):
+La información del RTC DS3232 (su "Slave Address" es "1101 000"), también la
+tienen accesible a través de Proteus, abriendo propiedades y pulsando el botón "Data".
 */
 
 // Pulsadores
@@ -109,7 +74,6 @@ char keyboard_map[][3] = {
 char option;
 int address;
 int data;
-String bufferData;
 
 // Función para mostrar el menú
 void menu()
@@ -121,6 +85,8 @@ void menu()
 	Serial.println("4. Mostrar el contenido de un bloque de 256 bytes contiguos del 24LC64, comenzando en una dirección especificada");
 	Serial.println("5. Inicializar usando 'Page Write' un bloque de 256 bytes contiguos del 24LC64 a un valor");
 	Serial.println("6. Mostrar el contenido de un bloque de 256 bytes del 24LC64 (usando Sequential Read), comenzando en una direccion especificada");
+	Serial.println("7. Mostrar en pantalla la fecha y hora, tomándola del RTC");
+	Serial.println("8. Mostrar en Pantalla la Temperatura leyendo del termómetro interno del RTC");
 }
 
 // Función para leer un número por teclado
@@ -323,6 +289,18 @@ void option6()
 		option = 0;
 		menu();
 	}
+}
+
+// Función para opción 7 del menú
+void option7()
+{
+	Serial.println("Opcion 7");
+}
+
+// Función para opción 8 del menú
+void option8()
+{
+	Serial.println("Opcion 8");
 }
 
 // Función start para el bus I2C
@@ -624,7 +602,6 @@ void setup()
 	option = 0;
 	address = 0;
 	data = 0;
-	bufferData = "";
 
 	menu();
 }
@@ -655,6 +632,12 @@ void loop()
 		break;
 	case '6':
 		option6();
+		break;
+	case '7':
+		option7();
+		break;
+	case '8':
+		option8();
 		break;
 	}
 }
