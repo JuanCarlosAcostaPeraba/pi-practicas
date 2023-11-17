@@ -211,14 +211,14 @@ void option4()
 			Serial.print(" ");
 			if (i == 0)
 			{
-				if (i % 15 == 0)
+				if (i % 15 == 0 && i != 0)
 				{
 					Serial.println();
 				}
 			}
 			else
 			{
-				if (i % 16 == 0)
+				if (i % 16 == 0 && i != 0)
 				{
 					Serial.println();
 				}
@@ -585,14 +585,14 @@ READPAGE:
 		Serial.print(" ");
 		if (i == 0)
 		{
-			if (i % 15 == 0)
+			if (i % 15 == 0 && i != 0)
 			{
 				Serial.println();
 			}
 		}
 		else
 		{
-			if (i % 16 == 0)
+			if (i % 16 == 0 && i != 0)
 			{
 				Serial.println();
 			}
