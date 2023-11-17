@@ -262,25 +262,19 @@ void option4()
 	{
 		Serial.println();
 		unsigned long start_time = millis();
-		for (int i = 0; i < 256; i++)
+		Serial.print("0x");
+		Serial.print(hexadecimal[i2c_rmemory(address + 0) / 16]); // Parte alta
+		Serial.print(hexadecimal[i2c_rmemory(address + 0) % 16]); // Parte baja
+		Serial.print(" ");
+		for (int i = 1; i < 256; i++)
 		{
 			Serial.print("0x");
 			Serial.print(hexadecimal[i2c_rmemory(address + i) / 16]); // Parte alta
 			Serial.print(hexadecimal[i2c_rmemory(address + i) % 16]); // Parte baja
 			Serial.print(" ");
-			if (i == 0)
+			if (i % 16 == 0)
 			{
-				if (i % 15 == 0 && i != 0)
-				{
-					Serial.println();
-				}
-			}
-			else
-			{
-				if (i % 16 == 0 && i != 0)
-				{
-					Serial.println();
-				}
+				Serial.println();
 			}
 		}
 		unsigned long end_time = millis();
@@ -300,11 +294,15 @@ void option5()
 	Serial.println();
 	Serial.println("> Opcion 5");
 	Serial.println();
-	Serial.println("Introduzca direccion de memoria (0 - 8191):");
+	Serial.println("Introduzca direccion de memoria multiplo de 32 (0 - 8191):");
 	address = readSerial();
 	if (address < 0 || address > 8191)
 	{
 		Serial.println("Error: Direccion de memoria incorrecta");
+	}
+	else if (address % 32 != 0)
+	{
+		Serial.println("Error: Direccion de memoria dada no es multiplo de 32");
 	}
 	else
 	{
@@ -613,6 +611,10 @@ READPAGE:
 	{
 		goto READPAGE;
 	}
+	Serial.print("0x");
+	Serial.print(hexadecimal[dataTemp / 16]); // Parte alta
+	Serial.print(hexadecimal[dataTemp % 16]); // Parte baja
+	Serial.print(" ");
 	for (int i = 0; i < 32; i++)
 	{
 		dataTemp = i2c_rbyte();
@@ -620,19 +622,9 @@ READPAGE:
 		Serial.print(hexadecimal[dataTemp / 16]); // Parte alta
 		Serial.print(hexadecimal[dataTemp % 16]); // Parte baja
 		Serial.print(" ");
-		if (i == 0)
+		if (i % 16 == 0)
 		{
-			if (i % 15 == 0 && i != 0)
-			{
-				Serial.println();
-			}
-		}
-		else
-		{
-			if (i % 16 == 0 && i != 0)
-			{
-				Serial.println();
-			}
+			Serial.println();
 		}
 		if (i != 31)
 		{
