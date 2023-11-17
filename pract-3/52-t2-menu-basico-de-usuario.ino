@@ -232,6 +232,10 @@ void option3()
 			unsigned long start_time = millis();
 			for (int i = 0; i < 256; i++)
 			{
+				if (address + i > 8191)
+				{
+					break;
+				}
 				i2c_wmemory(address + i, data);
 			}
 			unsigned long end_time = millis();
@@ -320,6 +324,10 @@ void option5()
 			unsigned long start_time = millis();
 			for (int i = 0; i < 8; i++)
 			{
+				if (address + (i * 32) > 8191)
+				{
+					break;
+				}
 				i2c_wpage(address + (i * 32), data);
 			}
 			unsigned long end_time = millis();
@@ -340,11 +348,15 @@ void option6()
 	Serial.println();
 	Serial.println("> Opcion 6");
 	Serial.println();
-	Serial.println("Introduzca direccion de memoria (0 - 8191):");
+	Serial.println("Introduzca direccion de memoria multiplo de 32 (0 - 8191):");
 	address = readSerial();
 	if (address < 0 || address > 8191)
 	{
 		Serial.println("Error: Direccion de memoria incorrecta");
+	}
+	else if (address % 32 != 0)
+	{
+		Serial.println("Error: Direccion de memoria dada no es multiplo de 32");
 	}
 	else
 	{
