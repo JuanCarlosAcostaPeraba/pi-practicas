@@ -229,12 +229,12 @@ void option3()
 		{
 			Serial.println();
 			Serial.println("Inicializando bloque...");
-			long start_time = millis();
+			unsigned long start_time = millis();
 			for (int i = 0; i < 256; i++)
 			{
 				i2c_wmemory(address + i, data);
 			}
-			long end_time = millis();
+			unsigned long end_time = millis();
 			Serial.println();
 			Serial.print("Bloque inicializado correctamente (");
 			Serial.print(end_time - start_time);
@@ -261,19 +261,19 @@ void option4()
 	else
 	{
 		Serial.println();
-		long start_time = millis();
+		unsigned long start_time = millis();
 		for (int i = 0; i < 256; i++)
 		{
 			Serial.print("0x");
 			Serial.print(hexadecimal[i2c_rmemory(address + i) / 16]); // Parte alta
 			Serial.print(hexadecimal[i2c_rmemory(address + i) % 16]); // Parte baja
 			Serial.print(" ");
-			if (i % 16 == 0)
+			if (i % 16 == 0 && i != 0)
 			{
 				Serial.println();
 			}
 		}
-		long end_time = millis();
+		unsigned long end_time = millis();
 		Serial.println();
 		Serial.print("Tiempo de lectura: ");
 		Serial.print(end_time - start_time);
@@ -309,12 +309,12 @@ void option5()
 		{
 			Serial.println();
 			Serial.println("Inicializando bloque con Page Write...");
-			long start_time = millis();
+			unsigned long start_time = millis();
 			for (int i = 0; i < 8; i++)
 			{
 				i2c_wpage(address + (i * 32), data);
 			}
-			long end_time = millis();
+			unsigned long end_time = millis();
 			Serial.println();
 			Serial.print("Pagina inicializada correctamente (");
 			Serial.print(end_time - start_time);
@@ -340,12 +340,12 @@ void option6()
 	}
 	else
 	{
-		long start_time = millis();
+		unsigned long start_time = millis();
 		for (int i = 0; i < 8; i++)
 		{
 			i2c_rpage(address + (i * 32));
 		}
-		long end_time = millis();
+		unsigned long end_time = millis();
 		Serial.println();
 		Serial.print("Tiempo de lectura: ");
 		Serial.print(end_time - start_time);
@@ -476,7 +476,7 @@ void i2c_wmemory(int memory_address, byte data)
 {
 	int up_memory_addr = memory_address / 256;	// Parte alta de la dirección de memoria
 	int low_memory_addr = memory_address % 256; // Parte baja de la dirección de memoria
-	cli();
+
 WRITE:
 	i2c_start();
 	i2c_wbyte(0xA0);
@@ -500,7 +500,6 @@ WRITE:
 		goto WRITE;
 	}
 	i2c_stop();
-	sei();
 }
 
 // Función para leer un byte de una dirección de memoria del bus I2C
@@ -509,7 +508,7 @@ int i2c_rmemory(int memory_address)
 	int dataTemp = 0;
 	int up_memory_addr = memory_address / 256;	// Parte alta de la dirección de memoria
 	int low_memory_addr = memory_address % 256; // Parte baja de la dirección de memoria
-	cli();
+
 READ:
 	i2c_start();
 	i2c_wbyte(0xA0);
@@ -536,7 +535,7 @@ READ:
 	dataTemp = i2c_rbyte();
 	i2c_w1(); // ACK - Enviamos un 1 para indicar que no queremos leer más datos
 	i2c_stop();
-	sei();
+
 	return dataTemp;
 }
 
@@ -545,7 +544,7 @@ void i2c_wpage(int memory_address, byte data)
 {
 	int up_memory_addr = memory_address / 256;	// Parte alta de la dirección de memoria
 	int low_memory_addr = memory_address % 256; // Parte baja de la dirección de memoria
-	cli();
+
 WRITEPAGE:
 	i2c_start();
 	i2c_wbyte(0xA0);
@@ -572,7 +571,6 @@ WRITEPAGE:
 		}
 	}
 	i2c_stop();
-	sei();
 }
 
 // Función para leer una página
@@ -581,7 +579,7 @@ void i2c_rpage(int memory_address)
 	int dataTemp = 0;
 	int up_memory_addr = memory_address / 256;	// Parte alta de la dirección de memoria
 	int low_memory_addr = memory_address % 256; // Parte baja de la dirección de memoria
-	cli();
+
 READPAGE:
 	i2c_start();
 	i2c_wbyte(0xA0);
@@ -623,7 +621,6 @@ READPAGE:
 	}
 	i2c_w1(); // ACK - Enviamos un 1 para indicar que no queremos leer más datos
 	i2c_stop();
-	sei();
 }
 
 void setup()
