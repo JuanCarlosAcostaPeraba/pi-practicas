@@ -407,7 +407,31 @@ void option8()
 	Serial.println();
 	Serial.println("> Opcion 8");
 	Serial.println();
-	// TODO - Mostrar en Pantalla la Temperatura leyendo del termómetro interno del RTC
+	Serial.println("Temperatura: ");
+TEMP:
+	i2c_start();
+	i2c_wbyte(0xD0);
+	if (i2c_rbit() != 0)
+	{
+		goto TEMP;
+	}
+	i2c_wbyte(0x11);
+	if (i2c_rbit() != 0)
+	{
+		goto TEMP;
+	}
+	i2c_start();
+	i2c_wbyte(0xD1);
+	if (i2c_rbit() != 0)
+	{
+		goto TEMP;
+	}
+	Serial.print(i2c_rbyte()); // Parte alta
+	i2c_w0();									 // ACK - Enviamos un 0 para indicar que queremos leer más datos
+	Serial.print(".");				 // Separador
+	Serial.print(i2c_rbyte()); // Parte baja
+	i2c_w1();									 // ACK - Enviamos un 1 para indicar que no queremos leer más datos
+	i2c_stop();
 	option = 0;
 	Serial.println();
 	menu();
