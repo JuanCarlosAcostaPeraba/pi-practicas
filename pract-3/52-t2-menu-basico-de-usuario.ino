@@ -266,20 +266,16 @@ void option4()
 	{
 		Serial.println();
 		unsigned long start_time = millis();
-		Serial.print("0x");
-		Serial.print(hexadecimal[i2c_rmemory(address + 0) / 16]); // Parte alta
-		Serial.print(hexadecimal[i2c_rmemory(address + 0) % 16]); // Parte baja
-		Serial.print(" ");
-		for (int i = 1; i < 256; i++)
+		for (int i = 0; i < 256; i++)
 		{
+			if (i % 16 == 0 && i != 0)
+			{
+				Serial.println();
+			}
 			Serial.print("0x");
 			Serial.print(hexadecimal[i2c_rmemory(address + i) / 16]); // Parte alta
 			Serial.print(hexadecimal[i2c_rmemory(address + i) % 16]); // Parte baja
 			Serial.print(" ");
-			if (i % 16 == 0)
-			{
-				Serial.println();
-			}
 		}
 		unsigned long end_time = millis();
 		Serial.println();
@@ -623,21 +619,17 @@ READPAGE:
 	{
 		goto READPAGE;
 	}
-	Serial.print("0x");
-	Serial.print(hexadecimal[dataTemp / 16]); // Parte alta
-	Serial.print(hexadecimal[dataTemp % 16]); // Parte baja
-	Serial.print(" ");
 	for (int i = 0; i < 32; i++)
 	{
+		if (i % 16 == 0 && i != 0)
+		{
+			Serial.println();
+		}
 		dataTemp = i2c_rbyte();
 		Serial.print("0x");
 		Serial.print(hexadecimal[dataTemp / 16]); // Parte alta
 		Serial.print(hexadecimal[dataTemp % 16]); // Parte baja
 		Serial.print(" ");
-		if (i % 16 == 0)
-		{
-			Serial.println();
-		}
 		if (i != 31)
 		{
 			i2c_w0(); // ACK - Enviamos un 0 para indicar que queremos leer más datos
