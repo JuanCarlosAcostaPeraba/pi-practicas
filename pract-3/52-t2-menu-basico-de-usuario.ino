@@ -356,6 +356,7 @@ void option6()
 	}
 	else
 	{
+		Serial.println();
 		unsigned long start_time = millis();
 		for (int i = 0; i < 8; i++)
 		{
@@ -621,19 +622,19 @@ READPAGE:
 	}
 	for (int i = 0; i < 32; i++)
 	{
-		if (i % 16 == 0 && i != 0)
+		if (i % 16 != 0 || i == 0)
 		{
-			Serial.println();
+			dataTemp = i2c_rbyte();
+			Serial.print("0x");
+			Serial.print(hexadecimal[dataTemp / 16]); // Parte alta
+			Serial.print(hexadecimal[dataTemp % 16]); // Parte baja
+			Serial.print(" ");
+			if (i != 31)
+			{
+				i2c_w0(); // ACK - Enviamos un 0 para indicar que queremos leer más datos
+			}
 		}
-		dataTemp = i2c_rbyte();
-		Serial.print("0x");
-		Serial.print(hexadecimal[dataTemp / 16]); // Parte alta
-		Serial.print(hexadecimal[dataTemp % 16]); // Parte baja
-		Serial.print(" ");
-		if (i != 31)
-		{
-			i2c_w0(); // ACK - Enviamos un 0 para indicar que queremos leer más datos
-		}
+		Serial.println();
 	}
 	i2c_w1(); // ACK - Enviamos un 1 para indicar que no queremos leer más datos
 	i2c_stop();
