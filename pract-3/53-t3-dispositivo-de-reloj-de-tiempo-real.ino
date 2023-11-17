@@ -209,9 +209,19 @@ void option4()
 			Serial.print(hexadecimal[i2c_rmemory(address + i) / 16]); // Parte alta
 			Serial.print(hexadecimal[i2c_rmemory(address + i) % 16]); // Parte baja
 			Serial.print(" ");
-			if (i % 16 == 0 && i != 0)
+			if (i == 0)
 			{
-				Serial.println();
+				if (i % 15 == 0)
+				{
+					Serial.println();
+				}
+			}
+			else
+			{
+				if (i % 16 == 0)
+				{
+					Serial.println();
+				}
 			}
 		}
 		unsigned long end_time = millis();
@@ -573,9 +583,19 @@ READPAGE:
 		Serial.print(hexadecimal[dataTemp / 16]); // Parte alta
 		Serial.print(hexadecimal[dataTemp % 16]); // Parte baja
 		Serial.print(" ");
-		if (i % 16 == 0 && i != 0)
+		if (i == 0)
 		{
-			Serial.println();
+			if (i % 15 == 0)
+			{
+				Serial.println();
+			}
+		}
+		else
+		{
+			if (i % 16 == 0)
+			{
+				Serial.println();
+			}
 		}
 		if (i != 31)
 		{
