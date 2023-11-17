@@ -670,6 +670,7 @@ void setup()
 	address = 0;
 	data = 0;
 
+	delay(150);
 	menu();
 }
 
