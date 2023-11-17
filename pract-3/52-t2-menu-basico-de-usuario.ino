@@ -634,7 +634,10 @@ READPAGE:
 				i2c_w0(); // ACK - Enviamos un 0 para indicar que queremos leer más datos
 			}
 		}
-		Serial.println();
+		else
+		{
+			Serial.println();
+		}
 	}
 	i2c_w1(); // ACK - Enviamos un 1 para indicar que no queremos leer más datos
 	i2c_stop();
