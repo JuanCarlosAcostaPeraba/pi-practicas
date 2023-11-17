@@ -350,18 +350,11 @@ void option6()
 	{
 		Serial.println("Error: Direccion de memoria incorrecta");
 	}
-	else if (address % 32 != 0)
-	{
-		Serial.println("Error: Direccion de memoria dada no es multiplo de 32");
-	}
 	else
 	{
 		Serial.println();
 		unsigned long start_time = millis();
-		for (int i = 0; i < 8; i++)
-		{
-			i2c_rpage(address + (i * 32));
-		}
+		i2c_rpage(address);
 		unsigned long end_time = millis();
 		Serial.println();
 		Serial.print("Tiempo de lectura: ");
@@ -593,6 +586,13 @@ WRITEPAGE:
 // Función para leer una página
 void i2c_rpage(int memory_address)
 {
+	int min = 256;
+
+	if (8191 - memory_address < min)
+	{
+		min = 8191 - memory_address;
+	}
+
 	int dataTemp = 0;
 	int up_memory_addr = memory_address / 256;	// Parte alta de la dirección de memoria
 	int low_memory_addr = memory_address % 256; // Parte baja de la dirección de memoria
@@ -620,23 +620,20 @@ READPAGE:
 	{
 		goto READPAGE;
 	}
-	for (int i = 0; i < 32; i++)
+	for (int i = 0; i < min; i++)
 	{
-		if (i % 16 != 0 || i == 0)
-		{
-			dataTemp = i2c_rbyte();
-			Serial.print("0x");
-			Serial.print(hexadecimal[dataTemp / 16]); // Parte alta
-			Serial.print(hexadecimal[dataTemp % 16]); // Parte baja
-			Serial.print(" ");
-			if (i != 31)
-			{
-				i2c_w0(); // ACK - Enviamos un 0 para indicar que queremos leer más datos
-			}
-		}
-		else
+		if (i % 16 == 0 && i != 0)
 		{
 			Serial.println();
+		}
+		dataTemp = i2c_rbyte();
+		Serial.print("0x");
+		Serial.print(hexadecimal[dataTemp / 16]); // Parte alta
+		Serial.print(hexadecimal[dataTemp % 16]); // Parte baja
+		Serial.print(" ");
+		if (i != 255)
+		{
+			i2c_w0(); // ACK - Enviamos un 0 para indicar que queremos leer más datos
 		}
 	}
 	i2c_w1(); // ACK - Enviamos un 1 para indicar que no queremos leer más datos
