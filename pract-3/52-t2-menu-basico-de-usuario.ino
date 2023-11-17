@@ -610,7 +610,7 @@ READPAGE:
 		Serial.print(hexadecimal[dataTemp / 16]); // Parte alta
 		Serial.print(hexadecimal[dataTemp % 16]); // Parte baja
 		Serial.print(" ");
-		if (i % 16 == 0)
+		if (i % 16 == 0 && i != 0)
 		{
 			Serial.println();
 		}
