@@ -338,7 +338,64 @@ void option7()
 {
 	Serial.println();
 	Serial.println("> Opcion 7");
-	// TODO - Mostrar en pantalla la fecha y hora, tomándola del RTC
+	Serial.println();
+	Serial.print("Fecha: ");
+DATE:
+	i2c_start();
+	i2c_wbyte(0xD0);
+	if (i2c_rbit() != 0)
+	{
+		goto DATE;
+	}
+	i2c_wbyte(0x00);
+	if (i2c_rbit() != 0)
+	{
+		goto DATE;
+	}
+	i2c_start();
+	i2c_wbyte(0xD1);
+	if (i2c_rbit() != 0)
+	{
+		goto DATE;
+	}
+	for (int i = 0; i < 2; i++)
+	{
+		Serial.print(i2c_rbyte()); // Día, Mes
+		Serial.print("/");				 // Separador
+		i2c_w0();									 // ACK - Enviamos un 0 para indicar que queremos leer más datos
+	}
+	Serial.print(i2c_rbyte()); // Año
+	i2c_w1();									 // ACK - Enviamos un 1 para indicar que no queremos leer más datos
+	i2c_stop();
+	Serial.println();
+	Serial.print("Hora: ");
+TIME:
+	i2c_start();
+	i2c_wbyte(0xD0);
+	if (i2c_rbit() != 0)
+	{
+		goto TIME;
+	}
+	i2c_wbyte(0x02);
+	if (i2c_rbit() != 0)
+	{
+		goto TIME;
+	}
+	i2c_start();
+	i2c_wbyte(0xD1);
+	if (i2c_rbit() != 0)
+	{
+		goto TIME;
+	}
+	for (int i = 0; i < 2; i++)
+	{
+		Serial.print(i2c_rbyte()); // Hora, Minutos
+		Serial.print(":");				 // Separador
+		i2c_w0();									 // ACK - Enviamos un 0 para indicar que queremos leer más datos
+	}
+	Serial.print(i2c_rbyte()); // Segundos
+	i2c_w1();									 // ACK - Enviamos un 1 para indicar que no queremos leer más datos
+	i2c_stop();
 	option = 0;
 	Serial.println();
 	menu();
@@ -349,6 +406,7 @@ void option8()
 {
 	Serial.println();
 	Serial.println("> Opcion 8");
+	Serial.println();
 	// TODO - Mostrar en Pantalla la Temperatura leyendo del termómetro interno del RTC
 	option = 0;
 	Serial.println();
