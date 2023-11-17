@@ -74,7 +74,6 @@ char keyboard_map[][3] = {
 char option;
 int address;
 int data;
-RTC_DS3232 rtc;
 
 // Función para mostrar el menú
 void menu()
@@ -88,6 +87,33 @@ void menu()
 	Serial.println("6. Mostrar el contenido de un bloque de 256 bytes del 24LC64 (usando Sequential Read), comenzando en una direccion especificada");
 	Serial.println("7. Mostrar en pantalla la fecha y hora, tomándola del RTC");
 	Serial.println("8. Mostrar en Pantalla la Temperatura leyendo del termómetro interno del RTC");
+}
+
+// Función para leer un número por teclado
+int readSerial()
+{
+	int number = 0;
+	while (true)
+	{
+		if (Serial.available() > 0)
+		{
+			char element = Serial.read();
+			if (element == 13)
+			{
+				break;
+			}
+			else
+			{
+				if (element >= '0' && element <= '9')
+				{
+					number = number * 10 + (element - '0');
+					Serial.print(element);
+				}
+			}
+		}
+	}
+	Serial.println();
+	return number;
 }
 
 // Función para opción 1 del menú
@@ -173,6 +199,10 @@ void option3()
 			unsigned long start_time = millis();
 			for (int i = 0; i < 256; i++)
 			{
+				if (address + i > 8191)
+				{
+					break;
+				}
 				i2c_wmemory(address + i, data);
 			}
 			unsigned long end_time = millis();
@@ -203,20 +233,16 @@ void option4()
 	{
 		Serial.println();
 		unsigned long start_time = millis();
-		Serial.print("0x");
-		Serial.print(hexadecimal[i2c_rmemory(address + 0) / 16]); // Parte alta
-		Serial.print(hexadecimal[i2c_rmemory(address + 0) % 16]); // Parte baja
-		Serial.print(" ");
-		for (int i = 1; i < 256; i++)
+		for (int i = 0; i < 256; i++)
 		{
+			if (i % 16 == 0 && i != 0)
+			{
+				Serial.println();
+			}
 			Serial.print("0x");
 			Serial.print(hexadecimal[i2c_rmemory(address + i) / 16]); // Parte alta
 			Serial.print(hexadecimal[i2c_rmemory(address + i) % 16]); // Parte baja
 			Serial.print(" ");
-			if (i % 16 == 0)
-			{
-				Serial.println();
-			}
 		}
 		unsigned long end_time = millis();
 		Serial.println();
@@ -261,6 +287,10 @@ void option5()
 			unsigned long start_time = millis();
 			for (int i = 0; i < 8; i++)
 			{
+				if (address + (i * 32) > 8191)
+				{
+					break;
+				}
 				i2c_wpage(address + (i * 32), data);
 			}
 			unsigned long end_time = millis();
@@ -281,7 +311,7 @@ void option6()
 	Serial.println();
 	Serial.println("> Opcion 6");
 	Serial.println();
-	Serial.println("Introduzca direccion de memoria (0 - 8191):");
+	Serial.println("Introduzca direccion de memoria multiplo de 32 (0 - 8191):");
 	address = readSerial();
 	if (address < 0 || address > 8191)
 	{
@@ -289,11 +319,9 @@ void option6()
 	}
 	else
 	{
+		Serial.println();
 		unsigned long start_time = millis();
-		for (int i = 0; i < 8; i++)
-		{
-			i2c_rpage(address + (i * 32));
-		}
+		i2c_rpage(address);
 		unsigned long end_time = millis();
 		Serial.println();
 		Serial.print("Tiempo de lectura: ");
@@ -547,6 +575,13 @@ WRITEPAGE:
 // Función para leer una página
 void i2c_rpage(int memory_address)
 {
+	int min = 256;
+
+	if (8191 - memory_address < min)
+	{
+		min = 8191 - memory_address;
+	}
+
 	int dataTemp = 0;
 	int up_memory_addr = memory_address / 256;	// Parte alta de la dirección de memoria
 	int low_memory_addr = memory_address % 256; // Parte baja de la dirección de memoria
@@ -574,22 +609,18 @@ READPAGE:
 	{
 		goto READPAGE;
 	}
-	Serial.print("0x");
-	Serial.print(hexadecimal[dataTemp / 16]); // Parte alta
-	Serial.print(hexadecimal[dataTemp % 16]); // Parte baja
-	Serial.print(" ");
-	for (int i = 0; i < 32; i++)
+	for (int i = 0; i < min; i++)
 	{
+		if (i % 16 == 0 && i != 0)
+		{
+			Serial.println();
+		}
 		dataTemp = i2c_rbyte();
 		Serial.print("0x");
 		Serial.print(hexadecimal[dataTemp / 16]); // Parte alta
 		Serial.print(hexadecimal[dataTemp % 16]); // Parte baja
 		Serial.print(" ");
-		if (i % 16 == 0)
-		{
-			Serial.println();
-		}
-		if (i != 31)
+		if (i != 255)
 		{
 			i2c_w0(); // ACK - Enviamos un 0 para indicar que queremos leer más datos
 		}
@@ -628,6 +659,7 @@ void setup()
 	address = 0;
 	data = 0;
 
+	delay(150);
 	menu();
 }
 
