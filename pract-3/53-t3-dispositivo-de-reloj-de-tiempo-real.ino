@@ -90,37 +90,12 @@ void menu()
 	Serial.println("8. Mostrar en Pantalla la Temperatura leyendo del termómetro interno del RTC");
 }
 
-// Función para leer un número por teclado
-int readSerial()
-{
-	int number = 0;
-	while (true)
-	{
-		if (Serial.available() > 0)
-		{
-			char element = Serial.read();
-			if (element == 13)
-			{
-				break;
-			}
-			else
-			{
-				if (element >= '0' && element <= '9')
-				{
-					number = number * 10 + (element - '0');
-					Serial.print(element);
-				}
-			}
-		}
-	}
-	Serial.println();
-	return number;
-}
-
 // Función para opción 1 del menú
 void option1()
 {
-	Serial.println("Opcion 1");
+	Serial.println();
+	Serial.println("> Opcion 1");
+	Serial.println();
 	Serial.println("Introduzca direccion de memoria (0 - 8191):");
 	address = readSerial();
 	if (address < 0 || address > 8191)
@@ -129,6 +104,7 @@ void option1()
 	}
 	else
 	{
+		Serial.println();
 		Serial.println("Introduzca valor del dato (0 - 255):");
 		data = readSerial();
 		if (data < 0 || data > 255)
@@ -138,8 +114,10 @@ void option1()
 		else
 		{
 			i2c_wmemory(address, data);
+			Serial.println();
 			Serial.println("Dato guardado correctamente");
 			option = 0;
+			Serial.println();
 			menu();
 		}
 	}
@@ -148,7 +126,9 @@ void option1()
 // Función para opción 2 del menú
 void option2()
 {
-	Serial.println("Opcion 2");
+	Serial.println();
+	Serial.println("> Opcion 2");
+	Serial.println();
 	Serial.println("Introduzca direccion de memoria (0 - 8191):");
 	address = readSerial();
 	if (address < 0 || address > 8191)
@@ -157,8 +137,10 @@ void option2()
 	}
 	else
 	{
+		Serial.println();
 		Serial.println(i2c_rmemory(address));
 		option = 0;
+		Serial.println();
 		menu();
 	}
 }
@@ -166,7 +148,9 @@ void option2()
 // Función para opción 3 del menú
 void option3()
 {
-	Serial.println("Opcion 3");
+	Serial.println();
+	Serial.println("> Opcion 3");
+	Serial.println();
 	Serial.println("Introduzca direccion de memoria (0 - 8191):");
 	address = readSerial();
 	if (address < 0 || address > 8191)
@@ -175,6 +159,7 @@ void option3()
 	}
 	else
 	{
+		Serial.println();
 		Serial.println("Introduzca valor del dato (0 - 255):");
 		data = readSerial();
 		if (data < 0 || data > 255)
@@ -183,16 +168,20 @@ void option3()
 		}
 		else
 		{
+			Serial.println();
+			Serial.println("Inicializando bloque...");
 			long start_time = millis();
 			for (int i = 0; i < 256; i++)
 			{
 				i2c_wmemory(address + i, data);
 			}
 			long end_time = millis();
+			Serial.println();
 			Serial.print("Bloque inicializado correctamente (");
 			Serial.print(end_time - start_time);
 			Serial.println(" ms)");
 			option = 0;
+			Serial.println();
 			menu();
 		}
 	}
@@ -201,7 +190,9 @@ void option3()
 // Función para opción 4 del menú
 void option4()
 {
-	Serial.println("Opcion 4");
+	Serial.println();
+	Serial.println("> Opcion 4");
+	Serial.println();
 	Serial.println("Introduzca direccion de memoria (0 - 8191):");
 	address = readSerial();
 	if (address < 0 || address > 8191)
@@ -210,6 +201,7 @@ void option4()
 	}
 	else
 	{
+		Serial.println();
 		long start_time = millis();
 		for (int i = 0; i < 256; i++)
 		{
@@ -223,10 +215,12 @@ void option4()
 			}
 		}
 		long end_time = millis();
+		Serial.println();
 		Serial.print("Tiempo de lectura: ");
 		Serial.print(end_time - start_time);
 		Serial.println(" ms");
 		option = 0;
+		Serial.println();
 		menu();
 	}
 }
@@ -234,7 +228,9 @@ void option4()
 // Función para opción 5 del menú
 void option5()
 {
-	Serial.println("Opcion 5");
+	Serial.println();
+	Serial.println("> Opcion 5");
+	Serial.println();
 	Serial.println("Introduzca direccion de memoria (0 - 8191):");
 	address = readSerial();
 	if (address < 0 || address > 8191)
@@ -243,6 +239,7 @@ void option5()
 	}
 	else
 	{
+		Serial.println();
 		Serial.println("Introduzca valor del dato (0 - 255):");
 		data = readSerial();
 		if (data < 0 || data > 255)
@@ -251,16 +248,20 @@ void option5()
 		}
 		else
 		{
+			Serial.println();
+			Serial.println("Inicializando bloque con Page Write...");
 			long start_time = millis();
 			for (int i = 0; i < 8; i++)
 			{
 				i2c_wpage(address + (i * 32), data);
 			}
 			long end_time = millis();
+			Serial.println();
 			Serial.print("Pagina inicializada correctamente (");
 			Serial.print(end_time - start_time);
 			Serial.println(" ms)");
 			option = 0;
+			Serial.println();
 			menu();
 		}
 	}
@@ -269,7 +270,9 @@ void option5()
 // Función para opción 6 del menú
 void option6()
 {
-	Serial.println("Opcion 6");
+	Serial.println();
+	Serial.println("> Opcion 6");
+	Serial.println();
 	Serial.println("Introduzca direccion de memoria (0 - 8191):");
 	address = readSerial();
 	if (address < 0 || address > 8191)
@@ -284,10 +287,12 @@ void option6()
 			i2c_rpage(address + (i * 32));
 		}
 		long end_time = millis();
+		Serial.println();
 		Serial.print("Tiempo de lectura: ");
 		Serial.print(end_time - start_time);
 		Serial.println(" ms");
 		option = 0;
+		Serial.println();
 		menu();
 	}
 }
@@ -295,18 +300,22 @@ void option6()
 // Función para opción 7 del menú
 void option7()
 {
-	Serial.println("Opcion 7");
+	Serial.println();
+	Serial.println("> Opcion 7");
 	// TODO - Mostrar en pantalla la fecha y hora, tomándola del RTC
 	option = 0;
+	Serial.println();
 	menu();
 }
 
 // Función para opción 8 del menú
 void option8()
 {
-	Serial.println("Opcion 8");
+	Serial.println();
+	Serial.println("> Opcion 8");
 	// TODO - Mostrar en Pantalla la Temperatura leyendo del termómetro interno del RTC
 	option = 0;
+	Serial.println();
 	menu();
 }
 
