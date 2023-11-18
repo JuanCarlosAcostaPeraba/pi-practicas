@@ -432,6 +432,7 @@ TEMP:
 	Serial.print(i2c_rbyte()); // Parte baja
 	i2c_w1();									 // ACK - Enviamos un 1 para indicar que no queremos leer más datos
 	i2c_stop();
+	Serial.println("ºC");
 	option = 0;
 	Serial.println();
 	menu();
