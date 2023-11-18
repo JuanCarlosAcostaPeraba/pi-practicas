@@ -264,8 +264,18 @@ void option4()
 	}
 	else
 	{
+		int dataTemp[256];
 		Serial.println();
 		unsigned long start_time = millis();
+		for (int i = 0; i < 256; i++)
+		{
+			if (address + i > 8191)
+			{
+				break;
+			}
+			dataTemp[i] = i2c_rmemory(address + i);
+		}
+		unsigned long end_time = millis();
 		for (int i = 0; i < 256; i++)
 		{
 			if (address + i > 8191)
@@ -277,11 +287,10 @@ void option4()
 				Serial.println();
 			}
 			Serial.print("0x");
-			Serial.print(hexadecimal[i2c_rmemory(address + i) / 16]); // Parte alta
-			Serial.print(hexadecimal[i2c_rmemory(address + i) % 16]); // Parte baja
+			Serial.print(hexadecimal[dataTemp[i] / 16]); // Parte alta
+			Serial.print(hexadecimal[dataTemp[i] % 16]); // Parte baja
 			Serial.print(" ");
 		}
-		unsigned long end_time = millis();
 		Serial.println();
 		Serial.print("Tiempo de lectura: ");
 		Serial.print(end_time - start_time);
