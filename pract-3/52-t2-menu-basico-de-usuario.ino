@@ -264,9 +264,14 @@ void option4()
 	}
 	else
 	{
+		int min = 256;
+		if (8191 - address < min)
+		{
+			min = 8191 - address;
+		}
 		Serial.println();
 		unsigned long start_time = millis();
-		for (int i = 0; i < 256; i++)
+		for (int i = 0; i < min; i++)
 		{
 			if (i % 16 == 0 && i != 0)
 			{
