@@ -25,6 +25,7 @@ Prácticas de la asignatura de Periféricos e Interfaces.
    1. [Implementación del protocolo I2C: funciones básicas (Entregable parte 1)](./pract-3/51-t1-implemantacion-del-protocolo-i2c-funciones-basicas.ino)
    2. [Menú básico de usuario (Entregable)](./pract-3/52-t2-menu-basico-de-usuario.ino)
    3. [Dispositivo de Reloj de Tiempo Real (RTC) (Opcional)](./pract-3/53-t3-dispositivo-de-reloj-de-tiempo-real.ino) **(No funciona)**
+   4. [Dispositivo de Temperatura (Opcional)](./pract-3/53-t3.2-temperatura.ino)
 
 ## Exámenes de años anteriores
 
