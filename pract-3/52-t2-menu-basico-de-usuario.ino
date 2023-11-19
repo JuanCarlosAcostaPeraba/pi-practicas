@@ -365,10 +365,26 @@ void option6()
 	}
 	else
 	{
+		int dataTemp[256];
 		Serial.println();
 		unsigned long start_time = millis();
-		i2c_rpage(address);
+		dataTemp = i2c_rpage(address, dataTemp);
 		unsigned long end_time = millis();
+		for (int i = 0; i < 256; i++)
+		{
+			if (address + i > 8191)
+			{
+				break;
+			}
+			if (i % 16 == 0 && i != 0)
+			{
+				Serial.println();
+			}
+			Serial.print("0x");
+			Serial.print(hexadecimal[dataTemp[i] / 16]); // Parte alta
+			Serial.print(hexadecimal[dataTemp[i] % 16]); // Parte baja
+			Serial.print(" ");
+		}
 		Serial.println();
 		Serial.print("Tiempo de lectura: ");
 		Serial.print(end_time - start_time);
@@ -597,19 +613,10 @@ WRITEPAGE:
 }
 
 // Función para leer una página
-void i2c_rpage(int memory_address)
+void i2c_rpage(int memory_address, int dataArray[256])
 {
-	int min = 256;
-
-	if (8191 - memory_address < min)
-	{
-		min = 8191 - memory_address;
-	}
-
-	int dataTemp = 0;
 	int up_memory_addr = memory_address / 256;	// Parte alta de la dirección de memoria
 	int low_memory_addr = memory_address % 256; // Parte baja de la dirección de memoria
-
 READPAGE:
 	i2c_start();
 	i2c_wbyte(0xA0);
@@ -633,17 +640,13 @@ READPAGE:
 	{
 		goto READPAGE;
 	}
-	for (int i = 0; i < min; i++)
+	for (int i = 0; i < 256; i++)
 	{
-		if (i % 16 == 0 && i != 0)
+		if (memory_address + i > 8191)
 		{
-			Serial.println();
+			break;
 		}
-		dataTemp = i2c_rbyte();
-		Serial.print("0x");
-		Serial.print(hexadecimal[dataTemp / 16]); // Parte alta
-		Serial.print(hexadecimal[dataTemp % 16]); // Parte baja
-		Serial.print(" ");
+		dataArray[i] = i2c_rbyte();
 		if (i != 255)
 		{
 			i2c_w0(); // ACK - Enviamos un 0 para indicar que queremos leer más datos
