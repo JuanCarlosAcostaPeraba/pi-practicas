@@ -368,7 +368,7 @@ void option6()
 		int dataTemp[256];
 		Serial.println();
 		unsigned long start_time = millis();
-		dataTemp = i2c_rpage(address, dataTemp);
+		i2c_rpage(address, dataTemp);
 		unsigned long end_time = millis();
 		for (int i = 0; i < 256; i++)
 		{
