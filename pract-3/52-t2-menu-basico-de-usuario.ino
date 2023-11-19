@@ -357,7 +357,7 @@ void option6()
 	Serial.println();
 	Serial.println("> Opcion 6");
 	Serial.println();
-	Serial.println("Introduzca direccion de memoria multiplo de 32 (0 - 8191): [Enter para continuar]");
+	Serial.println("Introduzca direccion de memoria (0 - 8191): [Enter para continuar]");
 	address = readSerial();
 	if (address < 0 || address > 8191)
 	{
