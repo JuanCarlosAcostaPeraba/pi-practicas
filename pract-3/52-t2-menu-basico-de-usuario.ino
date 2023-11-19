@@ -155,7 +155,7 @@ void option1()
 	Serial.println();
 	Serial.println("> Opcion 1");
 	Serial.println();
-	Serial.println("Introduzca direccion de memoria (0 - 8191):");
+	Serial.println("Introduzca direccion de memoria (0 - 8191): [Enter para continuar]");
 	address = readSerial();
 	if (address < 0 || address > 8191)
 	{
@@ -164,7 +164,7 @@ void option1()
 	else
 	{
 		Serial.println();
-		Serial.println("Introduzca valor del dato (0 - 255):");
+		Serial.println("Introduzca valor del dato (0 - 255): [Enter para continuar]");
 		data = readSerial();
 		if (data < 0 || data > 255)
 		{
@@ -188,7 +188,7 @@ void option2()
 	Serial.println();
 	Serial.println("> Opcion 2");
 	Serial.println();
-	Serial.println("Introduzca direccion de memoria (0 - 8191):");
+	Serial.println("Introduzca direccion de memoria (0 - 8191): [Enter para continuar]");
 	address = readSerial();
 	if (address < 0 || address > 8191)
 	{
@@ -210,7 +210,7 @@ void option3()
 	Serial.println();
 	Serial.println("> Opcion 3");
 	Serial.println();
-	Serial.println("Introduzca direccion de memoria (0 - 8191):");
+	Serial.println("Introduzca direccion de memoria (0 - 8191): [Enter para continuar]");
 	address = readSerial();
 	if (address < 0 || address > 8191)
 	{
@@ -219,7 +219,7 @@ void option3()
 	else
 	{
 		Serial.println();
-		Serial.println("Introduzca valor del dato (0 - 255):");
+		Serial.println("Introduzca valor del dato (0 - 255): [Enter para continuar]");
 		data = readSerial();
 		if (data < 0 || data > 255)
 		{
@@ -256,7 +256,7 @@ void option4()
 	Serial.println();
 	Serial.println("> Opcion 4");
 	Serial.println();
-	Serial.println("Introduzca direccion de memoria (0 - 8191):");
+	Serial.println("Introduzca direccion de memoria (0 - 8191): [Enter para continuar]");
 	address = readSerial();
 	if (address < 0 || address > 8191)
 	{
@@ -307,7 +307,7 @@ void option5()
 	Serial.println();
 	Serial.println("> Opcion 5");
 	Serial.println();
-	Serial.println("Introduzca direccion de memoria multiplo de 32 (0 - 8191):");
+	Serial.println("Introduzca direccion de memoria multiplo de 32 (0 - 8191): [Enter para continuar]");
 	address = readSerial();
 	if (address < 0 || address > 8191)
 	{
@@ -320,7 +320,7 @@ void option5()
 	else
 	{
 		Serial.println();
-		Serial.println("Introduzca valor del dato (0 - 255):");
+		Serial.println("Introduzca valor del dato (0 - 255): [Enter para continuar]");
 		data = readSerial();
 		if (data < 0 || data > 255)
 		{
@@ -357,7 +357,7 @@ void option6()
 	Serial.println();
 	Serial.println("> Opcion 6");
 	Serial.println();
-	Serial.println("Introduzca direccion de memoria multiplo de 32 (0 - 8191):");
+	Serial.println("Introduzca direccion de memoria multiplo de 32 (0 - 8191): [Enter para continuar]");
 	address = readSerial();
 	if (address < 0 || address > 8191)
 	{
