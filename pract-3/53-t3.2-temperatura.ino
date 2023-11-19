@@ -367,7 +367,7 @@ void option8()
 	Serial.println();
 	Serial.println("> Opcion 8");
 	Serial.println();
-	Serial.println("Temperatura: ");
+	Serial.print("Temperatura: ");
 TEMP:
 	i2c_start();
 	i2c_wbyte(0xD0);
