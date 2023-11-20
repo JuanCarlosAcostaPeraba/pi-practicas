@@ -36,6 +36,8 @@ char display_map[4] = {D4, D3, D2, D1};
 #define DOFF B00001111;
 #define DON B00000000;
 
+#define TOP 0x270F // 9999
+
 #define ESC_SCL 4	 // puerto de salida para escribir el valor en la línea SCL-out =>IO4 =>PG5
 #define ESC_SDA 39 // puerto de salida para escribir el valor en la línea SDA-out =>IO39=>PG2
 #define LEE_SCL 40 // puerto de entrada para leer el estado de la línea SCL       =>IO40=>PG1
@@ -64,20 +66,226 @@ char keyboard_map[][3] = {
 		{'7', '8', '9'},
 		{'*', '0', '#'}};
 
-char option;
+// Variables para el bus I2C
 int address;
 int data;
 
-// Función para mostrar el menú
+// Variables para el ISR
+String buffer;
+volatile int digit;
+volatile char option;
+volatile int frequency;
+volatile float period;
+volatile int ICR3_old;
+volatile int ICR3_new;
+
+// Variables para el loop
+int pup;
+int pdown;
+int pcenter;
+int pleft;
+int pright;
+int counter;
+int increment;
+long int time_old;
+int transition_time;
+
+// Función para mostrar menú principal
 void menu()
 {
-	Serial.println("\t--\tMENU\t--");
+	Serial.println(" -- MENU --");
+	Serial.println("1. Turnomatic");
+	Serial.println("2. Memoria");
+}
+
+// Función para mostrar el menú del turnomatic
+void menuTurnomatic()
+{
+	Serial.println("");
+	Serial.println(" -- Turnomatic --");
+	Serial.println("1.- Modo normal de visualizacion (tres digitos): OFF-centenas-decenas-unidades");
+	Serial.println("2.- Modo reducido-inferior de visualizacion (dos digitos): OFF-OFF-decenas-unidades");
+	Serial.println("3.- Modo reducido-superior de visualizacion (dos digitos): decenas-unidades-OFF-OFF");
+	Serial.println("4.- Modo frecuencimetro");
+}
+
+// Función para mostrar el menú de la memoria
+void menuMemory()
+{
+	Serial.println("");
+	Serial.println(" -- Memoria --");
 	Serial.println("1. Guardar un dato (de 0 a 255) en cualquier direccion de memoria del dispositivo 24LC64");
 	Serial.println("2. Leer una posicion (de 0 a 8191) del 24LC64");
 	Serial.println("3. Inicializar un bloque de 256 bytes contiguos de la memoria 24LC64 a un valor");
 	Serial.println("4. Mostrar el contenido de un bloque de 256 bytes contiguos del 24LC64, comenzando en una direccion especificada");
 	Serial.println("5. Inicializar usando 'Page Write' un bloque de 256 bytes contiguos del 24LC64 a un valor");
 	Serial.println("6. Mostrar el contenido de un bloque de 256 bytes del 24LC64 (usando Sequential Read), comenzando en una direccion especificada");
+}
+
+// Funcion para incrementar el counter por botones
+void buttons_increment()
+{
+	if (pup == 0)
+	{
+		if (millis() - time_old > transition_time)
+		{
+			logic(false);
+			tone(PSTART, 1000, 100);
+			time_old = millis();
+		}
+	}
+	else if (pdown == 0)
+	{
+		if (millis() - time_old > transition_time)
+		{
+			logic(true);
+			tone(PSTART, 1000, 100);
+			time_old = millis();
+		}
+	}
+	else if (pcenter == 0)
+	{
+		if (millis() - time_old > transition_time)
+		{
+			counter = 0;
+			tone(PSTART, 1000, 100);
+			time_old = millis();
+		}
+	}
+	else if (pright == 0)
+	{
+		if (millis() - time_old > transition_time)
+		{
+			increment = 2;
+			time_old = millis();
+		}
+	}
+	else if (pleft == 0)
+	{
+		if (millis() - time_old > transition_time)
+		{
+			increment = 1;
+			time_old = millis();
+		}
+	}
+}
+
+// Funcion para que el counter cambie
+void logic(bool pdown)
+{
+	if (increment == 1 && !pdown)
+	{
+		counter++;
+	}
+	else if (increment == 1 && pdown)
+	{
+		counter--;
+	}
+	if (increment == 1)
+	{
+		if (counter > 999)
+		{
+			counter = 0;
+		}
+		else if (counter < 0)
+		{
+			counter = 999;
+		}
+	}
+
+	if (increment == 2 && !pdown)
+	{
+		if (counter == 998)
+		{
+			counter = 0;
+		}
+		else if (counter == 999)
+		{
+			counter = 1;
+		}
+		else
+		{
+			counter += 2;
+		}
+	}
+	else if (increment == 2 && pdown)
+	{
+		if (counter == 1)
+		{
+			counter = 999;
+		}
+		else if (counter == 0)
+		{
+			counter = 998;
+		}
+		else
+		{
+			counter -= 2;
+		}
+	}
+}
+
+// Funcion para leer el teclado
+void keyboard(int column)
+{
+	int val = PINL >> 4;
+	if (val == 15)
+	{
+		return;
+	}
+	while (PINL >> 4 != 15)
+	{
+	}
+	switch (val)
+	{
+	case 7:
+		buffer += keyboard_map[0][column];
+		break;
+	case 11:
+		buffer += keyboard_map[1][column];
+		break;
+	case 13:
+		buffer += keyboard_map[2][column];
+		break;
+	case 14:
+		buffer += keyboard_map[3][column];
+		break;
+	}
+}
+
+// Funcion para leer el buffer introducido por el teclado
+void read_buffer()
+{
+	if (buffer.length() == 4 && buffer.charAt(3) == '#')
+	{
+		counter = (buffer.substring(0, 4)).toInt();
+		buffer = "";
+		tone(PSTART, 1000, 100);
+	}
+	else if (buffer.length() == 3 && buffer.charAt(2) == '#')
+	{
+		counter = (buffer.substring(0, 3)).toInt();
+		buffer = "";
+		tone(PSTART, 1000, 100);
+	}
+	else if (buffer.length() == 2 && buffer.charAt(1) == '#')
+	{
+		counter = (buffer.substring(0, 2)).toInt();
+		buffer = "";
+		tone(PSTART, 1000, 100);
+	}
+	else if ((buffer.length() == 1 && buffer.charAt(0) == '#') || (buffer.length() > 4))
+	{
+		buffer = "";
+	}
+}
+
+// Funcion para mostrar la frequency
+void freq_logic()
+{
+	PORTA = 0x00;
+	Serial.print(frequency);
+	Serial.println(" Hz");
 }
 
 // Función para leer un número por teclado
@@ -614,6 +822,7 @@ READPAGE:
 	i2c_stop();
 }
 
+// Función setup
 void setup()
 {
 	Serial.begin(9600); // Inicializamos el puerto serie
@@ -630,6 +839,28 @@ void setup()
 	DDRC = B00000000;	 // Configuramos el pin 0 del puerto C como entrada (0x00)
 	PORTC = B11111111; // Inicializamos el puerto C a 1 (0cFF)
 
+	// Habilitacion de la interrupcion Timer1
+	// Timer 1 que genera la interrupcion cada 0.5s (500ms) por desbordamiento
+	// f = 16 MHz / (2 * N * (1 + TOP))
+	// f = 10Hz; N = 8; TOP = 0x270F
+	pinMode(5, OUTPUT); // OC3A
+	pinMode(2, OUTPUT); // OC3B
+	pinMode(3, OUTPUT); // OC3C
+
+	cli();												// Deshabilitamos las interrupciones
+	TCCR3A = TCCR3B = TCCR3C = 0; // Deshabilitamos el temporizador
+	TCNT3 = 0;										// Inicializamos el counter
+
+	OCR3A = TOP; // Establecemos el valor de comparacion
+	OCR3B = 0;
+	OCR3C = 0;
+
+	TCCR3A = B01000000; // Modo CTC
+	TCCR3B = B00001010; // Modo CTC, prescaler 8
+
+	TIMSK3 = B00100010; // Habilitamos la interrupcion OCIE3A y la interrupcion ICIE3 con el bit 1
+	sei();
+
 	// Inicialización de los terminales de entrada
 	pinMode(LEE_SDA, INPUT);
 	pinMode(LEE_SCL, INPUT);
@@ -640,14 +871,26 @@ void setup()
 	digitalWrite(ESC_SDA, HIGH);
 	digitalWrite(ESC_SCL, HIGH);
 
-	option = 0;
+	// Variables para el bus I2C
 	address = 0;
 	data = 0;
+
+	// Variables para el ISR
+	option = 0;
+	digit = 0;
+	buffer = "";
+
+	// Variables para el loop
+	counter = 0;
+	increment = 1;
+	time_old = millis();
+	transition_time = 550;
 
 	delay(150);
 	menu();
 }
 
+// Función loop
 void loop()
 {
 	if (Serial.available() > 0)
@@ -674,6 +917,132 @@ void loop()
 		break;
 	case '6':
 		option6();
+		break;
+	}
+}
+
+// ISR para la interrupcion OCIE3A
+ISR(TIMER3_CAPT_vect)
+{
+	ICR3_old = ICR3_new;
+	ICR3_new = ICR3;
+
+	period = ICR3_new - ICR3_old;
+
+	if (period < 0)
+	{
+		period = TOP - ICR3_old + ICR3_new;
+	}
+
+	period *= 0.0000005;
+
+	frequency = 1 / period;
+}
+
+// ISR para la interrupcion ICIE3
+ISR(TIMER3_COMPA_vect)
+{
+	PORTL = DOFF;
+	switch (digit)
+	{
+	case 0:
+		if (option == '1' || option == '2')
+		{
+			PORTA = hex_value[counter % 10];
+		}
+		else if (option == '3')
+		{
+			PORTA = 0x00;
+		}
+		else if (option == '4')
+		{
+			if ((frequency > 9999))
+			{
+				freq_logic();
+			}
+			else
+			{
+				PORTA = hex_value[frequency % 10];
+			}
+		}
+		PORTL = B00001110; // Visualizacion de unidades
+		keyboard(digit);
+		digit++;
+		break;
+	case 1:
+		if (option == '1' || option == '2')
+		{
+			PORTA = hex_value[(counter / 10) % 10];
+		}
+		else if (option == '3')
+		{
+			PORTA = 0x00;
+		}
+		else if (option == '4')
+		{
+			if ((frequency > 9999))
+			{
+				freq_logic();
+			}
+			else
+			{
+				PORTA = hex_value[(frequency / 10) % 10];
+			}
+		}
+		PORTL = B00001101; // Visualizacion de decenas
+		keyboard(digit);
+		digit++;
+		break;
+	case 2:
+		if (option == '1')
+		{
+			PORTA = hex_value[(counter / 100) % 10];
+		}
+		else if (option == '2')
+		{
+			PORTA = 0x00;
+		}
+		else if (option == '3')
+		{
+			PORTA = hex_value[counter % 10];
+		}
+		else if (option == '4')
+		{
+			if ((frequency > 9999))
+			{
+				freq_logic();
+			}
+			else
+			{
+				PORTA = hex_value[(frequency / 100) % 10];
+			}
+		}
+		PORTL = B00001011; // Visualizacion de centenas
+		keyboard(digit);
+		digit++;
+		break;
+	case 3:
+		if (option == '1' || option == '2')
+		{
+			PORTA = 0x00;
+		}
+		else if (option == '3')
+		{
+			PORTA = hex_value[(counter / 10) % 10];
+		}
+		else if (option == '4')
+		{
+			if ((frequency > 9999))
+			{
+				freq_logic();
+			}
+			else
+			{
+				PORTA = hex_value[(frequency / 1000) % 10];
+			}
+		}
+		PORTL = B00000111; // Visualizacion de unidades de millar
+		digit = 0;
 		break;
 	}
 }
