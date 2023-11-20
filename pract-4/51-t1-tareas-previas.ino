@@ -36,7 +36,7 @@ char display_map[4] = {D4, D3, D2, D1};
 #define DOFF B00001111;
 #define DON B00000000;
 
-#define TOP 0x270F // 9999
+#define TOP // TODO
 
 #define ESC_SCL 4	 // puerto de salida para escribir el valor en la línea SCL-out =>IO4 =>PG5
 #define ESC_SDA 39 // puerto de salida para escribir el valor en la línea SDA-out =>IO39=>PG2
@@ -839,10 +839,10 @@ void setup()
 	DDRC = B00000000;	 // Configuramos el pin 0 del puerto C como entrada (0x00)
 	PORTC = B11111111; // Inicializamos el puerto C a 1 (0cFF)
 
-	// Habilitacion de la interrupcion Timer1
+	// Habilitacion de la interrupcion Timer1 en modo Fast PWM
 	// Timer 1 que genera la interrupcion cada 0.5s (500ms) por desbordamiento
-	// f = 16 MHz / (2 * N * (1 + TOP))
-	// f = 10Hz; N = 8; TOP = 0x270F
+	// f = 16 MHz / (N * (1 + TOP))
+	// T = 0.5s; f = 1/T = 2Hz; N = 1024; TOP = OCR1A = 31249 (0x7A11)
 	pinMode(5, OUTPUT); // OC3A
 	pinMode(2, OUTPUT); // OC3B
 	pinMode(3, OUTPUT); // OC3C
@@ -851,7 +851,7 @@ void setup()
 	TCCR3A = TCCR3B = TCCR3C = 0; // Deshabilitamos el temporizador
 	TCNT3 = 0;										// Inicializamos el counter
 
-	OCR3A = TOP; // Establecemos el valor de comparacion
+	OCR3A = 0;
 	OCR3B = 0;
 	OCR3C = 0;
 
