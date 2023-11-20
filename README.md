@@ -27,6 +27,10 @@ Prácticas de la asignatura de Periféricos e Interfaces.
    3. [Dispositivo de Reloj de Tiempo Real (RTC) (Opcional)](./pract-3/53-t3-dispositivo-de-reloj-de-tiempo-real.ino) _(No funciona)_
    4. [Dispositivo de Temperatura (Opcional)](./pract-3/53-t3.2-temperatura.ino)
 4. [Práctica 4](./pract-4/) - [Proyecto base 4](./pract-4/23-24_plab4_reloj_base.pdsprj)
+   1. [Tarea 1 (No entregable)](./pract-4/51-t1-tareas-previas.ino)
+   2. [Actualización de información en la pantalla LCD (Entregable parte 1)](./pract-4/521-actualizacion-de-informacion-en-la-pantalla-lcd.ino)
+   3. [Configuración de la fecha y hora (Entregable parte 2)](./pract-4/522-configuracion-de-la-fecha-y-hora.ino)
+   4. [Configuración de alarmas (Entregable)](./pract-4/523-configuracion-de-alarmas.ino)
 
 ## Exámenes de años anteriores
 
