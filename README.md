@@ -19,7 +19,7 @@ Prácticas de la asignatura de Periféricos e Interfaces.
    3. [Tarea 3 (No entregable)](./pract-2/413-t3-generacion-de-senales-en-modo-fast-pwm.ino)
    4. [Tarea 4 (No entregable)](./pract-2/414-t4-generacion-de-senales-en-modo-pwm-phase-correct.ino)
    5. [Entregable parte 1](./pract-2/421-sustitucion-de-la-interrupcion-int3-por-otra-generada-por-el-timer3.ino)
-   6. [Entregable parte 2](./pract-2/422-diseno-e-implementacion-de-un-frecuencimetro.ino)
+   6. [Entregable](./pract-2/422-diseno-e-implementacion-de-un-frecuencimetro.ino)
    7. [Entregable con parte opcional](./pract-2/423-mejoras-de-la-aplicacion.ino)
 3. [Práctica 3](./pract-3/) - [Proyecto base 3](./pract-3/23-24_plab3_base.pdsprj)
    1. [Entregable parte 1](./pract-3/51-t1-implemantacion-del-protocolo-i2c-funciones-basicas.ino)
