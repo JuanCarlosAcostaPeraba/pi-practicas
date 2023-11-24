@@ -27,10 +27,7 @@ Prácticas de la asignatura de Periféricos e Interfaces.
    3. [Entregable con parte opcional (Fecha y Hora)](./pract-3/53-t3-dispositivo-de-reloj-de-tiempo-real.ino) _(No funciona)_
    4. [Entregable con parte opcional (Temperatura)](./pract-3/53-t3.2-temperatura.ino)
 4. [Práctica 4](./pract-4/) - [Proyecto base 4](./pract-4/23-24_plab4_reloj_base.pdsprj)
-   1. [Tarea 1 (No entregable)](./pract-4/51-t1-tareas-previas.ino)
-   2. [Entregable parte 1](./pract-4/521-actualizacion-de-informacion-en-la-pantalla-lcd.ino)
-   3. [Entregable parte 2](./pract-4/522-configuracion-de-la-fecha-y-hora.ino)
-   4. [Entregable](./pract-4/523-configuracion-de-alarmas.ino)
+   1. [Entregable](./pract-4/523-configuracion-de-alarmas.ino)
 
 ## Exámenes de años anteriores
 
