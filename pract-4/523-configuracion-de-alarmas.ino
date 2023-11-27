@@ -111,7 +111,7 @@ void buttons_increment()
 	{
 		if (millis() - time_old > transition_time)
 		{
-			logic(false);
+			// logic(false);
 			tone(PSTART, 1000, 100);
 			time_old = millis();
 		}
@@ -120,7 +120,7 @@ void buttons_increment()
 	{
 		if (millis() - time_old > transition_time)
 		{
-			logic(true);
+			// logic(true);
 			tone(PSTART, 1000, 100);
 			time_old = millis();
 		}
