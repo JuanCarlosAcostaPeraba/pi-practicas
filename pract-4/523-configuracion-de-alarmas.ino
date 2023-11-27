@@ -234,33 +234,33 @@ void writeDate()
 	int day = i2c_rrtc(4);
 	if (day < 10)
 	{
-		Serial3.write("0");
+		Serial3.print("0");
 		setCursor(4, 14);
-		Serial3.write(day, HEX);
+		Serial3.print(day, HEX);
 	}
 	else
 	{
-		Serial3.write(day, HEX);
+		Serial3.print(day, HEX);
 	}
 	// month
 	delay(100);
 	setCursor(4, 15);
 	int month = i2c_rrtc(5) - 1;
 	String monthHex = String(month, HEX);
-	Serial3.write(months[monthHex.toInt()]);
+	Serial3.print(months[monthHex.toInt()]);
 	// year
 	delay(100);
 	setCursor(4, 18);
 	int year = i2c_rrtc(6);
 	if (year < 10)
 	{
-		Serial3.write("0");
+		Serial3.print("0");
 		setCursor(4, 19);
-		Serial3.write(year, HEX);
+		Serial3.print(year, HEX);
 	}
 	else
 	{
-		Serial3.write(year, HEX);
+		Serial3.print(year, HEX);
 	}
 }
 
