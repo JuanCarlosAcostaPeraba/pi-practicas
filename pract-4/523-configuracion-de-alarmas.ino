@@ -56,9 +56,9 @@ char keyboard_map[][3] = {
 
 // Matriz con los meses
 String months[] = {
-		'JAN', 'FEB', 'MAR', 'APR',
-		'MAY', 'JUN', 'JUL', 'AUG',
-		'SEP', 'OCT', 'NOV', 'DEC'};
+		"JAN", "FEB", "MAR", "APR",
+		"MAY", "JUN", "JUL", "AUG",
+		"SEP", "OCT", "NOV", "DEC"};
 
 // Variables para el bus I2C
 int address;
@@ -245,8 +245,9 @@ void writeDate()
 	// month
 	delay(100);
 	setCursor(4, 15);
-	int month = i2c_rrtc(5);
-	Serial3.write(months[month]);
+	int month = i2c_rrtc(5) - 1;
+	String monthHex = String(month, HEX);
+	Serial3.write(months[monthHex.toInt()]);
 	// year
 	delay(100);
 	setCursor(4, 18);
@@ -829,7 +830,7 @@ WRITERTC:
 }
 
 // Función para leet la hora del RTC
-int i2c_rrtc(int memory_address)
+byte i2c_rrtc(int memory_address)
 {
 	int up_memory_addr = memory_address / 256;	// Parte alta de la dirección de memoria
 	int low_memory_addr = memory_address % 256; // Parte baja de la dirección de memoria
@@ -856,7 +857,7 @@ READRTC:
 	{
 		goto READRTC;
 	}
-	int dataTemp = i2c_rbyte();
+	byte dataTemp = i2c_rbyte();
 	i2c_w1(); // ACK - Enviamos un 1 para indicar que no queremos leer más datos
 	i2c_stop();
 	return dataTemp;
