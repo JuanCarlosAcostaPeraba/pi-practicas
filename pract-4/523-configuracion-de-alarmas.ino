@@ -314,6 +314,28 @@ void writeTime()
 	}
 }
 
+// Función para escribir la temperatura en la pantalla LCD
+void writeTemperature(int tempperature)
+{
+	i2c_wrtc(0x11, tempperature);
+	setCursor(2, 14);
+	Serial3.write("T=");
+	int temp = i2c_rrtc(0x11);
+	setCursor(2, 16);
+	if (temp >= 0)
+	{
+		Serial3.write("+");
+	}
+	else
+	{
+		Serial3.write("-");
+	}
+	setCursor(2, 17);
+	Serial3.print(temp);
+	setCursor(2, 19);
+	Serial3.write("C");
+}
+
 /* -- I2C -- */
 // Función para leer un número por teclado
 int readSerial()
