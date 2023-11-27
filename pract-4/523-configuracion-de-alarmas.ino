@@ -54,18 +54,22 @@ char keyboard_map[][3] = {
 		{'7', '8', '9'},
 		{'*', '0', '#'}};
 
+// Matriz con los meses
+String months[] = {
+		'JAN', 'FEB', 'MAR', 'APR',
+		'MAY', 'JUN', 'JUL', 'AUG',
+		'SEP', 'OCT', 'NOV', 'DEC'};
+
 // Variables para el bus I2C
 int address;
 int data;
+boolean alarm1;
+boolean alarm2;
 
 // Variables para el ISR
 String buffer;
 volatile int digit;
 volatile char option;
-volatile int frequency;
-volatile float period;
-volatile int ICR3_old;
-volatile int ICR3_new;
 
 // Variables para el loop
 int pup;
@@ -191,7 +195,75 @@ void read_buffer()
 	}
 }
 
-/* I2C */
+/* -- LCD screen -- */
+// Función para establecer cursor en la pantalla LCD
+void setCursor(int row, byte col)
+{
+	if (row == 1)
+	{
+		Serial3.write(0xFE);
+		Serial3.write(0x80 + col);
+	}
+	else if (row == 2)
+	{
+		Serial3.write(0xFE);
+		Serial3.write(0xC0 + col);
+	}
+	else if (row == 3)
+	{
+		Serial3.write(0xFE);
+		Serial3.write(0x94 + col);
+	}
+	else if (row == 4)
+	{
+		Serial3.write(0xFE);
+		Serial3.write(0xD4 + col);
+	}
+}
+
+// Función para escribir fecha en la pantalla LCD
+void writeDate()
+{
+	// info
+	delay(100);
+	setCursor(3, 13);
+	Serial3.write("DDMMMYY");
+	// day
+	delay(100);
+	setCursor(4, 13);
+	int day = read_rtc(4);
+	if (day < 10)
+	{
+		Serial3.write("0");
+		setCursor(4, 14);
+		Serial3.write(day, HEX);
+	}
+	else
+	{
+		Serial3.write(day, HEX);
+	}
+	// month
+	delay(100);
+	setCursor(4, 15);
+	int month = read_rtc(5);
+	Serial3.write(months[month]);
+	// year
+	delay(100);
+	setCursor(4, 18);
+	int year = read_rtc(6);
+	if (year < 10)
+	{
+		Serial3.write("0");
+		setCursor(4, 19);
+		Serial3.write(year, HEX);
+	}
+	else
+	{
+		Serial3.write(year, HEX);
+	}
+}
+
+/* -- I2C -- */
 // Función para leer un número por teclado
 int readSerial()
 {
