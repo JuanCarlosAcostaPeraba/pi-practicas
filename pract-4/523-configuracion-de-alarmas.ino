@@ -65,6 +65,7 @@ int address;
 int data;
 boolean alarm1;
 boolean alarm2;
+int secondsAlarm;
 
 // Variables para el ISR
 String buffer;
@@ -334,6 +335,46 @@ void writeTemperature(int tempperature)
 	Serial3.print(temp);
 	setCursor(2, 19);
 	Serial3.write("C");
+}
+
+// Función para escribir la alarma 1 en la pantalla LCD
+void writeAlarm1()
+{
+	setCursor(2, 0);
+	Serial3.write("ALARM");
+	// hours
+	setCursor(3, 0);
+	int hours = i2c_rrtc(0x09);
+	if (hours < 10)
+	{
+		Serial3.write("0");
+		setCursor(3, 1);
+		Serial3.print(hours, HEX);
+	}
+	else
+	{
+		Serial3.print(hours, HEX);
+	}
+	// separator
+	setCursor(3, 2);
+	Serial3.write(":");
+	// minutes
+	setCursor(3, 3);
+	int minutes = i2c_rrtc(0x08);
+	if (minutes < 10)
+	{
+		Serial3.write("0");
+		setCursor(3, 4);
+		Serial3.print(minutes, HEX);
+	}
+	else
+	{
+		Serial3.print(minutes, HEX);
+	}
+	// seconds
+	secondsAlarm = i2c_rrtc(0x07);
+	secondsAlarm = secondsAlarm & 0x7F;
+	secondsAlarm = ((secondsAlarm / 10) * 16) + (secondsAlarm % 10); // BCD -> decimal
 }
 
 /* -- I2C -- */
