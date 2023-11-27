@@ -231,7 +231,7 @@ void writeDate()
 	// day
 	delay(100);
 	setCursor(4, 13);
-	int day = read_rtc(4);
+	int day = i2c_rrtc(4);
 	if (day < 10)
 	{
 		Serial3.write("0");
@@ -245,12 +245,12 @@ void writeDate()
 	// month
 	delay(100);
 	setCursor(4, 15);
-	int month = read_rtc(5);
+	int month = i2c_rrtc(5);
 	Serial3.write(months[month]);
 	// year
 	delay(100);
 	setCursor(4, 18);
-	int year = read_rtc(6);
+	int year = i2c_rrtc(6);
 	if (year < 10)
 	{
 		Serial3.write("0");
@@ -796,6 +796,70 @@ READPAGE:
 	}
 	i2c_w1(); // ACK - Enviamos un 1 para indicar que no queremos leer más datos
 	i2c_stop();
+}
+
+// Función para escribir la hora del RTC
+void i2c_wrtc(int memory_address, byte data)
+{
+	int up_memory_addr = memory_address / 256;	// Parte alta de la dirección de memoria
+	int low_memory_addr = memory_address % 256; // Parte baja de la dirección de memoria
+WRITERTC:
+	i2c_start();
+	i2c_wbyte(0xD0); // 0xD0 = 11010000
+	if (i2c_rbit() != 0)
+	{
+		goto WRITERTC;
+	}
+	i2c_wbyte(up_memory_addr);
+	if (i2c_rbit() != 0)
+	{
+		goto WRITERTC;
+	}
+	i2c_wbyte(low_memory_addr);
+	if (i2c_rbit() != 0)
+	{
+		goto WRITERTC;
+	}
+	i2c_wbyte(data);
+	if (i2c_rbit() != 0)
+	{
+		goto WRITERTC;
+	}
+	i2c_stop();
+}
+
+// Función para leet la hora del RTC
+int i2c_rrtc(int memory_address)
+{
+	int up_memory_addr = memory_address / 256;	// Parte alta de la dirección de memoria
+	int low_memory_addr = memory_address % 256; // Parte baja de la dirección de memoria
+READRTC:
+	i2c_start();
+	i2c_wbyte(0xD0); // 0xD0 = 11010000
+	if (i2c_rbit() != 0)
+	{
+		goto READRTC;
+	}
+	i2c_wbyte(up_memory_addr);
+	if (i2c_rbit() != 0)
+	{
+		goto READRTC;
+	}
+	i2c_wbyte(low_memory_addr);
+	if (i2c_rbit() != 0)
+	{
+		goto READRTC;
+	}
+	i2c_start();
+	i2c_wbyte(0xD1); // 0xD1 = 11010001
+	if (i2c_rbit() != 0)
+	{
+		goto READRTC;
+	}
+	int dataTemp = i2c_rbyte();
+	i2c_w1(); // ACK - Enviamos un 1 para indicar que no queremos leer más datos
+	i2c_stop();
+	return dataTemp;
 }
 
 // Función setup
