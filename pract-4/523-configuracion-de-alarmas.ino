@@ -377,6 +377,40 @@ void writeAlarm1()
 	secondsAlarm = ((secondsAlarm / 10) * 16) + (secondsAlarm % 10); // BCD -> decimal
 }
 
+// Función para escribir la alarma 2 en la pantalla LCD
+void writeAlarm2()
+{
+	// hours
+	setCursor(4, 0);
+	int hours = i2c_rrtc(0x0B);
+	if (hours < 10)
+	{
+		Serial3.write("0");
+		setCursor(4, 1);
+		Serial3.print(hours, HEX);
+	}
+	else
+	{
+		Serial3.print(hours, HEX);
+	}
+	// separator
+	setCursor(4, 2);
+	Serial3.write(":");
+	// minutes
+	setCursor(4, 3);
+	int minutes = i2c_rrtc(0x0A);
+	if (minutes < 10)
+	{
+		Serial3.write("0");
+		setCursor(4, 4);
+		Serial3.print(minutes, HEX);
+	}
+	else
+	{
+		Serial3.print(minutes, HEX);
+	}
+}
+
 /* -- I2C -- */
 // Función para leer un número por teclado
 int readSerial()
