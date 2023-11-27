@@ -221,7 +221,7 @@ void setCursor(int row, byte col)
 	}
 }
 
-// Función para escribir fecha en la pantalla LCD
+// Función para escribir la fecha en la pantalla LCD
 void writeDate()
 {
 	// info
@@ -234,7 +234,7 @@ void writeDate()
 	int day = i2c_rrtc(4);
 	if (day < 10)
 	{
-		Serial3.print("0");
+		Serial3.write("0");
 		setCursor(4, 14);
 		Serial3.print(day, HEX);
 	}
@@ -254,13 +254,63 @@ void writeDate()
 	int year = i2c_rrtc(6);
 	if (year < 10)
 	{
-		Serial3.print("0");
+		Serial3.write("0");
 		setCursor(4, 19);
 		Serial3.print(year, HEX);
 	}
 	else
 	{
 		Serial3.print(year, HEX);
+	}
+}
+
+// Función para escribir la hora en la pantalla LCD
+void writeTime()
+{
+	// hours
+	setCursor(1, 5);
+	int hours = i2c_rrtc(2);
+	if (hours < 10)
+	{
+		Serial3.write("0");
+		setCursor(1, 6);
+		Serial3.print(hours, HEX);
+	}
+	else
+	{
+		Serial3.print(hours, HEX);
+	}
+	// separator
+	setCursor(1, 7);
+	Serial3.write(":");
+	// minutes
+	setCursor(1, 8);
+	int minutes = i2c_rrtc(1);
+	if (minutes < 10)
+	{
+		Serial3.write("0");
+		setCursor(1, 9);
+		Serial3.print(minutes, HEX);
+	}
+	else
+	{
+		Serial3.print(minutes, HEX);
+	}
+	// separator
+	setCursor(1, 10);
+	Serial3.write(":");
+	// seconds
+	setCursor(1, 11);
+	int seconds = i2c_rrtc(0);
+	if (seconds < 10)
+	{
+		Serial3.write("0");
+		setCursor(1, 12);
+		Serial3.print(seconds, HEX);
+	}
+	else
+	{
+		Serial3.print(seconds, HEX);
 	}
 }
 
