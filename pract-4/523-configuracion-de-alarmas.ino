@@ -980,8 +980,6 @@ READPAGE:
 // Función para escribir la hora del RTC
 void i2c_wrtc(int memory_address, byte data)
 {
-	int up_memory_addr = memory_address / 256;	// Parte alta de la dirección de memoria
-	int low_memory_addr = memory_address % 256; // Parte baja de la dirección de memoria
 WRITERTC:
 	i2c_start();
 	i2c_wbyte(0xD0); // 0xD0 = 11010000
@@ -989,12 +987,7 @@ WRITERTC:
 	{
 		goto WRITERTC;
 	}
-	i2c_wbyte(up_memory_addr);
-	if (i2c_rbit() != 0)
-	{
-		goto WRITERTC;
-	}
-	i2c_wbyte(low_memory_addr);
+	i2c_wbyte(memory_address);
 	if (i2c_rbit() != 0)
 	{
 		goto WRITERTC;
@@ -1010,8 +1003,6 @@ WRITERTC:
 // Función para leet la hora del RTC
 byte i2c_rrtc(int memory_address)
 {
-	int up_memory_addr = memory_address / 256;	// Parte alta de la dirección de memoria
-	int low_memory_addr = memory_address % 256; // Parte baja de la dirección de memoria
 READRTC:
 	i2c_start();
 	i2c_wbyte(0xD0); // 0xD0 = 11010000
@@ -1019,12 +1010,7 @@ READRTC:
 	{
 		goto READRTC;
 	}
-	i2c_wbyte(up_memory_addr);
-	if (i2c_rbit() != 0)
-	{
-		goto READRTC;
-	}
-	i2c_wbyte(low_memory_addr);
+	i2c_wbyte(memory_address);
 	if (i2c_rbit() != 0)
 	{
 		goto READRTC;
