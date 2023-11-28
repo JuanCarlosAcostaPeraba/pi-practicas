@@ -105,6 +105,96 @@ void menu()
 }
 
 /* -- ISR -- */
+// Funcion para incrementar el counter por botones
+void buttons_increment()
+{
+	if (pup == 0)
+	{
+		if (millis() - time_old > transition_time)
+		{
+			// logic(false);
+			tone(PSTART, 1000, 100);
+			time_old = millis();
+		}
+	}
+	else if (pdown == 0)
+	{
+		if (millis() - time_old > transition_time)
+		{
+			// logic(true);
+			tone(PSTART, 1000, 100);
+			time_old = millis();
+		}
+	}
+	else if (pcenter == 0)
+	{
+		if (millis() - time_old > transition_time)
+		{
+			counter = 0;
+			tone(PSTART, 1000, 100);
+			time_old = millis();
+		}
+	}
+	else if (pright == 0)
+	{
+		if (millis() - time_old > transition_time)
+		{
+			increment = 2;
+			time_old = millis();
+		}
+	}
+	else if (pleft == 0)
+	{
+		if (millis() - time_old > transition_time)
+		{
+			increment = 1;
+			time_old = millis();
+		}
+	}
+}
+
+// Funcion para leer el teclado
+void keyboard(int column)
+{
+	int val = PINL >> 4;
+	if (val == 15)
+	{
+		return;
+	}
+	while (PINL >> 4 != 15)
+	{
+	}
+	switch (val)
+	{
+	case 7:
+		buffer += keyboard_map[0][column];
+		break;
+	case 11:
+		buffer += keyboard_map[1][column];
+		break;
+	case 13:
+		buffer += keyboard_map[2][column];
+		break;
+	case 14:
+		buffer += keyboard_map[3][column];
+		break;
+	}
+}
+
+// Funcion para leer el buffer introducido por el teclado
+void read_buffer()
+{
+	if (buffer.length() == 2 && buffer.charAt(0) == '#' && buffer.charAt(0) == '*')
+	{
+		menu();
+		buffer = "";
+	}
+	else if (buffer.length() == 2 && buffer.charAt(0) == '*' && buffer.charAt(0) == '#')
+	{
+		// TODO - Función para dejar de configurar el reloj
+		buffer = "";
+	}
+}
 
 /* -- LCD -- */
 // Función para establecer cursor en la pantalla LCD
