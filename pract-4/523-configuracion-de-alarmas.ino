@@ -442,7 +442,6 @@ void melody1(boolean type)
 	}
 }
 
-/* -- I2C -- */
 // Función para leer un número por teclado
 int readSerial()
 {
@@ -716,6 +715,7 @@ void option6()
 	}
 }
 
+/* -- I2C -- */
 // Función start para el bus I2C
 void i2c_start()
 {
@@ -1027,6 +1027,7 @@ READRTC:
 	return dataTemp;
 }
 
+/* -- MAIN -- */
 // Función setup
 void setup()
 {
