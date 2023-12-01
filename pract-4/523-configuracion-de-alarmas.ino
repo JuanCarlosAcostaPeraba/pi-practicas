@@ -423,7 +423,7 @@ void checkAlarms()
 	}
 }
 
-void melody1(boolean type)
+void melody(boolean type)
 {
 	if (type) // Alarma 1
 	{
