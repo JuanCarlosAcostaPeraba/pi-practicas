@@ -1108,7 +1108,7 @@ void setup()
 	time_old = millis();
 	transition_time = 550;
 
-	dealy(500);
+	delay(500);
 	Serial.println("Pulse '*#' para configurar el reloj");
 }
 
