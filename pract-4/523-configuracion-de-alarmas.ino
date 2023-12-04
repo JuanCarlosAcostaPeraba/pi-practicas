@@ -416,10 +416,11 @@ void checkAlarms()
 {
 	if (alarm1)
 	{
-		if (secondsAlarm == i2c_rrtc(0x07) && i2c_rrtc(0x08) == i2c_rrtc(0x0A) && i2c_rrtc(0x09) == i2c_rrtc(0x0B))
-		{
-			melody(true);
-		}
+		// TODO
+	}
+	else if (alarm2)
+	{
+		// TODO
 	}
 }
 
@@ -427,18 +428,26 @@ void melody(boolean type)
 {
 	if (type) // Alarma 1
 	{
-		tone(PSTART, 1000, 20);
-		tone(PSTART, 1000, 20);
-		tone(PSTART, 1000, 20);
-		tone(PSTART, 1000, 20);
-		tone(PSTART, 1000, 20);
+		for (int i = 0; i < 10; i++)
+		{
+			tone(PSTART, 1000, 30);
+			delay(20);
+		}
 	}
 	else // Alarma 2
 	{
-		tone(PSTART, 500, 50);
-		tone(PSTART, 50, 10);
-		tone(PSTART, 500, 50);
-		tone(PSTART, 50, 10);
+		for (int i = 0; i < 10; i++)
+		{
+			if (i % 2 == 0)
+			{
+				tone(PSTART, 500, 30);
+			}
+			else
+			{
+				tone(PSTART, 50, 10);
+			}
+			delay(20);
+		}
 	}
 }
 
@@ -1031,7 +1040,8 @@ READRTC:
 // Función setup
 void setup()
 {
-	Serial.begin(9600); // Inicializamos el puerto serie
+	Serial.begin(9600);	 // Inicializamos el puerto serie
+	Serial3.begin(9600); // Inicializamos el puerto serie 3 (LCD)
 
 	// Puerto A salida
 	DDRA = B11111111;	 // Configuramos el puerto A como salida (0xFF)
@@ -1073,9 +1083,15 @@ void setup()
 	// Inicialización de los terminales de salida
 	pinMode(ESC_SDA, OUTPUT);
 	pinMode(ESC_SCL, OUTPUT);
-	// Para asegurarse de no intervenir (bloquear) el bus, poner SDA _out y SCL _out a "1"....
+	// Para asegurarse de no intervenir (bloquear) el bus, poner SDA _out y SCL _out a "1"
 	digitalWrite(ESC_SDA, HIGH);
 	digitalWrite(ESC_SCL, HIGH);
+
+	// Habilitar interrupciones de la alarma
+	i2c_wrtc(0x0E, 0x1F); // Habilitar interrupciones de las alarmas
+
+	i2c_wrtc(0x0A, 0x80); // Alarma 1
+	i2c_wrtc(0x0D, 0x80); // Alarma 2
 
 	// Variables para el bus I2C
 	address = 0;
@@ -1092,13 +1108,17 @@ void setup()
 	time_old = millis();
 	transition_time = 550;
 
-	// delay(150);
-	// menu();
+	dealy(500);
+	Serial.println("Pulse '*#' para configurar el reloj");
 }
 
 // Función loop
 void loop()
 {
+	Serial3.write(0xFE);
+	Serial3.write(0x0C);
+	delay(100);
+
 	read_buffer();
 }
 
