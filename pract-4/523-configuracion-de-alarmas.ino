@@ -25,6 +25,7 @@ char display_map[4] = {D4, D3, D2, D1};
 #define DON B00000000;
 
 #define TOP 31249 // 0x7A11
+#define TOP2 1249 // 0x4E1
 
 #define ESC_SCL 4	 // puerto de salida para escribir el valor en la línea SCL-out =>IO4 =>PG5
 #define ESC_SDA 39 // puerto de salida para escribir el valor en la línea SDA-out =>IO39=>PG2
@@ -1059,9 +1060,6 @@ void setup()
 	// Timer 1 que genera la interrupcion cada 0.5s (500ms) por desbordamiento
 	// f = 16 MHz / (N * (1 + TOP))
 	// T = 0.5s; f = 1/T = 2Hz; N = 256; TOP = OCR1A = 31249 => 16MHz / (256 * (1 + 31249)) = 2Hz
-	pinMode(5, OUTPUT); // OC3A
-	pinMode(2, OUTPUT); // OC3B
-	pinMode(3, OUTPUT); // OC3C
 
 	cli();												// Deshabilitamos las interrupciones
 	TCCR1A = TCCR1B = TCCR1C = 0; // Deshabilitamos el temporizador
@@ -1075,6 +1073,24 @@ void setup()
 	TCCR1B = B00011101; // Modo Fast PWM con TOP en OCR1A y preescalador de 1024
 
 	TIMSK1 = B00000001; // Habilitamos la interrupcion TOIE1 con el bit 1 para habilitar por overflow
+	sei();
+
+	// Habilitacion de la interrupcion Timer3 en modo CTC
+	// Timer 3 que genera la interrupcion cada 10ms
+	// f = 16 MHz / (2 * N * (1 + TOP))
+	// T = 10ms; f = 1/T = 100Hz; N = 64; TOP = OCR3A = 1249 => 16MHz / (2 * 64 * (1 + 1249)) = 100Hz
+	cli();
+	TCCR3A = TCCR3B = TCCR3C = 0;
+	TCNT3 = 0;
+
+	OCR3A = TOP2;
+	OCR3B = 0;
+	OCR3C = 0;
+
+	TCCR3A = B01000000; // Modo CTC con TOP en OCR3A
+	TCCR3B = B00001011; // Modo CTC con TOP en OCR3A y preescalador de 64
+
+	TIMSK3 = B00000001; // Habilitamos la interrupcion OCIE3A con el bit 1 para habilitar por comparacion
 	sei();
 
 	// Inicialización de los terminales de entrada
@@ -1122,9 +1138,10 @@ void loop()
 	read_buffer();
 }
 
-// ISR para la interrupcion ICIE3
+// ISR para la interrupcion del TIMER1
 ISR(TIMER1_OVF_vect)
 {
+	DOFF;
 	switch (digit)
 	{
 	case 0:
@@ -1137,7 +1154,29 @@ ISR(TIMER1_OVF_vect)
 		break;
 	case 2:
 		keyboard(digit);
+		digit++;
+		break;
+	case 3:
 		digit = 0;
 		break;
 	}
+}
+
+// ISR para la interrupcion del TIMER3
+ISR(TIMER3_OVF_vect)
+{
+	if (showText)
+	{
+		Serial3.write(0xFE);
+		Serial3.write(0x01);
+		delay(100);
+		setCursor(1, 0);
+		Serial3.print(mensaje);
+		delay(2000);
+		showText = false;
+	}
+
+	writeTime();
+	writeDate();
+	writeTemperature(0);
 }
