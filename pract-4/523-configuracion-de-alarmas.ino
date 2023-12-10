@@ -105,7 +105,7 @@ void menu()
 	Serial.println("Introduzca una opcion: [Enter para continuar]");
 }
 
-/* -- ISR -- */
+/* -- Componentes Físicos -- */
 // Funcion para incrementar el counter por botones
 void buttons_increment()
 {
@@ -317,7 +317,7 @@ void writeTime()
 }
 
 // Función para escribir la temperatura en la pantalla LCD
-void writeTemperature(int tempperature)
+void writeTemperature()
 {
 	i2c_wrtc(0x11, tempperature);
 	setCursor(2, 14);
@@ -415,29 +415,19 @@ void writeAlarm2()
 // Función para comprobar si las alarmas están activadas y sonarlas
 void checkAlarms()
 {
-	if (alarm1)
+	if (alarm1 && !alarm2)
 	{
-		// TODO
-	}
-	else if (alarm2)
-	{
-		// TODO
-	}
-}
-
-void melody(boolean type)
-{
-	if (type) // Alarma 1
-	{
-		for (int i = 0; i < 10; i++)
+		i2c_wrtc(0xF, B11001000);		 // Activamos la alarma 1
+		for (int i = 0; i < 10; i++) // Sonar alarma 1 con tono 1
 		{
 			tone(PSTART, 1000, 30);
-			delay(20);
+			delay(10);
 		}
 	}
-	else // Alarma 2
+	else if (!alarm1 && alarm2)
 	{
-		for (int i = 0; i < 10; i++)
+		i2c_wrtc(0xF, B11001100);		 // Activamos la alarma 2
+		for (int i = 0; i < 10; i++) // Sonar alarma 2 con tono 2
 		{
 			if (i % 2 == 0)
 			{
@@ -447,7 +437,23 @@ void melody(boolean type)
 			{
 				tone(PSTART, 50, 10);
 			}
-			delay(20);
+			delay(10);
+		}
+	}
+	else if (alarm1 && alarm2)
+	{
+		i2c_wrtc(0xF, B11001010);		 // Activamos la alarma 1 y 2
+		for (int i = 0; i < 10; i++) // Sonar alarma 1 y 2 con tono 3
+		{
+			if (i % 2 == 0)
+			{
+				tone(PSTART, 1000, 30);
+			}
+			else
+			{
+				tone(PSTART, 500, 30);
+			}
+			delay(10);
 		}
 	}
 }
@@ -1112,11 +1118,14 @@ void setup()
 	// Variables para el bus I2C
 	address = 0;
 	data = 0;
+	alarm1 = false;
+	alarm2 = false;
+	secondsAlarm = 0;
 
 	// Variables para el ISR
-	option = 0;
-	digit = 0;
 	buffer = "";
+	digit = 0;
+	option = 0;
 
 	// Variables para el loop
 	counter = 0;
@@ -1134,11 +1143,9 @@ void loop()
 	Serial3.write(0xFE);
 	Serial3.write(0x0C);
 	delay(100);
-
-	read_buffer();
 }
 
-// ISR para la interrupcion del TIMER1
+// ISR (TIMER1) para teclado
 ISR(TIMER1_OVF_vect)
 {
 	DOFF;
@@ -1160,23 +1167,31 @@ ISR(TIMER1_OVF_vect)
 		digit = 0;
 		break;
 	}
+
+	read_buffer();
 }
 
-// ISR para la interrupcion del TIMER3
+// ISR (TIMER3) para refrescar LCD
 ISR(TIMER3_OVF_vect)
 {
 	if (showText)
 	{
 		Serial3.write(0xFE);
-		Serial3.write(0x01);
+		Serial3.write(0x01); // Limpiar pantalla LCD
 		delay(100);
-		setCursor(1, 0);
-		Serial3.print(mensaje);
+		setCursor(1, 0);				// Establecer cursor en la primera fila
+		Serial3.print(mensaje); // Mostrar mensaje
 		delay(2000);
 		showText = false;
 	}
 
 	writeTime();
 	writeDate();
-	writeTemperature(0);
+	writeTemperature();
+}
+
+// ISR (TIMER0) para lanzar alarmas
+ISR(INT0_vect)
+{
+	checkAlarms();
 }
