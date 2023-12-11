@@ -675,7 +675,7 @@ m1:
 			h1:
 				while (Serial.available() == 0)
 				{
-				} // Esperar el dato
+				}
 
 				int horas = Serial.parseInt();
 
@@ -701,7 +701,7 @@ m1:
 			min1:
 				while (Serial.available() == 0)
 				{
-				} // Esperar el dato
+				}
 
 				int minutos = Serial.parseInt();
 				if (minutos < 0 || minutos > 59)
@@ -725,7 +725,7 @@ m1:
 			seg1:
 				while (Serial.available() == 0)
 				{
-				} // Esperar el dato
+				}
 
 				int segundos = Serial.parseInt();
 				if (segundos < 0 || segundos > 59)
@@ -770,7 +770,7 @@ m1:
 			dia1:
 				while (Serial.available() == 0)
 				{
-				} // Esperar el dato
+				}
 
 				int dia = Serial.parseInt();
 				if (dia < 0 || dia > 31)
@@ -794,7 +794,7 @@ m1:
 			mes1:
 				while (Serial.available() == 0)
 				{
-				} // Esperar el dato
+				}
 
 				int mes = Serial.parseInt();
 				if (mes < 0 || mes > 12)
@@ -816,7 +816,7 @@ m1:
 			year1:
 				while (Serial.available() == 0)
 				{
-				} // Esperar el dato
+				}
 
 				int year = Serial.parseInt();
 				if (year < 0 || year > 99)
@@ -863,7 +863,7 @@ m1:
 			hora2:
 				while (Serial.available() == 0)
 				{
-				} // Esperar el dato
+				}
 
 				int hour = Serial.parseInt();
 				if (hour < 0 || hour > 23)
@@ -883,7 +883,7 @@ m1:
 			min2:
 				while (Serial.available() == 0)
 				{
-				} // Esperar el dato
+				}
 
 				int minutes = Serial.parseInt();
 				if (minutes < 0 || minutes > 59)
@@ -903,7 +903,7 @@ m1:
 			seg2:
 				while (Serial.available() == 0)
 				{
-				} // Esperar el dato
+				}
 
 				int segundos = Serial.parseInt();
 				if (segundos < 0 || segundos > 59)
@@ -924,7 +924,6 @@ m1:
 
 			if (suborden == '2')
 			{
-				// Activar alarma
 				alarm1 = true;
 				Serial.println("Alarma 1 activada");
 				set_cursor(3, 5);
@@ -934,7 +933,6 @@ m1:
 
 			if (suborden == '3')
 			{
-				// Desactivar alarma
 				alarm1 = false;
 				Serial.println("Alarma 1 desactivada");
 				set_cursor(3, 5);
@@ -944,7 +942,6 @@ m1:
 
 			if (suborden == '4')
 			{
-				// Exit
 				Serial.println("Exit");
 				goto m1;
 			}
@@ -973,7 +970,7 @@ m1:
 			hora3:
 				while (Serial.available() == 0)
 				{
-				} // Esperar el dato
+				}
 
 				int hour = Serial.parseInt();
 				if (hour < 0 || hour > 23)
@@ -993,7 +990,7 @@ m1:
 			min3:
 				while (Serial.available() == 0)
 				{
-				} // Esperar el dato
+				}
 
 				int minutes = Serial.parseInt();
 				if (minutes < 0 || minutes > 59)
@@ -1011,30 +1008,24 @@ m1:
 
 				goto a2;
 			}
-
 			if (suborden == '2')
 			{
-				// Activar alarma
 				alarm2 = true;
 				Serial.println("Alarma 2 activada");
 				set_cursor(4, 5);
 				Serial3.write("*");
 				goto a2;
 			}
-
 			if (suborden == '3')
 			{
-				// Desactivar alarma
 				alarm2 = false;
 				Serial.println("Alarma 2 desactivada");
 				set_cursor(4, 5);
 				Serial3.write(" ");
 				goto a2;
 			}
-
 			if (suborden == '4')
 			{
-				// Exit
 				Serial.println("Exit");
 				goto m1;
 			}
@@ -1045,7 +1036,7 @@ m1:
 
 			while (Serial.available() == 0)
 			{
-			} // Esperar
+			}
 
 			String message = Serial.readStringUntil(0x00);
 		}
@@ -1055,7 +1046,7 @@ m1:
 
 			while (Serial.available() == 0)
 			{
-			} // Esperar
+			}
 
 			message = Serial.readStringUntil(0x0D);
 
@@ -1068,8 +1059,7 @@ m1:
 			delay(7000);
 			text_mode = false;
 		}
-
-	} // Serial.available()
+	}
 }
 
 void setup()
@@ -1106,6 +1096,7 @@ void setup()
 	delay(500);
 	Serial.println("Pulse *# para acceder al menu de configuracion");
 	Serial.println("Pulse #* para salir del menu de configuracion");
+
 	prog_Timer3();
 	prog_Timer1();
 }
