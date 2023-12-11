@@ -132,7 +132,7 @@ int i2c_rbit()
 }
 
 // Función para escribir un byte en el bus I2C
-void i2c_wbyte(byte dato)
+void i2c_wbyte(byte data)
 {
 	for (int i = 0; i < 8; i++)
 	{
@@ -501,7 +501,7 @@ ISR(TIMER3_OVF_vect)
 
 	lcd_whour();
 	lcd_wdate();
-	lcd_wtemp(23);
+	lcd_wtemp();
 	lcd_walarm1();
 	lcd_walarm2();
 }
@@ -606,30 +606,7 @@ void prog_Timer3()
 	sei();
 }
 
-// Timer 1
 void prog_Timer1()
-{
-
-	cli();
-	// RESET TIMERS
-	TCCR1A = 0;
-	TCCR1B = 0;
-	TCCR1C = 0;
-	TCNT1 = 0;
-
-	// PROGRAMACION (MODO = 4, CTC, TOP= ORC1A)
-
-	// OCR1A = 1249;
-	OCR1A = 1249;
-
-	TCCR1A = B00000000;
-	TCCR1B = B00001011;
-
-	TIMSK1 |= (1 << OCIE1A);
-	sei();
-}
-/*
-void prog_Timer1_Examen()
 {
 
 	cli();
@@ -654,7 +631,7 @@ void prog_Timer1_Examen()
 
 	TIMSK1 |= (1 << TOIE1);
 	sei();
-} */
+}
 
 // Función para controlar el menú
 void menu()
@@ -1095,12 +1072,11 @@ m1:
 	} // Serial.available()
 }
 
-//------------------------------------------------SETUP---------------------------------------------------------------
 void setup()
 {
-	// put your setup code here, to run once:
-	// habilitar canal TX0/RX0, canal de comunicaciones serie con el virtual terminal.
 	Serial.begin(9600);
+	Serial3.begin(9600);
+
 	pinMode(LEE_SDA, INPUT);
 	pinMode(LEE_SCL, INPUT);
 	pinMode(ESC_SDA, OUTPUT);
@@ -1108,52 +1084,37 @@ void setup()
 	digitalWrite(ESC_SCL, HIGH);
 	digitalWrite(ESC_SDA, HIGH);
 
-	// PORTA: Segmentos a-f
-	DDRA = 0xFF;	// PORTA de salida
-	PORTA = 0xFF; // activamos segmentos a-g
+	DDRA = 0xFF;
+	PORTA = 0xFF;
 
-	// PORTL[7:4]: filas del teclado
-	DDRL = 0x0F;	// input;
-	PORTL = 0xFF; // pull-up activos, cátodos/columnas teclado desactivadas
+	DDRL = 0x0F;
+	PORTL = 0xFF;
 
-	// PORTC: Pulsadores y altavoz
-	DDRC = B00000001;	 // PC7:1 input: PC0: output-speaker
-	PORTC = B11111000; // pull-up activos menos el speaker que es de salida
-
-	// PORTC= 0xF8;   // pull-up activos menos el speaker que es de salida
-
-	// habilitar canal TX3/RX3, canal de comunicaciones serie con la pantalla LCD (MILFORD 4x20 BKP)
-	Serial3.begin(9600); // canal 3, 9600 baudios,
-											 //  8 bits, no parity, 1 stop bit
+	DDRC = B00000001;
+	PORTC = B11111000;
 
 	cli();
-	EICRA |= (1 << ISC01) | (0 << ISC00); // SE HABILITA EL MODO DE DISPARO POR FLANCO DE SUBIDA
-	EIMSK |= (1 << INT0);									// ó EOMSK |= EIMSK B00000001;
+	EICRA |= (1 << ISC01) | (0 << ISC00);
+	EIMSK |= (1 << INT0);
 	sei();
 
-	// Habilitar las interrupciones de la alarma equivalente a escribir B00011111
 	i2c_rtc_write(14, 31);
 
-	i2c_rtc_write(13, 128); // B10000000  //Match horas y minutos alarma 2
-	i2c_rtc_write(10, 128); // B10000000 // Match horas , minutos y segundos alarma 1
+	i2c_rtc_write(13, 128);
+	i2c_rtc_write(10, 128);
 
 	delay(500);
 	Serial.println("Pulse *# para acceder al menu de configuracion");
 	Serial.println("Pulse #* para salir del menu de configuracion");
 	prog_Timer3();
-	prog_Timer1_Examen();
+	prog_Timer1();
+}
 
-} // setup()
-
-//----------------------------------------------------------LOOP-----------------------------------------------------------------------------
 void loop()
 {
-
-	// MILFORD LCD on/off
 	Serial3.write(0xFE);
-	Serial3.write(0x0C); // Display on
+	Serial3.write(0x0C);
 	delay(500);
-
 	if (mode == 1)
 	{
 		menu();
