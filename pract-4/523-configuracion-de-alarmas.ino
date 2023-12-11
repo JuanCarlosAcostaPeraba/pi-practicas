@@ -21,8 +21,8 @@ char display_map[4] = {D4, D3, D2, D1};
 #define ROW2 44 // PL[5] fila 2
 #define ROW3 45 // PL[4] fila 3
 
-#define DOFF B00001111;
-#define DON B00000000;
+#define DOFF B00001111
+#define DON B00000000
 
 #define TOP 31249 // 0x7A11
 #define TOP2 1249 // 0x4E1
@@ -319,7 +319,6 @@ void writeTime()
 // Función para escribir la temperatura en la pantalla LCD
 void writeTemperature()
 {
-	i2c_wrtc(0x11, tempperature);
 	setCursor(2, 14);
 	Serial3.write("T=");
 	int temp = i2c_rrtc(0x11);
@@ -1174,17 +1173,6 @@ ISR(TIMER1_OVF_vect)
 // ISR (TIMER3) para refrescar LCD
 ISR(TIMER3_OVF_vect)
 {
-	if (showText)
-	{
-		Serial3.write(0xFE);
-		Serial3.write(0x01); // Limpiar pantalla LCD
-		delay(100);
-		setCursor(1, 0);				// Establecer cursor en la primera fila
-		Serial3.print(mensaje); // Mostrar mensaje
-		delay(2000);
-		showText = false;
-	}
-
 	writeTime();
 	writeDate();
 	writeTemperature();
