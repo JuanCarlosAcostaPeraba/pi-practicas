@@ -1,4 +1,3 @@
-
 // Declaración de variables
 #define LEE_SCL 40 // puerto de entrada para leer el estado de la línea SCL
 #define LEE_SDA 41 // puerto de entrada para leer el estado de la línea SDA
