@@ -62,33 +62,36 @@ void setup()
 
 	Serial3.begin(9600); // canal 3, 9600 baudios,
 
-	cli();
-	TCCR3A = 0; // Registro funcional del modo
-	TCCR3B = 0; // Registro funcional del modo
-	TCNT3 = 0;	// Registro funcional del contador
+	cli(); // Deshabilitamos las interrupciones
+	TCCR1A = 0;
+	TCCR1B = 0;
+	TCCR1C = 0;
+	TCNT1 = 0;
 
-	ICR3 = 31249; // TOP definido
-	OCR3A = 12499;
+	OCR1A = 7812;
+	OCR1B = 0;
+	OCR1C = 0;
 
-	TCCR3A = B10000010; // modo 15
-	TCCR3B = B00011100; // modo 15, N = 256
-	TIMSK3 |= (1 << OCIE3A);
-	sei();
+	TCCR1A = B00000011;
+	TCCR1B = B00011101;
 
-	cli();
-	TCCR1A = 0; // Registro funcional del modo
-	TCCR1B = 0; // Registro funcional del modo
-	TCNT1 = 0;	// Registro funcional del contador
+	TIMSK1 = B00000001;
+	TIFR1 = B00000010;
 
-	OCR1A = 1249; // TOP definido
+	// Timer 3: Modo 4 (CTC, TOP = OCR3A), N= 64
+	TCCR3A = TCCR3B = TCCR3C = 0;
+	TCNT3 = 0;
+	OCR3A = 1249;
+	OCR3B = 0;
+	OCR3C = 0;
 
-	TCCR1A = B00000100; // modo 4
-	TCCR1B = B00001011; // modo 4, N = 64
-	TIMSK1 |= (1 << OCIE1A);
-	sei();
+	TCCR3A = B01010100;
+	TCCR3B = B00001011;
 
-	cli();
-	EICRA |= (1 << ISC01) | (0 << ISC00);
+	TIMSK3 = B00000010;
+	TIFR3 = B00000001;
+
+	EICRA |= B00000010;
 	EIMSK |= (1 << INT0);
 	sei();
 
