@@ -486,7 +486,7 @@ void read_buffer()
 }
 
 // ISR - Refresco de pantalla LCD
-ISR(TIMER3_OVF_vect)
+ISR(TIMER1_OVF_vect)
 {
 	if (text_mode == true)
 	{
@@ -507,7 +507,7 @@ ISR(TIMER3_OVF_vect)
 }
 
 // ISR - Funcionamiento del teclado
-ISR(TIMER1_OVF_vect)
+ISR(TIMER3_OVF_vect)
 {
 	if (ext_mode == 0)
 	{
