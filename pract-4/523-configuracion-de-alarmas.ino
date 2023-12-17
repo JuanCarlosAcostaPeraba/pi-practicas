@@ -3,30 +3,30 @@
  * Descripción: Proyecto base con esquema, definiciones y programa demo
  * Programa demo: uso básico pantalla LCD
  *
- * Fichero: 	23-24_plab4_reloj_base.pdsprj
- * Creado: 		14 noviembre 2023
- * Autor:			--------
+ * Fichero: 	22-23_lab4_base.pdsprj
+ * Creado: 		17 noviembre 2022
+ * Autor:			Gustavo Vega Santana
  */
 
 // Declaración de variables
-#define LEE_SCL 40 // puerto de entrada para leer el estado de la línea SCL
-#define LEE_SDA 41 // puerto de entrada para leer el estado de la línea SDA
-#define ESC_SCL 4	 // puerto de salida para escribir el valor de la línea SCL-out
-#define ESC_SDA 39 // puerto de salida para escribir el valor de la línea SDA-out
+#define ESC_SCL 4	 // puerto de salida para escribir el valor en la lí­nea SCL-out =>IO4 =>PG5
+#define ESC_SDA 39 // puerto de salida para escribir el valor en la lí­nea SDA-out =>IO39=>PG2
+#define LEE_SCL 40 // puerto de entrada para leer el estado de la lí­nea SCL       =>IO40=>PG1
+#define LEE_SDA 41 // puerto de entrada para leer el estado de la lí­nea SDA       =>IO41=>PG0
 
-#define PRIGHT 30	 // pulsador right
-#define PDOWN 31	 // "" down
-#define PLEFT 32	 // "" left
-#define PENTER 33	 // "" center
-#define PUP 34		 // "" up
-#define SPEAKER 37 // speaker
+#define pright 30	 // pulsador right
+#define pdown 31	 // "" down
+#define pleft 32	 // "" left
+#define pcenter 33 // "" center
+#define pup 34		 // "" up
+#define speaker 37 // speaker
 
 #define D4 0xFE		// 1111 1110 unidades
 #define D3 0xFD		// 1111 1101 decenas
 #define D2 0xFB		// 1111 1011 centenas
 #define D1 0xF7		// 1111 0111 millares
 #define DOFF 0xFF // 1111 1111 apagado: todos los cátados comunes a "1"
-#define DON 0xF0	// 1111 0000   todos los cátados comunes a "0"
+#define DON 0xC0	// 1111 0000   todos los cátados comunes a "0"
 
 // Definición de las teclas del nuevo teclado
 char teclado_map[][3] = {{'1', '2', '3'},
@@ -34,872 +34,863 @@ char teclado_map[][3] = {{'1', '2', '3'},
 												 {'7', '8', '9'},
 												 {'*', '0', '#'}};
 
-// Declaración de variables práctica 1 y 2
-// Variables de la función count()
-volatile int tec_config = 0;
-volatile int tec_vis = 0;
-char option;
-volatile int opcion_hora = 0;
-volatile int opcion_fecha = 0;
-volatile int valor;
-volatile int configuracion = 0;
-
-// Switch de la interrupción
-volatile int digit;
-// Lectura del teclado
-volatile int row;
-byte pinesFilas[] = {42, 43, 44, 45};
-byte pinesColumnas[] = {47, 48, 49};
-// Variables de onda
-
-int tabla_7seg[] = {
-		0X3F, 0x06, 0x5B, 0x4F,
-		0x66, 0x6D, 0x7D, 0x07,
-		0x7F, 0x6F, 0x77, 0x7C,
-		0x39, 0x5E, 0x79, 0x71};
-
-// Declaración de variables i2c
-char hexadecimal[16] = {
-		'0', '1', '2', '3', // 0, 1, 2, 3
-		'4', '5', '6', '7', // 4, 5, 6, 7
-		'8', '9', 'A', 'B', // 8, 9, A, B
-		'C', 'D', 'E', 'F'	// C, D, E, F
-};
-
-int opcion = 0;
-int address;
-int inicial;
-int final;
-int matriz[256];
-
-// Variables LCD y RTC DS3232
-volatile int flag_alarma = 0;
+boolean alarm1 = false;
+boolean alarm2 = false;
+String mes[] = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN",
+								"JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
+int digit = 0;
+int mode = 0;
+String buffer = "";
+boolean modo = false;
+boolean modoext = false;
 
 // Setup
 void setup()
 {
-	// put your setup code here, to run once:
-	// habilitar canal TX0/RX0, canal de comunicaciones serie con el virtual terminal.
 	Serial.begin(9600);
-
-	digitalWrite(ESC_SCL, HIGH);
-	digitalWrite(ESC_SDA, HIGH);
 	pinMode(LEE_SDA, INPUT);
 	pinMode(LEE_SCL, INPUT);
 	pinMode(ESC_SDA, OUTPUT);
 	pinMode(ESC_SCL, OUTPUT);
+	digitalWrite(ESC_SCL, HIGH);
+	digitalWrite(ESC_SDA, HIGH);
 
-	// PORTA: Segmentos a-f
 	DDRA = 0xFF;	// PORTA de salida
 	PORTA = 0xFF; // activamos segmentos a-g
 
-	// PORTL[7:4]: filas del teclado
 	DDRL = 0x0F;	// input;
-	PORTL = 0xFF; // pull-up activos, cátodos/columnas teclado desactivadas
+	PORTL = 0xFF; // pull-up activos, c?todos/columnas teclado desactivadas
 
-	// PORTC: Pulsadores y altavoz
 	DDRC = 0x01;	// PC7:1 input: PC0: output-speaker
 	PORTC = 0xFE; // pull-up activos menos el speaker que es de salida
 
-	// Asignación de valor a variables
-
-	// Prueba del la pantalla LCD
-	// habilitar canal TX3/RX3, canal de comunicaciones serie con la pantalla LCD (MILFORD 4x20 BKP)
 	Serial3.begin(9600); // canal 3, 9600 baudios,
-											 //  8 bits, no parity, 1 stop bit
 
-	Serial3.write(0xFE);
-	Serial3.write(0x01); // Clear Screen
-	delay(100);
+	cli();
+	TCCR3A = 0; // Registro funcional del modo
+	TCCR3B = 0; // Registro funcional del modo
+	TCNT3 = 0;	// Registro funcional del contador
 
-	pinMode(5, OUTPUT);
-	pinMode(2, OUTPUT);
-	pinMode(3, OUTPUT);
-	pinMode(21, INPUT);
+	ICR3 = 31249; // TOP definido
+	OCR3A = 12499;
 
-	// Timer 1: Modo 15 (Fast PWM, TOP = OCR1A), N=1024
-	cli(); // Deshabilitamos las interrupciones
-	TCCR1A = 0;
-	TCCR1B = 0;
-	TCCR1C = 0;
-	TCNT1 = 0;
+	TCCR3A = B10000010; // modo 15
+	TCCR3B = B00011100; // modo 15, N = 256
+	TIMSK3 |= (1 << OCIE3A);
+	sei();
+	//---------------------------------------------------
+	cli();
+	TCCR1A = 0; // Registro funcional del modo
+	TCCR1B = 0; // Registro funcional del modo
+	TCNT1 = 0;	// Registro funcional del contador
 
-	OCR1A = 7812;
-	OCR1B = 0;
-	OCR1C = 0;
+	OCR1A = 1249; // TOP definido
 
-	TCCR1A = B00000011;
-	TCCR1B = B00011101;
-
-	TIMSK1 = B00000001;
-	TIFR1 = B00000010;
-
-	// Timer 3: Modo 4 (CTC, TOP = OCR3A), N= 64
-	TCCR3A = TCCR3B = TCCR3C = 0;
-	TCNT3 = 0;
-	OCR3A = 1249;
-	OCR3B = 0;
-	OCR3C = 0;
-
-	TCCR3A = B01010100;
-	TCCR3B = B00001011;
-
-	TIMSK3 = B00000010;
-	TIFR3 = B00000001;
-
-	EICRA |= B00000010;
+	TCCR1A = B00000100; // modo 4
+	TCCR1B = B00001011; // modo 4, N = 64
+	TIMSK1 = B00000001; // habilitar interrupcion por overflow
+	sei();
+	//---------------------------------------------------
+	cli();
+	EICRA |= (1 << ISC01) | (0 << ISC00);
 	EIMSK |= (1 << INT0);
 	sei();
 
-	/*
-	attachInterrupt(digitalPinToInterrupt(21), ISR_INT0,  FALLING);
-	*/
-
-	// Alarmas
-	writeDirByte(B10000000, 0x0A);
-	writeDirByte(B10000000, 0x0D);
-
-	Serial.println("Seleccione por el teclado matricial:");
-	Serial.println("- #* Modo visualizacion");
-	Serial.println("- *# Modo configuracion");
+	write_memoria(0x0E, B00011111);
+	write_memoria(0x0D, B10000000);
+	write_memoria(0x0A, B10000000);
 }
 
-void loop()
-{
-	opciones();
-	sonido_alarma();
-}
+//-------------------------------------------------------------------------------------
+//--------------funciones basicas------------------------------------------------
+//--------------------------------------------------------------------------------------
 
-void sonido_alarma()
-{
-	if (flag_alarma == 1)
-	{
-		for (int i = 0; i < 100; i++)
-		{
-			tone(37, 200, 100);
-			delay(50);
-		}
-		flag_alarma = 0;
-	}
-}
-
-// Parte práctica 4
-byte rtcHigh(byte nbyte)
-{
-	byte a = (nbyte >> 4);
-	return a;
-}
-
-byte rtcLow(byte nbyte)
-{
-	byte b = (nbyte << 4);
-	b = (b >> 4);
-	return b;
-}
-
-byte bcdByte(int newInt)
-{
-	byte tmp = newInt % 10;
-	tmp |= (int(newInt / 10) % 10) << 4;
-	return tmp;
-}
-
-void menu1()
-{
-	Serial3.write(0xFE);
-	Serial3.write(0xC0); // posicionarse en linea 2
-	Serial3.write("Alarm");
-	delay(10); // linea 2
-
-	Serial3.write(0xFE);
-	Serial3.write(0xCE); // posicionarse en linea 2
-	Serial3.write("T=");
-	delay(10); // linea 2
-
-	Serial3.write(0xFE);
-	Serial3.write(0xD3); // posicionarse en linea 2
-	Serial3.write("C");
-	delay(10); // linea 2
-
-	Serial3.write(0xFE);
-	Serial3.write(0x4D); // posicionarse en linea 2
-	Serial3.write("T=");
-	delay(10); // linea 2
-
-	Serial3.write(0xFE);
-	Serial3.write(0xA1); // posicionarse en linea 3
-	Serial3.write("DDMMYY");
-	delay(10); // linea 3
-}
-
-void menu()
-{
-	Serial.println("");
-	Serial.println("*** Menu de configuracion ***");
-	Serial.println("1.- Ajustar hora");
-	Serial.println("2.-Ajustar fecha");
-	Serial.println("");
-	Serial.println("3.-Configurar alarma 1");
-	Serial.println("4.-Alarma 1 ON");
-	Serial.println("5.-Alarma  1 OFF");
-	Serial.println("");
-	Serial.println("6.-Configurar alarma 2");
-	Serial.println("7.-Alarma 2 ON");
-	Serial.println("8.-Alarma 2 OFF");
-	Serial.println("");
-	Serial.println("9.-Apagar sonido de alarmas 1 y 2");
-	Serial.println("Entrar opcion: ");
-}
-
-void menu_hora()
-{
-	Serial.println("");
-	Serial.println("1.- Ajustar segundos");
-	Serial.println("2.-Ajustar minutos");
-	Serial.println("3.- Ajustar horas");
-	Serial.println("4.-Salir al menu de opciones");
-}
-
-void menu_fecha()
-{
-	Serial.println("");
-	Serial.println("1.- Ajustar dia");
-	Serial.println("2.-Ajustar mes ");
-	Serial.println("3.- Ajustar ano");
-	Serial.println("4.-Salir al menu de opciones");
-}
-
-void menu_alarma()
-{
-	Serial.println("");
-	Serial.println("1.-Ajustar minutos");
-	Serial.println("2.- Ajustar horas");
-	Serial.println("3.-Salir al menu de opciones");
-}
-
-// Parte de la práctica 1 y 2
-
-// Actualización del contador en función delas teclas pulsadas
-void modificador(char key)
-{
-	switch (key)
-	{
-	case '#':
-		if (tec_config == 1)
-		{
-			Serial.println("Entrada en modo configuracion");
-			Serial.println("-----------------------------------------");
-			menu();
-			tec_config = 0;
-			configuracion = 1;
-		}
-		else
-		{
-			tec_vis = 1;
-		}
-		break;
-	case '*':
-		if (tec_vis == 1)
-		{
-			Serial.println("Entrada en modo visualizacion");
-			tec_vis = 0;
-			configuracion = 0;
-		}
-		else
-		{
-			tec_config = 1;
-		}
-		break;
-	default:
-		tec_config = 0;
-		tec_vis = 0;
-		break;
-	}
-}
-
-// Seleccionar opcion
-void opciones()
-{
-	if (configuracion == 1)
-	{
-		if (Serial.available() > 0)
-		{
-			opcion = Serial.parseInt();
-		}
-		switch (opcion)
-		{
-		case 1:
-			menu_hora();
-			while (Serial.available() == 0)
-			{
-			}
-			opcion_hora = Serial.parseInt();
-			switch (opcion_hora)
-			{
-
-			case 1:
-				Serial.println("Introduce unos segundos validos(0-60):");
-				while (Serial.available() == 0)
-				{
-				}
-				valor = Serial.parseInt();
-				Serial.println(valor);
-				if (valor < 60 && valor >= 0)
-				{
-					writeDirByte(bcdByte(valor), 0x00);
-				}
-				else
-				{
-					Serial.println("Minutos no validos");
-				}
-				break;
-
-			case 2:
-				Serial.println("Introduce unos minutos validos(0-60):");
-				while (Serial.available() == 0)
-				{
-				}
-				valor = Serial.parseInt();
-				Serial.println(valor);
-				if (valor < 60 && valor >= 0)
-				{
-					writeDirByte(bcdByte(valor), 0x01);
-				}
-				else
-				{
-					Serial.println("Minutos no validos");
-				}
-				break;
-
-			case 3:
-				Serial.println("Introduce una hora valida(0-24):");
-				while (Serial.available() == 0)
-				{
-				}
-				valor = Serial.parseInt();
-				Serial.println(valor);
-				if (valor < 24 && valor >= 0)
-				{
-					writeDirByte(bcdByte(valor), 0x02);
-				}
-				else
-				{
-					Serial.println("Hora no valida");
-				}
-				break;
-			case 4:
-				Serial.println("Salir del ajuste");
-				Serial.println("---------------------------------");
-				menu();
-				opcion = 0;
-				break;
-			}
-			break;
-
-		case 2:
-			menu_fecha();
-			while (Serial.available() == 0)
-			{
-			}
-			opcion_fecha = Serial.parseInt();
-			switch (opcion_fecha)
-			{
-			case 1:
-				Serial.println("Introduce un dia valido(0-31):");
-				while (Serial.available() == 0)
-				{
-				}
-				valor = Serial.parseInt();
-				Serial.println(valor);
-				if (valor < 32 && valor >= 0)
-				{
-					writeDirByte(bcdByte(valor), 0x04);
-				}
-				else
-				{
-					Serial.println("Dia no valido");
-				}
-				break;
-			case 2:
-				Serial.println("Introduce un valor de mes valido:");
-				while (Serial.available() == 0)
-				{
-				}
-				valor = Serial.parseInt();
-				Serial.println(valor);
-				if (valor <= 12 && valor >= 0)
-				{
-					writeDirByte(bcdByte(valor), 0x05);
-				}
-				else
-				{
-					Serial.println("Mes no valido");
-				}
-				break;
-			case 3:
-				Serial.println("Introduce un valor de ano valido:");
-				while (Serial.available() == 0)
-				{
-				}
-				valor = Serial.parseInt();
-				Serial.println(valor);
-				if (valor < 10000 && valor >= 0)
-				{
-					writeDirByte(bcdByte(valor), 0x06);
-				}
-				else
-				{
-					Serial.println("Ano no valido");
-				}
-				break;
-			case 4:
-				Serial.println("Salir del ajuste");
-				Serial.println("---------------------------------");
-				menu();
-				opcion = 0;
-				break;
-			}
-			break;
-
-		case 3:
-			Serial.print("");
-			Serial.print("Configuracion de alarma 1");
-			menu_alarma();
-			while (Serial.available() == 0)
-			{
-			}
-			opcion_hora = Serial.parseInt();
-			switch (opcion_hora)
-			{
-			case 1:
-				Serial.println("Introduce unos minutos validos(0-60):");
-				while (Serial.available() == 0)
-				{
-				}
-				valor = Serial.parseInt();
-				Serial.println(valor);
-				if (valor < 60 && valor >= 0)
-				{
-					writeDirByte(bcdByte(valor), 0x08);
-				}
-				else
-				{
-					Serial.println("Minutos no validos");
-				}
-				break;
-
-			case 2:
-				Serial.println("Introduce una hora valida(0-24):");
-				while (Serial.available() == 0)
-				{
-				}
-				valor = Serial.parseInt();
-				Serial.println(valor);
-				if (valor < 24 && valor >= 0)
-				{
-					writeDirByte(bcdByte(valor), 0x09);
-				}
-				else
-				{
-					Serial.println("Hora no valida");
-				}
-				break;
-			case 3:
-				Serial.println("Salir del ajuste");
-				Serial.println("---------------------------------");
-				menu();
-				opcion = 0;
-				break;
-			}
-			break;
-
-		case 4:
-			writeDirByte(((B00000001) | readDir(0x0E)), 0x0E);
-			menu();
-			opcion = 0;
-			break;
-
-		case 5:
-			Serial.println("Alarma 1 OFF");
-			writeDirByte(((B11111110)&readDir(0x0E)), 0x0E);
-			menu();
-			opcion = 0;
-			break;
-
-		case 6:
-			Serial.print("");
-			Serial.print("Configuracion de alarma 2");
-			menu_alarma();
-			while (Serial.available() == 0)
-			{
-			}
-			opcion_hora = Serial.parseInt();
-			switch (opcion_hora)
-			{
-			case 1:
-				Serial.println("Introduce unos minutos validos(0-60):");
-				while (Serial.available() == 0)
-				{
-				}
-				valor = Serial.parseInt();
-				Serial.println(valor);
-				if (valor < 60 && valor >= 0)
-				{
-					writeDirByte(bcdByte(valor), 0x0B);
-				}
-				else
-				{
-					Serial.println("Minutos no validos");
-				}
-				break;
-
-			case 2:
-				Serial.println("Introduce una hora valida(0-24):");
-				while (Serial.available() == 0)
-				{
-				}
-				valor = Serial.parseInt();
-				Serial.println(valor);
-				if (valor < 24 && valor >= 0)
-				{
-					writeDirByte(bcdByte(valor), 0x0C);
-				}
-				else
-				{
-					Serial.println("Hora no valida");
-				}
-				break;
-			case 3:
-				Serial.println("Salir del ajuste");
-				Serial.println("---------------------------------");
-				menu();
-				opcion = 0;
-				break;
-			}
-			break;
-
-		case 7:
-			Serial.println("Alarma 2 ON");
-			writeDirByte(((B00000010) | readDir(0x0E)), 0x0E);
-			menu();
-			opcion = 0;
-			break;
-
-		case 8:
-			Serial.println("Alarma 2 OFF");
-			writeDirByte(((B11111101)&readDir(0x0E)), 0x0E);
-			menu();
-			opcion = 0;
-			break;
-		}
-	}
-}
-
-// Función de lectura del teclado
-void teclado(int digit)
-{
-	if (digitalRead(42) == LOW)
-	{
-		while (digitalRead(42) == LOW)
-		{
-			delay(50);
-		}
-		row = 0;
-		modificador(teclado_map[row][digit]);
-	}
-	if (digitalRead(43) == LOW)
-	{
-		while (digitalRead(43) == LOW)
-		{
-			delay(50);
-		}
-		row = 1;
-		modificador(teclado_map[row][digit]);
-	}
-	if (digitalRead(44) == LOW)
-	{
-		while (digitalRead(44) == LOW)
-		{
-			delay(50);
-		}
-		row = 2;
-		modificador(teclado_map[row][digit]);
-	}
-	if (digitalRead(45) == LOW)
-	{
-		while (digitalRead(45) == LOW)
-		{
-			delay(50);
-		}
-		row = 3;
-		modificador(teclado_map[row][digit]);
-	}
-}
-
-// Parte de la práctica 3 i2c
-// FUNCIONES OPTIMIZADAS
-// Función start
 void i2c_start()
-{
+{ // funcion naive para start
 	digitalWrite(ESC_SCL, HIGH);
 	digitalWrite(ESC_SDA, HIGH);
 	digitalWrite(ESC_SCL, HIGH);
-	digitalWrite(ESC_SDA, HIGH); // Aquí habría que mirar que ambas estén a 1
+	digitalWrite(ESC_SDA, HIGH);
 	digitalWrite(ESC_SCL, HIGH);
 	digitalWrite(ESC_SDA, LOW); // Flanco de bajada =>Esto causa el start
 	digitalWrite(ESC_SCL, LOW);
 	digitalWrite(ESC_SDA, LOW); // Se pone para asegurarse de deja CLK a 0
 }
-// Función stop
+
 void i2c_stop()
-{
+{ // funcion naive para stop
 	digitalWrite(ESC_SCL, LOW);
+	digitalWrite(ESC_SDA, LOW);
+	digitalWrite(ESC_SCL, HIGH);
 	digitalWrite(ESC_SDA, LOW);
 	digitalWrite(ESC_SCL, HIGH);
 	digitalWrite(ESC_SDA, HIGH); // Flanco de subida =>Esto causa el stop
+	digitalWrite(ESC_SCL, HIGH);
+	digitalWrite(ESC_SDA, HIGH); // Si se quita sigue funcionando!
 }
-// Función que envía 1 bit
+
 void i2c_Ebit1()
-{
+{ // funcion naive enviar un 1
 	digitalWrite(ESC_SCL, LOW);
 	digitalWrite(ESC_SDA, HIGH);
 	digitalWrite(ESC_SCL, HIGH);
-	digitalWrite(ESC_SCL, LOW); // Se baja la señal de reloj para cerrar el ciclo
+	digitalWrite(ESC_SDA, HIGH);
+	digitalWrite(ESC_SCL, HIGH);
+	digitalWrite(ESC_SDA, HIGH); // Si se quita sigue funcionando!
+	digitalWrite(ESC_SCL, LOW);
+	digitalWrite(ESC_SDA, HIGH);
 }
-// Función que envía un 0
+
 void i2c_Ebit0()
-{
+{ // funcion naive enviar un 0
 	digitalWrite(ESC_SCL, LOW);
 	digitalWrite(ESC_SDA, LOW);
 	digitalWrite(ESC_SCL, HIGH);
-	digitalWrite(ESC_SCL, LOW); // Se baja la señal de reloj para cerrar el ciclo
+	digitalWrite(ESC_SDA, LOW);
+	digitalWrite(ESC_SCL, HIGH);
+	digitalWrite(ESC_SDA, LOW); // Si se quita sigue funcionando!
+	digitalWrite(ESC_SCL, LOW);
+	digitalWrite(ESC_SDA, LOW);
 }
 
-// Función que lee un bit
+void i2c_Ebit(bool val)
+{ // funcion naive enviar un bit
+	digitalWrite(ESC_SCL, LOW);
+	digitalWrite(ESC_SDA, val);
+	digitalWrite(ESC_SCL, HIGH);
+	digitalWrite(ESC_SDA, val);
+	digitalWrite(ESC_SCL, HIGH);
+	digitalWrite(ESC_SDA, val); // Si se quita sigue funcionando!
+	digitalWrite(ESC_SCL, LOW);
+	digitalWrite(ESC_SDA, val);
+}
+
 int i2c_Rbit()
-{
+{ // funcion naive leer un bit
 	digitalWrite(ESC_SCL, LOW);
 	digitalWrite(ESC_SDA, HIGH);
 	digitalWrite(ESC_SCL, HIGH);
-	int val = digitalRead(LEE_SDA); // Aqui se produce la lectura y se guarda en val
-	digitalWrite(ESC_SCL, LOW);			// Se baja la señal de reloj para cerrar el ciclo
-	return val;											// Aqui se devuelve val
+	digitalWrite(ESC_SDA, HIGH);
+	digitalWrite(ESC_SCL, HIGH);
+	int val = digitalRead(LEE_SDA); // Aqui se produce la lectura y se guarda en val!
+	digitalWrite(ESC_SCL, LOW);
+	digitalWrite(ESC_SDA, HIGH);
+	return val; // Aqui se devuelve val!
 }
 
-// FUNCIONES CON PROPOSITO DE AYUDA EN NUESTRAS OPCIONES
-//  Función que escribe un byte en el bus
-void writeByte(int dato)
-{
+//---------------------------------------------------------------------------------------------
+//------------------funciones medias----------------------------------------------------
+//---------------------------------------------------------------------------------------------
+
+void escribir_byte(byte dato)
+{ // funcion donde escribimos un byte
 	for (int i = 0; i < 8; i++)
 	{
-		if ((dato & 0x80) != 0)
-		{ // Determinamos si es un 1 o un 0
+		if ((dato & 128) != 0)
+		{ // vamos haciendo el and con 10000000 para ir printando cada bit
 			i2c_Ebit1();
 		}
 		else
 		{
-			i2c_Ebit0();
+			i2c_Ebit0(); // aqui marcamos si el resultado es 1 ponemos 1 y 0 en caso contrario
 		}
 		dato = dato << 1;
 	}
 }
 
-// Función que lee un byte del bus
-byte readByte()
-{
-	byte bRead = 0;
-	for (int i = 0; i < 8; i++)
-	{
-		bRead = (bRead << 1) | (i2c_Rbit() & 1);
+byte leer_byte()
+{ // en esta leemos un byte
+	byte dato = 0;
+	for (byte i = 0; i < 8; i++)
+	{ // usando la misma idea de ir leyendo bit por bit
+		dato = (dato << 1) | (i2c_Rbit() & 1);
 	}
-	return bRead;
+	return dato;
 }
 
-// Función que escribe un byte en una dirección concreta
-void writeDirByte(byte dato, byte direccion)
-{
-START:
+byte leer_memoria(int address)
+{ // leemos la memoria siguiendo el esquema
+r1:
 	i2c_start();
+	escribir_byte(B11010000); // con esto ponemos el byte de control
+	if (i2c_Rbit() != 0)
+	{
+		goto r1;
+	}
+	escribir_byte(address); // y aqui vamos a lower
+	if (i2c_Rbit() != 0)
+	{
+		goto r1;
+	} // todo esto era solo para poner el puntero, no vamosa escribir nada
+r2:
+	i2c_start();
+	escribir_byte(B11010001); // aqui es donde empezamos a leer de verdad
+	if (i2c_Rbit() != 0)
+	{
+		goto r2;
+	}
+	byte byteVal = leer_byte(); // y en esta linea vemos como usamos la funcion anterior
+	i2c_Ebit1();								// no ack
+	i2c_stop();
+	return byteVal;
+}
 
-	writeByte(0xD0);
+void write_memoria(int address, byte data)
+{ // en esta es donde escribimos el byte en una direccion dada
+w1:
+	i2c_start();
+	escribir_byte(B11010000); // B10100000 como byte de control
 	if (i2c_Rbit() != 0)
-	{
-		goto START;
-	}
-	writeByte(direccion);
+		goto w1;
+	escribir_byte(address);
 	if (i2c_Rbit() != 0)
-	{
-		goto START;
-	}
-	writeByte(dato);
+		goto w1;
+	escribir_byte(data); // y aqui finalmente es donde escribimos el byte
 	if (i2c_Rbit() != 0)
-	{
-		goto START;
-	}
-	// Stop
+		goto w1;
 	i2c_stop();
 }
 
-// Funcion que lee una dirección determinada
-byte readDir(int direccion)
+void escribir_mem_eeprom(int address, byte data)
 {
-read_start1:
+w1:
 	i2c_start();
-	// byte de control(1010->memorias/000->dir. disp/0->W)
-	writeByte(0xD0);
+	escribir_byte(0xA0); // A0 como byte de control
 	if (i2c_Rbit() != 0)
-	{
-		goto read_start1;
-	}
-
-	writeByte(direccion);
+		goto w1;
+	escribir_byte(address >> 8);
 	if (i2c_Rbit() != 0)
-	{
-		goto read_start1;
-	}
-
-read_start2:
-	i2c_start();
-	writeByte(0xD1);
+		goto w1;
+	escribir_byte(address & 0x00FF);
 	if (i2c_Rbit() != 0)
-	{
-		goto read_start2;
-	}
-
-	byte data = readByte();
-	i2c_Ebit1();
+		goto w1;
+	escribir_byte(data); // y aqui finalmente es donde escribimos el byte
+	if (i2c_Rbit() != 0)
+		goto w1;
 	i2c_stop();
-	return data;
+}
+
+byte leer_memoriaext(int address)
+{ // leemos la memoria siguiendo el esquema
+r1:
+	i2c_start();
+	escribir_byte(B10100000); // con esto ponemos el byte de control
+	if (i2c_Rbit() != 0)
+	{
+		goto r1;
+	}
+	escribir_byte(address >> 8); // desplazamos para coger lo mas significativo
+	if (i2c_Rbit() != 0)
+	{
+		goto r1;
+	}
+	escribir_byte(address & 0x00FF); // y aqui vamos a lower
+	if (i2c_Rbit() != 0)
+	{
+		goto r1;
+	} // todo esto era solo para poner el puntero, no vamosa escribir nada
+r2:
+	i2c_start();
+	escribir_byte(B10100001); // aqui es donde empezamos a leer de verdad
+	if (i2c_Rbit() != 0)
+	{
+		goto r2;
+	}
+	byte byteVal = leer_byte(); // y en esta linea vemos como usamos la funcion anterior
+	i2c_Ebit1();								// no ack
+	i2c_stop();
+	return byteVal;
+}
+//---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
+
+void leer_hora()
+{
+	String hora = String(leer_memoria(2), HEX);
+	if (hora.toInt() < 10)
+	{
+		hora = "0" + hora;
+	}
+	Serial3.print(hora);
+}
+
+void leer_minutos()
+{
+	String minutos = String(leer_memoria(1), HEX);
+	if (minutos.toInt() < 10)
+	{
+		minutos = "0" + minutos;
+	}
+	Serial3.print(minutos);
+}
+
+void leer_segundos()
+{
+	String segundos = String(leer_memoria(0), HEX);
+	if (segundos.toInt() < 10)
+	{
+		segundos = "0" + segundos;
+	}
+	Serial3.print(segundos);
+}
+
+void leer_temp()
+{
+	String temp = String(leer_memoria(17), DEC);
+	if (temp.toInt() < 0)
+	{
+		temp = "T=-" + temp + "C";
+	}
+	else
+	{
+		temp = "T=+" + temp + "C";
+	}
+	Serial3.print(temp);
+}
+
+void leer_dia()
+{
+	String dia = String(leer_memoria(4), HEX);
+	if (dia.toInt() < 10)
+	{
+		dia = "0" + dia;
+	}
+	Serial3.print(dia);
+}
+
+void leer_mes()
+{
+	int numes = leer_memoria(5) - 1;
+	String mesh = String(numes, HEX);
+	String mess = mes[mesh.toInt()];
+	Serial3.print(mess);
+}
+
+void leer_year()
+{
+	String year = String(leer_memoria(6), HEX);
+	if (year.toInt() < 10)
+	{
+		year = "0" + year;
+	}
+	Serial3.print(year);
+}
+
+void leer_alarm1()
+{
+	String alarma1 = String(leer_memoria(9), HEX);
+	if (alarma1.toInt() < 10)
+	{
+		alarma1 = "0" + alarma1;
+	}
+	cursor(3, 0);
+	Serial3.print(alarma1);
+	cursor(3, 2);
+	Serial3.print(":");
+	alarma1 = String(leer_memoria(8), HEX);
+	if (alarma1.toInt() < 10)
+	{
+		alarma1 = "0" + alarma1;
+	}
+	cursor(3, 3);
+	Serial3.print(alarma1);
+	if (alarm1 == true)
+	{
+		Serial3.write("*");
+	}
+	else
+	{
+		Serial3.write(" ");
+	}
+}
+
+void leer_alarm2()
+{
+	String alarma2 = String(leer_memoria(0x0C), HEX);
+	if (alarma2.toInt() < 10)
+	{
+		alarma2 = "0" + alarma2;
+	}
+	cursor(4, 0);
+	Serial3.print(alarma2);
+	cursor(4, 2);
+	Serial3.print(":");
+	alarma2 = String(leer_memoria(0x0B), HEX);
+	if (alarma2.toInt() < 10)
+	{
+		alarma2 = "0" + alarma2;
+	}
+	cursor(4, 3);
+	Serial3.print(alarma2);
+	if (alarm2 == true)
+	{
+		Serial3.write("*");
+	}
+	else
+	{
+		Serial3.write(" ");
+	}
+}
+
+void leer_7()
+{
+	String siete = String(leer_memoriaext(7));
+	if (siete.toInt() < 10)
+	{
+		siete = "0" + siete;
+	}
+	Serial3.print(siete);
+}
+
+void leer_8()
+{
+	String ocho = String(leer_memoriaext(8));
+	if (ocho.toInt() < 10)
+	{
+		ocho = "0" + ocho;
+	}
+	Serial3.print(ocho);
+}
+
+void leer_9()
+{
+	String nueve = String(leer_memoriaext(9));
+	if (nueve.toInt() < 10)
+	{
+		nueve = "0" + nueve;
+	}
+	Serial3.print(nueve);
+}
+
+void leer_10()
+{
+	String diez = String(leer_memoriaext(0xA));
+	if (diez.toInt() < 10)
+	{
+		diez = "0" + diez;
+	}
+	Serial3.print(diez);
+}
+
+String leer_horatemp()
+{
+	String horatemp = String(leer_memoria(2), HEX);
+	if (horatemp.toInt() < 10)
+	{
+		horatemp = "0" + horatemp;
+	}
+	String minutostemp = String(leer_memoria(1), HEX);
+	if (minutostemp.toInt() < 10)
+	{
+		minutostemp = "0" + minutostemp;
+	}
+	String segundostemp = String(leer_memoria(0), HEX);
+	if (segundostemp.toInt() < 10)
+	{
+		segundostemp = "0" + segundostemp;
+	}
+	String temptemp = String(leer_memoria(17), DEC);
+	if (temptemp.toInt() < 0)
+	{
+		temptemp = "-" + temptemp;
+	}
+	else
+	{
+		temptemp = "+" + temptemp;
+	}
+	String horat = horatemp + ":" + minutostemp + ":" + segundostemp + "#" + temptemp + "#";
+	return horat;
+}
+
+void escribir_horatemp(String horatemperatura)
+{
+	for (int n = 0; n < horatemperatura.length(); n++)
+	{
+		escribir_mem_eeprom(n, horatemperatura[n]);
+	}
+}
+
+void cursor(int fila, byte columna)
+{
+	if (fila == 1)
+	{
+		Serial3.write(0xFE);
+		Serial3.write(128 + columna);
+	}
+	if (fila == 2)
+	{
+		Serial3.write(0xFE);
+		Serial3.write(192 + columna);
+	}
+	if (fila == 3)
+	{
+		Serial3.write(0xFE);
+		Serial3.write(148 + columna);
+	}
+	if (fila == 4)
+	{
+		Serial3.write(0xFE);
+		Serial3.write(212 + columna);
+	}
+}
+
+void teclado(int columna)
+{
+	int val = PINL >> 4;
+	if (val == 15)
+	{
+		return;
+	}
+	while ((PINL >> 4) != 15)
+	{
+	}
+	switch (val)
+	{
+	case 7:
+		buffer = buffer + teclado_map[0][columna]; // 0111 se pulsa la primera fila
+		break;
+	case 11:
+		buffer = buffer + teclado_map[1][columna]; // 1011 se pulsa la segunda fila
+		break;
+	case 13:
+		buffer = buffer + teclado_map[2][columna]; // 1101 se pulsa la tercera fila
+		break;
+	case 14:
+		buffer = buffer + teclado_map[3][columna]; // 1110 se pulsa la cuarta fila
+		break;
+	}
+}
+
+void comprobar_teclado()
+{
+	if (buffer == "#*")
+	{ // si se han pulsado 3 numeros y el #
+		modo = false;
+		buffer = "";
+		Serial.write(12);
+	}
+	else if (buffer == "*#")
+	{ // si se han pulsado 2 numeros y el #
+		modo = true;
+		buffer = "";
+	}
+	else if (buffer == "*2")
+	{ // si se han pulsado 2 numeros y el #
+		modoext = true;
+		buffer = "";
+	}
+	else if (buffer == "*0")
+	{ // si se han pulsado 2 numeros y el #
+		modoext = false;
+		buffer = "";
+	}
+}
+
+void menu()
+{
+menu:
+	Serial.println("1.- Ajustar hora");
+	Serial.println("2.- Ajustar fecha");
+	Serial.println("3.- Ajustar alarma 1");
+	Serial.println("4.- Ajustar alarma 2");
+	Serial.println("5.- Guardar hora y temperatura");
+	Serial.println("----");
+	Serial.println("Entrar la opción: ");
+	while (Serial.available() == 0 && modo == true)
+	{
+	}
+	int mode1 = Serial.parseInt();
+	Serial.println(mode1);
+	Serial.println("");
+	if (mode1 == 1)
+	{
+		Serial.println("1.- Hora");
+		Serial.println("2.- Minuto");
+		Serial.println("3.- Segundo");
+		Serial.println("4.- Exit");
+		while (Serial.available() == 0)
+		{
+		}
+		int mode2 = Serial.parseInt();
+		if (mode2 == 1)
+		{
+			Serial.println("Introducir hora: ");
+			while (Serial.available() == 0)
+			{
+			}
+			int hora = Serial.parseInt();
+			hora = ((hora / 10) * 16) + (hora % 10);
+			write_memoria(2, hora);
+		}
+		if (mode2 == 2)
+		{
+			Serial.println("Introducir min: ");
+			while (Serial.available() == 0)
+			{
+			}
+			int minuto = Serial.parseInt();
+			minuto = ((minuto / 10) * 16) + (minuto % 10);
+			write_memoria(1, minuto);
+		}
+		if (mode2 == 3)
+		{
+			Serial.println("Introducir seg: ");
+			while (Serial.available() == 0)
+			{
+			}
+			int segundo = Serial.parseInt();
+			segundo = ((segundo / 10) * 16) + (segundo % 10);
+			write_memoria(0, segundo);
+		}
+		if (mode2 == 4)
+		{
+			goto menu;
+		}
+	}
+	if (mode1 == 2)
+	{
+		Serial.println("1.- Dia");
+		Serial.println("2.- Mes");
+		Serial.println("3.- Year");
+		Serial.println("4.- Exit");
+		while (Serial.available() == 0)
+		{
+		}
+		int mode3 = Serial.parseInt();
+		if (mode3 == 1)
+		{
+			Serial.println("Introducir dia: ");
+			while (Serial.available() == 0)
+			{
+			}
+			int dia = Serial.parseInt();
+			dia = ((dia / 10) * 16) + (dia % 10);
+			write_memoria(4, dia);
+		}
+		if (mode3 == 2)
+		{
+			Serial.println("Introducir mes: ");
+			while (Serial.available() == 0)
+			{
+			}
+			int mes = Serial.parseInt();
+			write_memoria(5, mes);
+		}
+		if (mode3 == 3)
+		{
+			Serial.println("Introducir year: ");
+			while (Serial.available() == 0)
+			{
+			}
+			int year = Serial.parseInt();
+			year = ((year / 10) * 16) + (year % 10);
+			write_memoria(6, year);
+		}
+		if (mode3 == 4)
+		{
+			goto menu;
+		}
+	}
+	if (mode1 == 3)
+	{
+	alarma1:
+		Serial.println("1.- Hora");
+		Serial.println("2.- Minuto");
+		Serial.println("3.- ON");
+		Serial.println("4.- OFF");
+		Serial.println("5.- Exit");
+		while (Serial.available() == 0)
+		{
+		}
+		int mode4 = Serial.parseInt();
+		if (mode4 == 1)
+		{
+			Serial.println("Introducir hora: ");
+			while (Serial.available() == 0)
+			{
+			}
+			int hora = Serial.parseInt();
+			hora = ((hora / 10) * 16) + (hora % 10);
+			Serial.print(hora);
+			write_memoria(9, hora);
+			goto alarma1;
+		}
+		if (mode4 == 2)
+		{
+			Serial.println("Introducir min: ");
+			while (Serial.available() == 0)
+			{
+			}
+			int minuto = Serial.parseInt();
+			minuto = ((minuto / 10) * 16) + (minuto % 10);
+			write_memoria(8, minuto);
+			goto alarma1;
+		}
+		if (mode4 == 3)
+		{
+			alarm1 = true;
+			goto menu;
+		}
+		if (mode4 == 4)
+		{
+			alarm1 = false;
+			goto menu;
+		}
+		if (mode4 == 5)
+		{
+			goto menu;
+		}
+	}
+	if (mode1 == 4)
+	{
+	alarma2:
+		Serial.println("1.- Hora");
+		Serial.println("2.- Minuto");
+		Serial.println("3.- ON");
+		Serial.println("4.- OFF");
+		Serial.println("5.- Exit");
+		while (Serial.available() == 0)
+		{
+		}
+		int mode5 = Serial.parseInt();
+		if (mode5 == 1)
+		{
+			Serial.println("Introducir hora: ");
+			while (Serial.available() == 0)
+			{
+			}
+			int hora = Serial.parseInt();
+			hora = ((hora / 10) * 16) + (hora % 10);
+			write_memoria(0x0C, hora);
+			goto alarma2;
+		}
+		if (mode5 == 2)
+		{
+			Serial.println("Introducir min: ");
+			while (Serial.available() == 0)
+			{
+			}
+			int minuto = Serial.parseInt();
+			minuto = ((minuto / 10) * 16) + (minuto % 10);
+			write_memoria(0x0B, minuto);
+			goto alarma2;
+		}
+		if (mode5 == 3)
+		{
+			cursor(3, 5);
+			Serial3.write("*");
+			alarm2 = true;
+			goto menu;
+		}
+		if (mode5 == 4)
+		{
+			cursor(3, 5);
+			Serial3.write(" ");
+			alarm2 = false;
+			goto menu;
+		}
+		if (mode5 == 5)
+		{
+			goto menu;
+		}
+	}
+	if (mode1 == 5)
+	{
+		String hhmmsstt = leer_horatemp();
+		escribir_horatemp(hhmmsstt);
+	}
+}
+ISR(TIMER3_COMPA_vect)
+{
+	Serial3.write(0xFE); // inicio de comunicacion con al lcd
+	Serial3.write(0x01); // clear pantalla lcd
+	Serial3.write(0xFE);
+	Serial3.write(0x00);
+	if (!modoext)
+	{
+		cursor(1, 5);
+		leer_hora();
+		Serial3.write(":");
+		leer_minutos();
+		Serial3.write(":");
+		leer_segundos();
+		cursor(2, 0);
+		Serial3.write("ALARM");
+	}
+	else
+	{
+		cursor(1, 0);
+		leer_7();
+		cursor(1, 3);
+		leer_8();
+		cursor(1, 6);
+		leer_9();
+		cursor(1, 9);
+		leer_10();
+	}
+
+	cursor(2, 13);
+	leer_temp();
+
+	cursor(3, 13);
+	Serial3.write("DDMMMYY");
+
+	cursor(4, 13);
+	leer_dia();
+	leer_mes();
+	leer_year();
+
+	leer_alarm1();
+
+	leer_alarm2();
 }
 
 ISR(TIMER1_OVF_vect)
 {
-
-	Serial3.write(0xFE);
-	Serial3.write(128);
-	byte segundos = readDir(0x00);
-	byte minutos = readDir(0x01);
-	byte hora = readDir(0x02);
-	byte dia = readDir(0x04);
-	byte mes = readDir(0x05);
-	byte year = readDir(0x06);
-	byte alarmM1 = readDir(0x08);
-	byte alarmH1 = readDir(0x09);
-	byte alarmM2 = readDir(0x0B);
-	byte alarmH2 = readDir(0x0C);
-	byte temp = readDir(0x11);
-	mes = rtcHigh(mes) * 10 + rtcLow(mes);
-	String meses[12] = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
-
-	// Escribimos hora
-
-	Serial3.print("     ");
-	Serial3.print(rtcHigh(hora));
-	Serial3.print(rtcLow(hora));
-	Serial3.write(":");
-	Serial3.print(rtcHigh(minutos));
-	Serial3.print(rtcLow(minutos));
-	Serial3.write(":");
-	Serial3.print(rtcHigh(segundos));
-	Serial3.print(rtcLow(segundos));
-	Serial3.print("       ");
-
-	// Linea 3
-	Serial3.write(0xFE);
-	Serial3.write(148);
-	// alarma 1
-	Serial3.print(rtcHigh(alarmH1)); // Digitos hora
-	Serial3.print(rtcLow(alarmH1));
-	Serial3.write(":");
-	Serial3.print(rtcHigh(alarmM1)); // Digitos minutos
-	Serial3.print(rtcLow(alarmM1));
-	// Serial3.print();  // Marcador activación
-	if (((B00000001)&readDir(0x0E)) == B00000001)
-	{
-		Serial3.write("*");
-	}
-	else
-	{
-		Serial3.write(" ");
-	}
-	Serial3.write("       DDMMMYY");
-
-	// Escribimos Temperatura
-	Serial3.write(0xFE);
-	Serial3.write(192); // posicionarse en linea 2
-	Serial3.write("ALARM         T=");
-	if (temp & (1 << 7))
-	{ // Comprobar el bit de signo (bit más significativo)
-		Serial3.write("-");
-		temp = ~(temp - 1); // Invertir todos los bits y restarle 1
-	}
-	else
-	{
-		Serial3.write("+");
-	}
-	Serial3.print(temp); // Digitos temperatura
-	Serial3.print("C");
-
-	// Linea 4
-	Serial3.write(0xFE);
-	Serial3.write(212);
-	// Alarma 2
-	Serial3.print(rtcHigh(alarmH2)); // Digitos hora
-	Serial3.print(rtcLow(alarmH2));
-	Serial3.write(":");
-	Serial3.print(rtcHigh(alarmM2)); // Digitos minutos
-	Serial3.print(rtcLow(alarmM2));
-	// Serial3.print();  // Marcador activación
-	if (((B00000010)&readDir(0x0E)) == B00000010)
-	{
-		Serial3.write("*");
-	}
-	else
-	{
-		Serial3.write(" ");
-	}
-	Serial3.write("       ");
-	// Escribimos fecha
-	Serial3.print(rtcHigh(dia));
-	Serial3.print(rtcLow(dia));
-	Serial3.print(meses[mes - 1]);
-	Serial3.print(rtcHigh(year));
-	Serial3.print(rtcLow(year));
-}
-
-ISR(TIMER3_COMPA_vect)
-{
-	PORTL = 0xFF;
-	PORTA = 0;
+	PORTL = DOFF;
 	switch (digit)
 	{
 	case 0:
-		PORTL = 0xFE;
-		teclado(0);
+		PORTL = D4;
+		teclado(digit);
 		digit++;
 		break;
 	case 1:
-		PORTL = 0xFD;
-		teclado(1);
+		PORTL = D3;
+		teclado(digit);
 		digit++;
 		break;
 	case 2:
-		PORTL = 0xFB;
-		teclado(2);
-		digit++;
-		break;
-	case 3:
-		PORTL = 0xF7;
+		PORTL = D2;
+		teclado(digit);
 		digit = 0;
 		break;
 	}
+	comprobar_teclado();
 }
 
 ISR(INT0_vect)
 {
-	/*
-	flag_alarma = 1;
-	Serial.println(flag_alarma);
-	*/
-	tone(37, 200, 10000);
+	if (alarm1 == true && alarm2 == false)
+	{
+		write_memoria(0x0F, B11001000);
+		tone(37, 250, 1000);
+	}
+	if (alarm1 == false && alarm2 == true)
+	{
+		write_memoria(0x0F, B11001000);
+		tone(37, 250, 1000);
+	}
+	if (alarm1 == true && alarm2 == true)
+	{
+		write_memoria(0x0F, B11001000);
+		tone(37, 250, 1000);
+	}
+}
+void loop()
+{
+	if (modo == true)
+	{
+		menu();
+	}
 }
