@@ -95,6 +95,9 @@ void setup()
 	write_memoria(0x0E, B00011111);
 	write_memoria(0x0D, B10000000);
 	write_memoria(0x0A, B10000000);
+	delay(200);
+	Serial.println("- *# Entrar modo configuracion");
+	Serial.println("- #* Salir modo visualizacion");
 }
 
 // Funciones basicas
@@ -171,10 +174,7 @@ int i2c_Rbit()
 	return val; // Aqui se devuelve val!
 }
 
-//---------------------------------------------------------------------------------------------
-//------------------funciones medias----------------------------------------------------
-//---------------------------------------------------------------------------------------------
-
+// Funciones medias
 void escribir_byte(byte dato)
 { // funcion donde escribimos un byte
 	for (int i = 0; i < 8; i++)
@@ -294,8 +294,6 @@ r2:
 	i2c_stop();
 	return byteVal;
 }
-//---------------------------------------------------------------------------------------------
-//---------------------------------------------------------------------------------------------
 
 void leer_hora()
 {
@@ -426,7 +424,7 @@ void leer_alarm2()
 }
 
 void leer_7()
-{
+{ // leemos la memoria en la posicion 7
 	String siete = String(leer_memoriaext(7));
 	if (siete.toInt() < 10)
 	{
@@ -436,7 +434,7 @@ void leer_7()
 }
 
 void leer_8()
-{
+{ // leemos la memoria en la posicion 8
 	String ocho = String(leer_memoriaext(8));
 	if (ocho.toInt() < 10)
 	{
@@ -446,7 +444,7 @@ void leer_8()
 }
 
 void leer_9()
-{
+{ // leemos la memoria en la posicion 9
 	String nueve = String(leer_memoriaext(9));
 	if (nueve.toInt() < 10)
 	{
@@ -456,7 +454,7 @@ void leer_9()
 }
 
 void leer_10()
-{
+{ // leemos la memoria en la posicion 10
 	String diez = String(leer_memoriaext(0xA));
 	if (diez.toInt() < 10)
 	{
@@ -793,6 +791,7 @@ menu:
 		escribir_horatemp(hhmmsstt);
 	}
 }
+
 ISR(TIMER3_COMPA_vect)
 {
 	Serial3.write(0xFE); // inicio de comunicacion con al lcd
@@ -838,7 +837,7 @@ ISR(TIMER3_COMPA_vect)
 	leer_alarm2();
 }
 
-ISR(TIMER1_COMPA_vect)
+ISR(TIMER1_OVF_vect)
 {
 	PORTL = DOFF;
 	switch (digit)
