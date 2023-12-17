@@ -27,10 +27,11 @@
 #define DON 0xC0	// 1111 0000   todos los cátados comunes a "0"
 
 // Definición de las teclas del nuevo teclado
-char keyboard_map[][3] = {{'1', '2', '3'},
-													{'4', '5', '6'},
-													{'7', '8', '9'},
-													{'*', '0', '#'}};
+char keyboard_map[][3] = {
+		{'1', '2', '3'},
+		{'4', '5', '6'},
+		{'7', '8', '9'},
+		{'*', '0', '#'}};
 
 int map_7seg[] = {0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7F, 0x6F};
 String months[] = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
