@@ -1,9 +1,8 @@
-
 // Declaración de variables
-#define LEE_SCL 40 // puerto de entrada para leer el estado de la línea SCL
-#define LEE_SDA 41 // puerto de entrada para leer el estado de la línea SDA
-#define ESC_SCL 4	 // puerto de salida para escribir el valor de la línea SCL-out
-#define ESC_SDA 39 // puerto de salida para escribir el valor de la línea SDA-out
+#define ESC_SCL 4	 // puerto de salida para escribir el valor en la lí­nea SCL-out =>IO4 =>PG5
+#define ESC_SDA 39 // puerto de salida para escribir el valor en la lí­nea SDA-out =>IO39=>PG2
+#define LEE_SCL 40 // puerto de entrada para leer el estado de la lí­nea SCL       =>IO40=>PG1
+#define LEE_SDA 41 // puerto de entrada para leer el estado de la lí­nea SDA       =>IO41=>PG0
 
 #define pright 30	 // pulsador right
 #define pdown 31	 // "" down
@@ -20,25 +19,85 @@
 #define DON 0xC0	// 1111 0000   todos los cátados comunes a "0"
 
 // Definición de las teclas del nuevo teclado
-char keyboard_map[][3] = {{'1', '2', '3'},
-													{'4', '5', '6'},
-													{'7', '8', '9'},
-													{'*', '0', '#'}};
+char teclado_map[][3] = {
+		{'1', '2', '3'},
+		{'4', '5', '6'},
+		{'7', '8', '9'},
+		{'*', '0', '#'}};
 
-int tabla_7seg[] = {0x3F, 0x06, 0x5B, 0x4F, 0x66, 0x6D, 0x7D, 0x07, 0x7F, 0x6F};
-String meses[] = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
-String buffer = "";
+String mes[] = {
+		"JAN", "FEB", "MAR",
+		"APR", "MAY", "JUN",
+		"JUL", "AUG", "SEP",
+		"OCT", "NOV", "DEC"};
+
 int digit = 0;
-int modo = 0;
-boolean alarma1 = false;
-boolean alarma2 = false;
-int segundosAlarma = 0;
-int modo_ext = 0;
-boolean modo_texto = false;
-String mensaje = "";
+int mode = 0;
+String buffer = "";
+boolean modo = false;
+boolean modoext = false;
 
-//---------------------------------FUNCIONES I2C BASICAS------------------------------------------------------------------------------------
+boolean alarm1 = false;
+boolean alarm2 = false;
 
+// Setup
+void setup()
+{
+	Serial.begin(9600);
+	pinMode(LEE_SDA, INPUT);
+	pinMode(LEE_SCL, INPUT);
+	pinMode(ESC_SDA, OUTPUT);
+	pinMode(ESC_SCL, OUTPUT);
+	digitalWrite(ESC_SCL, HIGH);
+	digitalWrite(ESC_SDA, HIGH);
+
+	DDRA = 0xFF;	// PORTA de salida
+	PORTA = 0xFF; // activamos segmentos a-g
+
+	DDRL = 0x0F;	// input;
+	PORTL = 0xFF; // pull-up activos
+
+	DDRC = 0x01;	// PC7:1 input: PC0: output-speaker
+	PORTC = 0xFE; // pull-up activos menos el speaker que es de salida
+
+	Serial3.begin(9600); // canal 3, 9600 baudios,
+
+	cli();
+	TCCR3A = 0; // Registro funcional del modo
+	TCCR3B = 0; // Registro funcional del modo
+	TCNT3 = 0;	// Registro funcional del contador
+
+	ICR3 = 31249; // TOP definido
+	OCR3A = 12499;
+
+	TCCR3A = B10000010; // modo 15
+	TCCR3B = B00011100; // modo 15, N = 256
+	TIMSK3 |= (1 << OCIE3A);
+	sei();
+
+	cli();
+	TCCR1A = 0; // Registro funcional del modo
+	TCCR1B = 0; // Registro funcional del modo
+	TCNT1 = 0;	// Registro funcional del contador
+
+	OCR1A = 1249; // TOP definido
+
+	TCCR1A = B00000100; // modo 4
+	TCCR1B = B00001011; // modo 4, N = 64
+	TIMSK1 |= (1 << OCIE1A);
+	sei();
+
+	cli();
+	EICRA |= (1 << ISC01) | (0 << ISC00);
+	EIMSK |= (1 << INT0);
+	sei();
+
+	write_memoria(0x0E, B00011111);
+	write_memoria(0x0D, B10000000);
+	write_memoria(0x0A, B10000000);
+}
+
+// Funciones basicas
 void i2c_start()
 { // funcion naive para start
 	digitalWrite(ESC_SCL, HIGH);
@@ -63,7 +122,7 @@ void i2c_stop()
 	digitalWrite(ESC_SDA, HIGH); // Si se quita sigue funcionando!
 }
 
-void i2c_w1()
+void i2c_Ebit1()
 { // funcion naive enviar un 1
 	digitalWrite(ESC_SCL, LOW);
 	digitalWrite(ESC_SDA, HIGH);
@@ -75,7 +134,7 @@ void i2c_w1()
 	digitalWrite(ESC_SDA, HIGH);
 }
 
-void i2c_w0()
+void i2c_Ebit0()
 { // funcion naive enviar un 0
 	digitalWrite(ESC_SCL, LOW);
 	digitalWrite(ESC_SDA, LOW);
@@ -99,7 +158,7 @@ void i2c_Ebit(bool val)
 	digitalWrite(ESC_SDA, val);
 }
 
-int i2c_rbit()
+int i2c_Rbit()
 { // funcion naive leer un bit
 	digitalWrite(ESC_SCL, LOW);
 	digitalWrite(ESC_SDA, HIGH);
@@ -112,1112 +171,718 @@ int i2c_rbit()
 	return val; // Aqui se devuelve val!
 }
 
-//----------------------------------------------FUNCIONES I2C DE MEDIO NIVEL----------------------------------------------
+//---------------------------------------------------------------------------------------------
+//------------------funciones medias----------------------------------------------------
+//---------------------------------------------------------------------------------------------
 
-void i2c_wbyte(byte dato)
-{
-	/*
-	Funcion que escribe un byte
-	parametros
-	byte dato--> Dato que se va a escribir
-	*/
-
+void escribir_byte(byte dato)
+{ // funcion donde escribimos un byte
 	for (int i = 0; i < 8; i++)
 	{
 		if ((dato & 128) != 0)
-		{
-			i2c_w1();
+		{ // vamos haciendo el and con 10000000 para ir printando cada bit
+			i2c_Ebit1();
 		}
 		else
 		{
-			i2c_w0();
+			i2c_Ebit0(); // aqui marcamos si el resultado es 1 ponemos 1 y 0 en caso contrario
 		}
 		dato = dato << 1;
 	}
 }
 
-byte i2c_rbyte()
-{
-	/*
-	Funcion que lee 8 bits, (1 byte), desde la posicion actual del puntero
-	*/
-
-	byte ibyte = 0;
+byte leer_byte()
+{ // en esta leemos un byte
+	byte dato = 0;
 	for (byte i = 0; i < 8; i++)
-	{
-		ibyte = (ibyte << 1) | (i2c_rbit() & 1);
+	{ // usando la misma idea de ir leyendo bit por bit
+		dato = (dato << 1) | (i2c_Rbit() & 1);
 	}
-	return ibyte;
+	return dato;
 }
 
-//--------------------------------------FUNCIONE I2C DE ALTO NIVEL--------------------------------------------------------------------------
+byte leer_memoria(int address)
+{ // leemos la memoria siguiendo el esquema
+r1:
+	i2c_start();
+	escribir_byte(B11010000); // con esto ponemos el byte de control
+	if (i2c_Rbit() != 0)
+	{
+		goto r1;
+	}
+	escribir_byte(address); // y aqui vamos a lower
+	if (i2c_Rbit() != 0)
+	{
+		goto r1;
+	} // todo esto era solo para poner el puntero, no vamosa escribir nada
+r2:
+	i2c_start();
+	escribir_byte(B11010001); // aqui es donde empezamos a leer de verdad
+	if (i2c_Rbit() != 0)
+	{
+		goto r2;
+	}
+	byte byteVal = leer_byte(); // y en esta linea vemos como usamos la funcion anterior
+	i2c_Ebit1();								// no ack
+	i2c_stop();
+	return byteVal;
+}
 
-void rtc_write(int address, byte dato)
-{
-	/*
-	Funcion que escribe un dato de tipo byte entre 0 y 255 en una direccion elegida por el usuario entre 0 y 8190
-	parametros:
-	int address --> Direccion de memoria en la que se va a escribir el dato(0 ,8190)
-	byte dato --> Dato que se va a escribir en memoria
-	*/
-
+void write_memoria(int address, byte data)
+{ // en esta es donde escribimos el byte en una direccion dada
 w1:
 	i2c_start();
-	i2c_wbyte(B11010000); // ult. byte escritura //CONTROL BYTE
-	if (i2c_rbit() != 0)
-	{
+	escribir_byte(B11010000); // B10100000 como byte de control
+	if (i2c_Rbit() != 0)
 		goto w1;
-	}
-
-	i2c_wbyte(address); // ADDRESS LOW BYTE
-	if (i2c_rbit() != 0)
-	{
+	escribir_byte(address);
+	if (i2c_Rbit() != 0)
 		goto w1;
-	}
-
-	i2c_wbyte(dato); // DATA BYTE //dato a escribir
-	if (i2c_rbit() != 0)
-	{
+	escribir_byte(data); // y aqui finalmente es donde escribimos el byte
+	if (i2c_Rbit() != 0)
 		goto w1;
-	}
 	i2c_stop();
 }
 
-byte i2c_rtc_read(int address)
+void escribir_mem_eeprom(int address, byte data)
 {
-	/*
-	Funcion que lee un dato de tipo byte desde memoria(0,8190) y lo devuelve
-	parametros:
-	int address --> Direccion de memoria en la que se va a leer el dato
-	*/
-w2:
+w1:
 	i2c_start();
-
-	i2c_wbyte(B11010000); // Control byte
-	if (i2c_rbit() != 0)
-	{
-		goto w2;
-	}
-
-	i2c_wbyte(address); // ADDRESS LOW BYTE
-	if (i2c_rbit() != 0)
-	{
-		goto w2;
-	}
-
-// Romper escritura
-w3:
-	i2c_start();
-
-	i2c_wbyte(B11010001); // Control byte para leer (ult. byte a 1)
-	if (i2c_rbit() != 0)
-	{
-		goto w3;
-	}
-
-	byte data = i2c_rbyte();
-	i2c_w1();
+	escribir_byte(0xA0); // A0 como byte de control
+	if (i2c_Rbit() != 0)
+		goto w1;
+	escribir_byte(address >> 8);
+	if (i2c_Rbit() != 0)
+		goto w1;
+	escribir_byte(address & 0x00FF);
+	if (i2c_Rbit() != 0)
+		goto w1;
+	escribir_byte(data); // y aqui finalmente es donde escribimos el byte
+	if (i2c_Rbit() != 0)
+		goto w1;
 	i2c_stop();
-	return data;
 }
 
-//-------------------------------FUNCION PARA MOVEL EL CURSOR EN LA PANTALLA LCD----------------------------
-void set_cursor(int line, byte col)
+byte leer_memoriaext(int address)
+{ // leemos la memoria siguiendo el esquema
+r1:
+	i2c_start();
+	escribir_byte(B10100000); // con esto ponemos el byte de control
+	if (i2c_Rbit() != 0)
+	{
+		goto r1;
+	}
+	escribir_byte(address >> 8); // desplazamos para coger lo mas significativo
+	if (i2c_Rbit() != 0)
+	{
+		goto r1;
+	}
+	escribir_byte(address & 0x00FF); // y aqui vamos a lower
+	if (i2c_Rbit() != 0)
+	{
+		goto r1;
+	} // todo esto era solo para poner el puntero, no vamosa escribir nada
+r2:
+	i2c_start();
+	escribir_byte(B10100001); // aqui es donde empezamos a leer de verdad
+	if (i2c_Rbit() != 0)
+	{
+		goto r2;
+	}
+	byte byteVal = leer_byte(); // y en esta linea vemos como usamos la funcion anterior
+	i2c_Ebit1();								// no ack
+	i2c_stop();
+	return byteVal;
+}
+//---------------------------------------------------------------------------------------------
+//---------------------------------------------------------------------------------------------
+
+void leer_hora()
 {
-	if (line == 1)
+	String hora = String(leer_memoria(2), HEX);
+	if (hora.toInt() < 10)
 	{
-		Serial3.write(0xFE);
-		Serial3.write(128 + col);
+		hora = "0" + hora;
 	}
-
-	if (line == 2)
-	{
-		Serial3.write(0xFE);
-		Serial3.write(192 + col);
-	}
-
-	if (line == 3)
-	{
-		Serial3.write(0xFE);
-		Serial3.write(148 + col);
-	}
-
-	if (line == 4)
-	{
-		Serial3.write(0xFE);
-		Serial3.write(212 + col);
-	}
+	Serial3.print(hora);
 }
 
-//------------------------------FUNCIONES PARA ESCRIBIR DATOS EN LA PANTALLA LCD---------------------------------------------
-
-// FECHA
-void escribir_fecha()
+void leer_minutos()
 {
-	delay(100);
-	set_cursor(3, 13);
-	Serial3.write("DDMMMYY");
-
-	// DIA
-	delay(100);
-	int dia = i2c_rtc_read(4);
-	set_cursor(4, 13);
-
-	if (dia < 10)
+	String minutos = String(leer_memoria(1), HEX);
+	if (minutos.toInt() < 10)
 	{
-		Serial3.print("0");
-		set_cursor(4, 14);
-		Serial3.print(dia, HEX);
+		minutos = "0" + minutos;
 	}
-	Serial3.print(dia, HEX);
-
-	// MES
-	delay(100);
-	set_cursor(4, 15);
-	int nmes = i2c_rtc_read(5) - 1;
-	String mes_hex = String(nmes, HEX);
-	String mes = meses[mes_hex.toInt()];
-	Serial3.print(mes);
-
-	// AÑO
-	delay(100);
-	set_cursor(4, 18);
-	int year = i2c_rtc_read(6);
-	if (year < 10)
-	{
-		Serial3.print("0");
-		set_cursor(4, 19);
-		Serial3.print(year, HEX);
-	}
-
-	Serial3.print(year, HEX);
+	Serial3.print(minutos);
 }
 
-// HORA
-void escribir_hora()
+void leer_segundos()
 {
-	// HORAS
-	set_cursor(1, 5);
-	int hours = i2c_rtc_read(2);
-
-	if (hours < 10)
+	String segundos = String(leer_memoria(0), HEX);
+	if (segundos.toInt() < 10)
 	{
-		Serial3.write("0");
-		set_cursor(1, 6);
-		Serial3.print(hours, HEX);
+		segundos = "0" + segundos;
+	}
+	Serial3.print(segundos);
+}
+
+void leer_temp()
+{
+	String temp = String(leer_memoria(17), DEC);
+	if (temp.toInt() < 0)
+	{
+		temp = "T=-" + temp + "C";
 	}
 	else
 	{
-		Serial3.print(hours, HEX);
+		temp = "T=+" + temp + "C";
 	}
-	set_cursor(1, 7);
-	Serial3.write(":");
-
-	// MINUTOS
-	set_cursor(1, 8);
-	int mins = i2c_rtc_read(1);
-
-	if (mins < 10)
-	{
-		Serial3.write("0");
-		set_cursor(1, 9);
-		Serial3.print(mins, HEX);
-	}
-	else
-	{
-		Serial3.print(mins, HEX);
-	}
-
-	set_cursor(1, 10);
-	Serial3.write(":");
-
-	// SEGUNDOS
-
-	int secs = i2c_rtc_read(0);
-	set_cursor(1, 11);
-
-	if (secs < 10)
-	{
-		Serial3.write("0");
-		set_cursor(1, 12);
-		Serial3.print(secs, HEX);
-	}
-	else
-	{
-		Serial3.print(secs, HEX);
-	}
-}
-
-// TEMPERATURA
-void escribir_temp(int temperatura)
-{
-	rtc_write(17, temperatura);
-
-	set_cursor(2, 14);
-	Serial3.write("T=");
-
-	int temp = i2c_rtc_read(17);
-
-	set_cursor(2, 16);
-	if (temp >= 0)
-	{
-		Serial3.print("+");
-	}
-	else
-	{
-		Serial3.print("-");
-	}
-
-	set_cursor(2, 17);
 	Serial3.print(temp);
-
-	set_cursor(2, 19);
-	Serial3.print("C");
 }
 
-// ALARMA 1
-void escribir_alarma_1()
+void leer_dia()
 {
-	set_cursor(2, 0);
-	Serial3.write("ALARM");
-
-	// HORAS
-	set_cursor(3, 0);
-	int hours = i2c_rtc_read(9);
-
-	if (hours < 10)
+	String dia = String(leer_memoria(4), HEX);
+	if (dia.toInt() < 10)
 	{
-		Serial3.write("0");
-		set_cursor(3, 1);
-		Serial3.print(hours, HEX);
+		dia = "0" + dia;
+	}
+	Serial3.print(dia);
+}
+
+void leer_mes()
+{
+	int numes = leer_memoria(5) - 1;
+	String mesh = String(numes, HEX);
+	String mess = mes[mesh.toInt()];
+	Serial3.print(mess);
+}
+
+void leer_year()
+{
+	String year = String(leer_memoria(6), HEX);
+	if (year.toInt() < 10)
+	{
+		year = "0" + year;
+	}
+	Serial3.print(year);
+}
+
+void leer_alarm1()
+{
+	String alarma1 = String(leer_memoria(9), HEX);
+	if (alarma1.toInt() < 10)
+	{
+		alarma1 = "0" + alarma1;
+	}
+	cursor(3, 0);
+	Serial3.print(alarma1);
+	cursor(3, 2);
+	Serial3.print(":");
+	alarma1 = String(leer_memoria(8), HEX);
+	if (alarma1.toInt() < 10)
+	{
+		alarma1 = "0" + alarma1;
+	}
+	cursor(3, 3);
+	Serial3.print(alarma1);
+	if (alarm1 == true)
+	{
+		Serial3.write("*");
 	}
 	else
 	{
-		Serial3.print(hours, HEX);
-	}
-	set_cursor(3, 2);
-	Serial3.write(":");
-
-	// MINUTOS
-	set_cursor(3, 3);
-	int mins = i2c_rtc_read(8);
-
-	if (mins < 10)
-	{
-		Serial3.write("0");
-		set_cursor(3, 4);
-		Serial3.print(mins, HEX);
-	}
-	else
-	{
-		Serial3.print(mins, HEX);
-	}
-
-	segundosAlarma = i2c_rtc_read(7);
-	segundosAlarma = segundosAlarma & 0x7F;
-
-	segundosAlarma = ((segundosAlarma / 10) * 16) + (segundosAlarma % 10);
-
-	/*Serial.print(int(segundosAlarma % 10));
-	Serial.print(":");
-			Serial.println(int(segundosAlarma /10)% 10);*/
-}
-
-// ALARMA 2
-void escribir_alarma_2()
-{
-	// HORAS
-	set_cursor(4, 0);
-	int hours = i2c_rtc_read(12);
-
-	if (hours < 10)
-	{
-		Serial3.write("0");
-		set_cursor(4, 1);
-		Serial3.print(hours, HEX);
-	}
-	else
-	{
-		Serial3.print(hours, HEX);
-	}
-	set_cursor(4, 2);
-	Serial3.write(":");
-
-	// MINUTOS
-	set_cursor(4, 3);
-	int mins = i2c_rtc_read(11);
-
-	if (mins < 10)
-	{
-		Serial3.write("0");
-		set_cursor(4, 4);
-		Serial3.print(mins, HEX);
-	}
-	else
-	{
-		Serial3.print(mins, HEX);
+		Serial3.write(" ");
 	}
 }
 
-void comprobarAlarma()
+void leer_alarm2()
 {
+	String alarma2 = String(leer_memoria(0x0C), HEX);
+	if (alarma2.toInt() < 10)
+	{
+		alarma2 = "0" + alarma2;
+	}
+	cursor(4, 0);
+	Serial3.print(alarma2);
+	cursor(4, 2);
+	Serial3.print(":");
+	alarma2 = String(leer_memoria(0x0B), HEX);
+	if (alarma2.toInt() < 10)
+	{
+		alarma2 = "0" + alarma2;
+	}
+	cursor(4, 3);
+	Serial3.print(alarma2);
+	if (alarm2 == true)
+	{
+		Serial3.write("*");
+	}
+	else
+	{
+		Serial3.write(" ");
+	}
 }
 
-//---------------------------------FUNCIONES PARA EL FUNCIONAMIENTO DEL TECLADO MATRICIAL--------------------------------
-void teclado(int column)
+void leer_7()
 {
-	// Serial.println("Entra en teclado");
+	String siete = String(leer_memoriaext(7));
+	if (siete.toInt() < 10)
+	{
+		siete = "0" + siete;
+	}
+	Serial3.print(siete);
+}
+
+void leer_8()
+{
+	String ocho = String(leer_memoriaext(8));
+	if (ocho.toInt() < 10)
+	{
+		ocho = "0" + ocho;
+	}
+	Serial3.print(ocho);
+}
+
+void leer_9()
+{
+	String nueve = String(leer_memoriaext(9));
+	if (nueve.toInt() < 10)
+	{
+		nueve = "0" + nueve;
+	}
+	Serial3.print(nueve);
+}
+
+void leer_10()
+{
+	String diez = String(leer_memoriaext(0xA));
+	if (diez.toInt() < 10)
+	{
+		diez = "0" + diez;
+	}
+	Serial3.print(diez);
+}
+
+String leer_horatemp()
+{
+	String horatemp = String(leer_memoria(2), HEX);
+	if (horatemp.toInt() < 10)
+	{
+		horatemp = "0" + horatemp;
+	}
+	String minutostemp = String(leer_memoria(1), HEX);
+	if (minutostemp.toInt() < 10)
+	{
+		minutostemp = "0" + minutostemp;
+	}
+	String segundostemp = String(leer_memoria(0), HEX);
+	if (segundostemp.toInt() < 10)
+	{
+		segundostemp = "0" + segundostemp;
+	}
+	String temptemp = String(leer_memoria(17), DEC);
+	if (temptemp.toInt() < 0)
+	{
+		temptemp = "-" + temptemp;
+	}
+	else
+	{
+		temptemp = "+" + temptemp;
+	}
+	String horat = horatemp + ":" + minutostemp + ":" + segundostemp + "#" + temptemp + "#";
+	return horat;
+}
+
+void escribir_horatemp(String horatemperatura)
+{
+	for (int n = 0; n < horatemperatura.length(); n++)
+	{
+		escribir_mem_eeprom(n, horatemperatura[n]);
+	}
+}
+
+void cursor(int fila, byte columna)
+{
+	if (fila == 1)
+	{
+		Serial3.write(0xFE);
+		Serial3.write(128 + columna);
+	}
+	if (fila == 2)
+	{
+		Serial3.write(0xFE);
+		Serial3.write(192 + columna);
+	}
+	if (fila == 3)
+	{
+		Serial3.write(0xFE);
+		Serial3.write(148 + columna);
+	}
+	if (fila == 4)
+	{
+		Serial3.write(0xFE);
+		Serial3.write(212 + columna);
+	}
+}
+
+void teclado(int columna)
+{
 	int val = PINL >> 4;
 	if (val == 15)
 	{
 		return;
 	}
-	while (PINL >> 4 != 15)
+	while ((PINL >> 4) != 15)
 	{
-	} // Espera activa, se espera a que se pulse un boton del teclado 4x3
+	}
 	switch (val)
 	{
 	case 7:
-		buffer = buffer + keyboard_map[0][column];
+		buffer = buffer + teclado_map[0][columna]; // 0111 se pulsa la primera fila
 		break;
 	case 11:
-		buffer = buffer + keyboard_map[1][column];
+		buffer = buffer + teclado_map[1][columna]; // 1011 se pulsa la segunda fila
 		break;
 	case 13:
-		buffer = buffer + keyboard_map[2][column];
+		buffer = buffer + teclado_map[2][columna]; // 1101 se pulsa la tercera fila
 		break;
 	case 14:
-		buffer = buffer + keyboard_map[3][column];
+		buffer = buffer + teclado_map[3][columna]; // 1110 se pulsa la cuarta fila
 		break;
-
-	} // switch
-
-} // teclado()
-
-void separarBuffer()
-{
-	if (buffer == "*#")
-	{
-		Serial.println("Entrando en el menu de configuracion...");
-		modo = 1;
-		Serial.write(12);
-		buffer = "";
 	}
+}
+
+void comprobar_teclado()
+{
 	if (buffer == "#*")
-	{
-		Serial.println("Saliendo del menu de configuracion...");
-		modo = 2;
+	{ // si se han pulsado 3 numeros y el #
+		modo = false;
 		buffer = "";
 		Serial.write(12);
-		Serial.println("Pulse *# para acceder al menu de configuracion");
-		Serial.println("Pulse #* para salir del menu de configuracion");
 	}
-
-	if (buffer.length() == 2)
-	{
+	else if (buffer == "*#")
+	{ // si se han pulsado 2 numeros y el #
+		modo = true;
 		buffer = "";
 	}
-
-	if (buffer == "#3")
-	{
-		modo_ext = 1;
+	else if (buffer == "*2")
+	{ // si se han pulsado 2 numeros y el #
+		modoext = true;
+		buffer = "";
 	}
-
-	if (buffer == "#9")
-	{
-		modo_ext = 0;
-	}
-}
-
-//----------------------------------------ISRs----------------------------------------------------------------------------
-
-// ISR REFRESCADO DE PANTALLA LCD
-ISR(TIMER3_OVF_vect)
-{
-	if (modo_texto == true)
-	{
-		Serial3.write(0xFE);
-		Serial3.write(0x01); // Clear Screen
-		delay(100);
-		set_cursor(1, 0);
-		Serial3.print(mensaje);
-		delay(2000);
-		modo_texto = false;
-	}
-
-	escribir_hora();
-	escribir_fecha();
-	escribir_temp(23);
-	escribir_alarma_1();
-	escribir_alarma_2();
-}
-
-// ISR FUNCIONAMIENTO DEL TECLADO MATRICIAL
-ISR(TIMER1_OVF_vect)
-{
-	// Serial.println("Entrando en la ISR...");
-
-	if (modo_ext == 0)
-	{
-		switch (digit)
-		{
-			PORTL = DOFF;
-		case 0:
-			PORTA = 0x6F;
-			PORTL = B00001110;
-			teclado(digit);
-			digit++;
-			break;
-		case 1:
-			PORTA = 0x6F;
-			PORTL = B00001101;
-			teclado(digit);
-			digit++;
-			break;
-		case 2:
-			PORTA = 0x6F;
-			PORTL = B00001011;
-			teclado(digit);
-			digit = 0;
-			break;
-		} // switch()
-	}
-
-	else if (modo_ext == 1)
-	{
-		switch (digit)
-		{
-			PORTL = DOFF;
-		case 0:
-			// PORTA = tabla_7seg[int(segundosAlarma % 10)];
-			PORTA = 0x3F;
-			PORTL = B00001110;
-			teclado(digit);
-			digit++;
-			break;
-		case 1:
-			// PORTA = tabla_7seg[int(segundosAlarma /10)% 10];
-			PORTA = 0x3F;
-			PORTL = B00001101;
-			teclado(digit);
-			digit++;
-			break;
-		case 2:
-			PORTA = 0x3F;
-			PORTL = B00001011;
-			teclado(digit);
-			digit = 0;
-			break;
-		} // switch()
-	}
-
-	separarBuffer();
-}
-
-// ISR INTERRUPCION ALARMA
-ISR(INT0_vect)
-{
-	if (alarma1 == true && alarma2 == false)
-	{
-		// activar solo Alarma1;
-		rtc_write(15, B11001000);
-		tone(37, 350, 1000);
-	}
-
-	if (alarma1 == true && alarma2 == true)
-	{
-		// activar Alarma1 y Alarma2
-		rtc_write(15, B11001010);
-		tone(37, 350, 1000);
-	}
-
-	if (alarma1 == false && alarma2 == true)
-	{
-		// activar solo Alarma2
-		rtc_write(15, B1100110);
-		tone(37, 350, 1000);
+	else if (buffer == "*0")
+	{ // si se han pulsado 2 numeros y el #
+		modoext = false;
+		buffer = "";
 	}
 }
 
-//----------------------------------PROGRAMACION DE LOS TIMERS------------------------------
-// PROGRAMACION TIMER 3
-void prog_Timer3()
-{
-
-	cli();
-	// RESET TIMERS
-	TCCR3A = 0;
-	TCCR3B = 0;
-	TCCR3C = 0;
-	TCNT3 = 0;
-
-	// PROGRAMACION (MODO = Fast PWM, TOP= ORC3A)
-
-	// OCR3A = 15624;
-	OCR3A = 15624;
-
-	TCCR3A = B00000011;
-	TCCR3B = B00011101;
-
-	TIMSK3 |= (1 << TOIE3);
-	sei();
-}
-
-// PROGRAMAACION TIMER 1
-/*  void prog_Timer1(){
-
-	cli();
-	//RESET TIMERS
-	TCCR1A = 0;
-	TCCR1B = 0;
-	TCCR1C = 0;
-	TCNT1= 0;
-
-	//PROGRAMACION (MODO = 4, CTC, TOP= ORC1A)
-
-	//OCR1A = 1249;
-	OCR1A = 1249;
-
-	TCCR1A = B00000000;
-	TCCR1B = B00001011;
-
-	TIMSK1 |=  (1<<OCIE1A);
-	sei();
-
-	}*/
-
-void prog_Timer1_Examen()
-{
-
-	cli();
-	// RESET TIMERS
-	TCCR1A = 0;
-	TCCR1B = 0;
-	TCCR1C = 0;
-	TCNT1 = 0;
-
-	// PROGRAMACION (MODO 14 = Fast PWM, TOP= ICR1)
-	// T=4ms, N=8 --> 010
-	// f = 1/0.004 = 250 Hz
-	// modo 14 --> 11 10
-	// 1,6ms --> 0,0016 --> 1/0.0016 = 625 Hz
-
-	// ICR1A = 7999;
-	ICR1 = 7999;
-	// OC1A = 3076;
-
-	TCCR1A = B01000010;
-	TCCR1B = B00011010;
-
-	TIMSK1 |= (1 << TOIE1);
-	sei();
-}
-
-//--------------------------------FUNCION MENU PARA LA CONFIGURACION DEL RELOJ-------------------------------------------
 void menu()
 {
-/*
-TO DO LIST:
-Mejorar la programacion de la temperatura (Preguntar por signo, como funciona temperatura)  (CON MASCARAS EN BINARIO, IGUAL QUE LAS ALARMAS...A BUSCARSE LA VIDA)
-Arreglar Alarmas --> no vuelven a sonar cuando se cambia la hora
-
-*/
-m1:
-	Serial.write(12);
-	Serial.println("");
-	Serial.println("     MENU \n");
-	Serial.println("1. Ajustar Hora");
-	Serial.println("2. Ajustar Fecha");
-	Serial.println("3. Ajustar Alarma 1");
-	Serial.println("4. Ajustar Alarma 2");
-	Serial.println("5. Leer mensaje de texto y almacenar");
-	Serial.println("6. Leer mensaje de memoria y visualizar");
-	Serial.println("");
-
-	while (Serial.available() == 0 && modo == 1)
+menu:
+	Serial.println("1.- Ajustar hora");
+	Serial.println("2.- Ajustar fecha");
+	Serial.println("3.- Ajustar alarma 1");
+	Serial.println("4.- Ajustar alarma 2");
+	Serial.println("5.- Guardar hora y temperatura");
+	Serial.println("----");
+	Serial.println("Entrar la opción: ");
+	while (Serial.available() == 0 && modo == true)
 	{
-	} // Esperar
-
-	if (Serial.available() > 0)
+	}
+	int mode1 = Serial.parseInt();
+	Serial.println(mode1);
+	Serial.println("");
+	if (mode1 == 1)
 	{
-		char orden = Serial.read();
-		if (orden == '1')
+		Serial.println("1.- Hora");
+		Serial.println("2.- Minuto");
+		Serial.println("3.- Segundo");
+		Serial.println("4.- Exit");
+		while (Serial.available() == 0)
 		{
-		s1:
-			Serial.println("");
-			Serial.println("1. Hora: ");
-			Serial.println("2. Minutos: ");
-			Serial.println("3. Segundos: ");
-			Serial.println("4. Exit: ");
-			Serial.println("");
-
+		}
+		int mode2 = Serial.parseInt();
+		if (mode2 == 1)
+		{
+			Serial.println("Introducir hora: ");
 			while (Serial.available() == 0)
 			{
 			}
-			char suborden = Serial.read();
-			if (suborden == '1')
-			{
-				Serial.println("Introducir Horas(0-23)");
-			h1:
-				while (Serial.available() == 0)
-				{
-				} // Esperar el dato
-
-				int horas = Serial.parseInt();
-
-				if (horas < 0 || horas > 23)
-				{
-					Serial.println("Hora incorrecta , vuelva a introducir la hora:");
-					goto h1;
-				}
-
-				horas = ((horas / 10) * 16) + (horas % 10);
-
-				Serial.print("Se han introducido las horas:  ");
-				Serial.println(horas, HEX);
-
-				rtc_write(2, horas);
-				Serial.println("Se ha cambiado la hora con exito");
-
-				goto s1;
-			}
-			if (suborden == '2')
-			{
-				Serial.println("Introducir Minutos(0-59)");
-			min1:
-				while (Serial.available() == 0)
-				{
-				} // Esperar el dato
-
-				int minutos = Serial.parseInt();
-				if (minutos < 0 || minutos > 59)
-				{
-					Serial.println("Minutos incorrectos , vuelva a introducir los minutos:");
-					goto min1;
-				}
-
-				minutos = ((minutos / 10) * 16) + (minutos % 10);
-
-				Serial.print("Se han introducido los minutos:  ");
-				Serial.println(minutos, HEX);
-
-				rtc_write(1, minutos);
-				Serial.println("Se han cambiado los minutos con exito");
-				goto s1;
-			}
-			if (suborden == '3')
-			{
-				Serial.println("Introducir Segundos(0-59)");
-			seg1:
-				while (Serial.available() == 0)
-				{
-				} // Esperar el dato
-
-				int segundos = Serial.parseInt();
-				if (segundos < 0 || segundos > 59)
-				{
-					Serial.println("Segundos incorrectos , vuelva a introducir los segundos:");
-					goto seg1;
-				}
-
-				segundos = ((segundos / 10) * 16) + (segundos % 10);
-
-				Serial.print("Se han introducido los segundos:  ");
-				Serial.println(segundos, HEX);
-
-				rtc_write(0, segundos);
-				Serial.println("Se han cambiado los segundos con exito");
-				goto s1;
-			}
-			if (suborden == '4')
-			{
-				Serial.println("Exit");
-				goto m1;
-			}
+			int hora = Serial.parseInt();
+			hora = ((hora / 10) * 16) + (hora % 10);
+			write_memoria(2, hora);
 		}
-
-		if (orden == '2')
+		if (mode2 == 2)
 		{
-		f1:
-			Serial.println("");
-			Serial.println("1. Dia: ");
-			Serial.println("2. Mes: ");
-			Serial.println("3. Año: ");
-			Serial.println("4. Exit: ");
-			Serial.println("");
-
+			Serial.println("Introducir min: ");
 			while (Serial.available() == 0)
 			{
 			}
-			char suborden = Serial.read();
-			if (suborden == '1')
-			{
-				Serial.println("Introducir Dia(0-31)");
-			dia1:
-				while (Serial.available() == 0)
-				{
-				} // Esperar el dato
-
-				int dia = Serial.parseInt();
-				if (dia < 0 || dia > 31)
-				{
-					Serial.println("Dia incorrecto , vuelva a introducir el dia:");
-					goto dia1;
-				}
-
-				dia = ((dia / 10) * 16) + (dia % 10);
-
-				Serial.print("Se han introducido el dia:  ");
-				Serial.println(dia, HEX);
-
-				rtc_write(4, dia);
-				Serial.println("Se ha cambiado el dia con exito");
-				goto f1;
-			}
-			if (suborden == '2')
-			{
-				Serial.println("Introducir Mes(0-12)");
-			mes1:
-				while (Serial.available() == 0)
-				{
-				} // Esperar el dato
-
-				int mes = Serial.parseInt();
-				if (mes < 0 || mes > 12)
-				{
-					Serial.println("Mes incorrecto , vuelva a introducir el mes:");
-					goto mes1;
-				}
-
-				Serial.print("Se han introducido el mes:  ");
-				Serial.println(mes, HEX);
-
-				rtc_write(5, mes);
-				Serial.println("Se ha cambiado el mes con exito");
-				goto f1;
-			}
-			if (suborden == '3')
-			{
-				Serial.println("Introducir Año(0-99)");
-			year1:
-				while (Serial.available() == 0)
-				{
-				} // Esperar el dato
-
-				int year = Serial.parseInt();
-				if (year < 0 || year > 99)
-				{
-					Serial.println("Año incorrecto , vuelva a introducir el año:");
-					goto year1;
-				}
-
-				year = ((year / 10) * 16) + (year % 10);
-
-				Serial.print("Se han introducido el año:  ");
-				Serial.println(year, HEX);
-
-				rtc_write(6, year);
-				Serial.println("Se ha cambiado el año con exito");
-				goto f1;
-			}
-			if (suborden == '4')
-			{
-				Serial.println("Exit");
-				goto m1;
-			}
+			int minuto = Serial.parseInt();
+			minuto = ((minuto / 10) * 16) + (minuto % 10);
+			write_memoria(1, minuto);
 		}
-
-		if (orden == '3')
+		if (mode2 == 3)
 		{
-		a1:
-			Serial.println("");
-			Serial.println("1. Configurar Alarma 1 ");
-			Serial.println("2. Activar Alarma ");
-			Serial.println("3. Desactivar Alarma ");
-			Serial.println("4. Exit: ");
-			Serial.println("");
-
+			Serial.println("Introducir seg: ");
 			while (Serial.available() == 0)
 			{
 			}
-			char suborden = Serial.read();
-
-			if (suborden == '1')
-			{
-				Serial.println("CONFIGURANDO ALARMA...");
-				Serial.println("Introducir la hora");
-			hora2:
-				while (Serial.available() == 0)
-				{
-				} // Esperar el dato
-
-				int hour = Serial.parseInt();
-				if (hour < 0 || hour > 23)
-				{
-					Serial.println("Hora incorrecta , vuelva a introducir la hora:");
-					goto hora2;
-				}
-
-				hour = ((hour / 10) * 16) + (hour % 10);
-
-				Serial.print("Se ha introducido la hora:  ");
-				Serial.println(hour, HEX);
-
-				rtc_write(9, hour);
-
-				Serial.println("Introducir Minutos: ");
-			min2:
-				while (Serial.available() == 0)
-				{
-				} // Esperar el dato
-
-				int minutes = Serial.parseInt();
-				if (minutes < 0 || minutes > 59)
-				{
-					Serial.println("Minutos incorrectos , vuelva a introducir los minutos:");
-					goto min2;
-				}
-
-				minutes = ((minutes / 10) * 16) + (minutes % 10);
-
-				Serial.print("Se han introducido los minutos:  ");
-				Serial.println(minutes, HEX);
-
-				rtc_write(8, minutes);
-
-				Serial.println("Introducir segundos");
-			seg2:
-				while (Serial.available() == 0)
-				{
-				} // Esperar el dato
-
-				int segundos = Serial.parseInt();
-				if (segundos < 0 || segundos > 59)
-				{
-					Serial.println("Segundos incorrectos , vuelva a introducir los segundos:");
-					goto seg2;
-				}
-
-				segundos = ((segundos / 10) * 16) + (segundos % 10);
-
-				Serial.print("Se han introducido los segundos:  ");
-				Serial.println(segundos, HEX);
-
-				rtc_write(7, segundos);
-
-				goto a1;
-			}
-
-			if (suborden == '2')
-			{
-				// Activar alarma
-				alarma1 = true;
-				Serial.println("Alarma 1 activada");
-				set_cursor(3, 5);
-				Serial3.write("*");
-				goto a1;
-			}
-
-			if (suborden == '3')
-			{
-				// Desactivar alarma
-				alarma1 = false;
-				Serial.println("Alarma 1 desactivada");
-				set_cursor(3, 5);
-				Serial3.write(" ");
-				goto a1;
-			}
-
-			if (suborden == '4')
-			{
-				// Exit
-				Serial.println("Exit");
-				goto m1;
-			}
+			int segundo = Serial.parseInt();
+			segundo = ((segundo / 10) * 16) + (segundo % 10);
+			write_memoria(0, segundo);
 		}
-
-		if (orden == '4')
+		if (mode2 == 4)
 		{
-
-		a2:
-			Serial.println("");
-			Serial.println("1. Configurar Alarma 2 ");
-			Serial.println("2. Activar Alarma ");
-			Serial.println("3. Desactivar Alarma ");
-			Serial.println("4. Exit: ");
-			Serial.println("");
-
+			goto menu;
+		}
+	}
+	if (mode1 == 2)
+	{
+		Serial.println("1.- Dia");
+		Serial.println("2.- Mes");
+		Serial.println("3.- Year");
+		Serial.println("4.- Exit");
+		while (Serial.available() == 0)
+		{
+		}
+		int mode3 = Serial.parseInt();
+		if (mode3 == 1)
+		{
+			Serial.println("Introducir dia: ");
 			while (Serial.available() == 0)
 			{
 			}
-			char suborden = Serial.read();
-
-			if (suborden == '1')
-			{
-				Serial.println("CONFIGURANDO ALARMA...");
-				Serial.println("Introducir la hora");
-			hora3:
-				while (Serial.available() == 0)
-				{
-				} // Esperar el dato
-
-				int hour = Serial.parseInt();
-				if (hour < 0 || hour > 23)
-				{
-					Serial.println("Hora incorrecta , vuelva a introducir la hora:");
-					goto hora3;
-				}
-
-				hour = ((hour / 10) * 16) + (hour % 10);
-
-				Serial.print("Se ha introducido la hora:  ");
-				Serial.println(hour, HEX);
-
-				rtc_write(12, hour);
-
-				Serial.println("Introducir Minutos: ");
-			min3:
-				while (Serial.available() == 0)
-				{
-				} // Esperar el dato
-
-				int minutes = Serial.parseInt();
-				if (minutes < 0 || minutes > 59)
-				{
-					Serial.println("Minutos incorrectos , vuelva a introducir los minutos:");
-					goto min3;
-				}
-
-				minutes = ((minutes / 10) * 16) + (minutes % 10);
-
-				Serial.print("Se han introducido los minutos:  ");
-				Serial.println(minutes, HEX);
-
-				rtc_write(11, minutes);
-
-				goto a2;
-			}
-
-			if (suborden == '2')
-			{
-				// Activar alarma
-				alarma2 = true;
-				Serial.println("Alarma 2 activada");
-				set_cursor(4, 5);
-				Serial3.write("*");
-				goto a2;
-			}
-
-			if (suborden == '3')
-			{
-				// Desactivar alarma
-				alarma2 = false;
-				Serial.println("Alarma 2 desactivada");
-				set_cursor(4, 5);
-				Serial3.write(" ");
-				goto a2;
-			}
-
-			if (suborden == '4')
-			{
-				// Exit
-				Serial.println("Exit");
-				goto m1;
-			}
+			int dia = Serial.parseInt();
+			dia = ((dia / 10) * 16) + (dia % 10);
+			write_memoria(4, dia);
 		}
-		if (orden == '5')
+		if (mode3 == 2)
 		{
-			Serial.println("Introduzca un mensaje de texto");
-
+			Serial.println("Introducir mes: ");
 			while (Serial.available() == 0)
 			{
-			} // Esperar
-
-			String mensaje = Serial.readStringUntil(0x00);
+			}
+			int mes = Serial.parseInt();
+			write_memoria(5, mes);
 		}
-		if (orden == '6')
+		if (mode3 == 3)
 		{
-			Serial.println("Introduzca un mensaje de texto");
-
+			Serial.println("Introducir year: ");
 			while (Serial.available() == 0)
 			{
-			} // Esperar
-
-			mensaje = Serial.readStringUntil(0x0D);
-
-			Serial3.write(0xFE);
-			Serial3.write(0x01); // Clear Screen
-			delay(100);
-
-			set_cursor(1, 0);
-			Serial3.print(mensaje);
-			delay(7000);
-			modo_texto = false;
+			}
+			int year = Serial.parseInt();
+			year = ((year / 10) * 16) + (year % 10);
+			write_memoria(6, year);
 		}
+		if (mode3 == 4)
+		{
+			goto menu;
+		}
+	}
+	if (mode1 == 3)
+	{
+	alarma1:
+		Serial.println("1.- Hora");
+		Serial.println("2.- Minuto");
+		Serial.println("3.- ON");
+		Serial.println("4.- OFF");
+		Serial.println("5.- Exit");
+		while (Serial.available() == 0)
+		{
+		}
+		int mode4 = Serial.parseInt();
+		if (mode4 == 1)
+		{
+			Serial.println("Introducir hora: ");
+			while (Serial.available() == 0)
+			{
+			}
+			int hora = Serial.parseInt();
+			hora = ((hora / 10) * 16) + (hora % 10);
+			Serial.print(hora);
+			write_memoria(9, hora);
+			goto alarma1;
+		}
+		if (mode4 == 2)
+		{
+			Serial.println("Introducir min: ");
+			while (Serial.available() == 0)
+			{
+			}
+			int minuto = Serial.parseInt();
+			minuto = ((minuto / 10) * 16) + (minuto % 10);
+			write_memoria(8, minuto);
+			goto alarma1;
+		}
+		if (mode4 == 3)
+		{
+			alarm1 = true;
+			goto menu;
+		}
+		if (mode4 == 4)
+		{
+			alarm1 = false;
+			goto menu;
+		}
+		if (mode4 == 5)
+		{
+			goto menu;
+		}
+	}
+	if (mode1 == 4)
+	{
+	alarma2:
+		Serial.println("1.- Hora");
+		Serial.println("2.- Minuto");
+		Serial.println("3.- ON");
+		Serial.println("4.- OFF");
+		Serial.println("5.- Exit");
+		while (Serial.available() == 0)
+		{
+		}
+		int mode5 = Serial.parseInt();
+		if (mode5 == 1)
+		{
+			Serial.println("Introducir hora: ");
+			while (Serial.available() == 0)
+			{
+			}
+			int hora = Serial.parseInt();
+			hora = ((hora / 10) * 16) + (hora % 10);
+			write_memoria(0x0C, hora);
+			goto alarma2;
+		}
+		if (mode5 == 2)
+		{
+			Serial.println("Introducir min: ");
+			while (Serial.available() == 0)
+			{
+			}
+			int minuto = Serial.parseInt();
+			minuto = ((minuto / 10) * 16) + (minuto % 10);
+			write_memoria(0x0B, minuto);
+			goto alarma2;
+		}
+		if (mode5 == 3)
+		{
+			cursor(3, 5);
+			Serial3.write("*");
+			alarm2 = true;
+			goto menu;
+		}
+		if (mode5 == 4)
+		{
+			cursor(3, 5);
+			Serial3.write(" ");
+			alarm2 = false;
+			goto menu;
+		}
+		if (mode5 == 5)
+		{
+			goto menu;
+		}
+	}
+	if (mode1 == 5)
+	{
+		String hhmmsstt = leer_horatemp();
+		escribir_horatemp(hhmmsstt);
+	}
+}
+ISR(TIMER3_COMPA_vect)
+{
+	Serial3.write(0xFE); // inicio de comunicacion con al lcd
+	Serial3.write(0x01); // clear pantalla lcd
+	Serial3.write(0xFE);
+	Serial3.write(0x00);
+	if (!modoext)
+	{
+		cursor(1, 5);
+		leer_hora();
+		Serial3.write(":");
+		leer_minutos();
+		Serial3.write(":");
+		leer_segundos();
+		cursor(2, 0);
+		Serial3.write("ALARM");
+	}
+	else
+	{
+		cursor(1, 0);
+		leer_7();
+		cursor(1, 3);
+		leer_8();
+		cursor(1, 6);
+		leer_9();
+		cursor(1, 9);
+		leer_10();
+	}
 
-	} // Serial.available()
+	cursor(2, 13);
+	leer_temp();
+
+	cursor(3, 13);
+	Serial3.write("DDMMMYY");
+
+	cursor(4, 13);
+	leer_dia();
+	leer_mes();
+	leer_year();
+
+	leer_alarm1();
+
+	leer_alarm2();
 }
 
-//------------------------------------------------SETUP---------------------------------------------------------------
-void setup()
+ISR(TIMER1_COMPA_vect)
 {
-	// put your setup code here, to run once:
-	// habilitar canal TX0/RX0, canal de comunicaciones serie con el virtual terminal.
-	Serial.begin(9600);
-	pinMode(LEE_SDA, INPUT);
-	pinMode(LEE_SCL, INPUT);
-	pinMode(ESC_SDA, OUTPUT);
-	pinMode(ESC_SCL, OUTPUT);
-	digitalWrite(ESC_SCL, HIGH);
-	digitalWrite(ESC_SDA, HIGH);
+	PORTL = DOFF;
+	switch (digit)
+	{
+	case 0:
+		PORTL = D4;
+		teclado(digit);
+		digit++;
+		break;
+	case 1:
+		PORTL = D3;
+		teclado(digit);
+		digit++;
+		break;
+	case 2:
+		PORTL = D2;
+		teclado(digit);
+		digit = 0;
+		break;
+	}
+	comprobar_teclado();
+}
 
-	// PORTA: Segmentos a-f
-	DDRA = 0xFF;	// PORTA de salida
-	PORTA = 0xFF; // activamos segmentos a-g
-
-	// PORTL[7:4]: filas del teclado
-	DDRL = 0x0F;	// input;
-	PORTL = 0xFF; // pull-up activos, cátodos/columnas teclado desactivadas
-
-	// PORTC: Pulsadores y altavoz
-	DDRC = B00000001;	 // PC7:1 input: PC0: output-speaker
-	PORTC = B11111000; // pull-up activos menos el speaker que es de salida
-
-	// PORTC= 0xF8;   // pull-up activos menos el speaker que es de salida
-
-	// habilitar canal TX3/RX3, canal de comunicaciones serie con la pantalla LCD (MILFORD 4x20 BKP)
-	Serial3.begin(9600); // canal 3, 9600 baudios,
-											 //  8 bits, no parity, 1 stop bit
-
-	cli();
-	EICRA |= (1 << ISC01) | (0 << ISC00); // SE HABILITA EL MODO DE DISPARO POR FLANCO DE SUBIDA
-	EIMSK |= (1 << INT0);									// ó EOMSK |= EIMSK B00000001;
-	sei();
-
-	// Habilitar las interrupciones de la alarma equivalente a escribir B00011111
-	rtc_write(14, 31);
-
-	rtc_write(13, 128); // B10000000  //Match horas y minutos alarma 2
-	rtc_write(10, 128); // B10000000 // Match horas , minutos y segundos alarma 1
-
-	delay(500);
-	Serial.println("Pulse *# para acceder al menu de configuracion");
-	Serial.println("Pulse #* para salir del menu de configuracion");
-	prog_Timer3();
-	prog_Timer1_Examen();
-
-} // setup()
-
-//----------------------------------------------------------LOOP-----------------------------------------------------------------------------
+ISR(INT0_vect)
+{
+	if (alarm1 == true && alarm2 == false)
+	{
+		write_memoria(0x0F, B11001000);
+		tone(37, 250, 1000);
+	}
+	if (alarm1 == false && alarm2 == true)
+	{
+		write_memoria(0x0F, B11001000);
+		tone(37, 250, 1000);
+	}
+	if (alarm1 == true && alarm2 == true)
+	{
+		write_memoria(0x0F, B11001000);
+		tone(37, 250, 1000);
+	}
+}
 void loop()
 {
-
-	// MILFORD LCD on/off
-	Serial3.write(0xFE);
-	Serial3.write(0x0C); // Display on
-	delay(500);
-
-	if (modo == 1)
+	if (modo == true)
 	{
 		menu();
 	}
