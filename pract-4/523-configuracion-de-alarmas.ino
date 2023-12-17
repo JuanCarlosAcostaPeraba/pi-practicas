@@ -140,17 +140,12 @@ void setup()
 	EIMSK |= (1 << INT0);
 	sei();
 
-	/*
-	attachInterrupt(digitalPinToInterrupt(21), ISR_INT0,  FALLING);
-	*/
-
 	// Alarmas
 	writeDirByte(B10000000, 0x0A);
 	writeDirByte(B10000000, 0x0D);
 
-	Serial.println("Seleccione por el teclado matricial:");
-	Serial.println("- #* Modo visualizacion");
-	Serial.println("- *# Modo configuracion");
+	Serial.println("#* Entrar modo visualizacion");
+	Serial.println("*# Salir modo configuracion");
 }
 
 void loop()
