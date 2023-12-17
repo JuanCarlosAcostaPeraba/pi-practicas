@@ -772,7 +772,11 @@ ISR(TIMER1_OVF_vect)
 	byte alarmH2 = readDir(0x0C);
 	byte temp = readDir(0x11);
 	mes = rtcHigh(mes) * 10 + rtcLow(mes);
-	String meses[12] = {"JAN", "FEB", "MAR", "APR", "MAY", "JUN", "JUL", "AUG", "SEP", "OCT", "NOV", "DEC"};
+	String meses[12] = {
+			"JAN", "FEB", "MAR",
+			"APR", "MAY", "JUN",
+			"JUL", "AUG", "SEP",
+			"OCT", "NOV", "DEC"};
 
 	// Escribimos hora
 
