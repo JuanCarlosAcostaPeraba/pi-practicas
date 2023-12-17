@@ -271,7 +271,7 @@ void modificador(char key)
 	case '#':
 		if (tec_config == 1)
 		{
-			Serial.println("Entrada en modo configuracion");
+			Serial.println("Entrando modo configuracion");
 			Serial.println("-----------------------------------------");
 			menu();
 			tec_config = 0;
@@ -285,7 +285,7 @@ void modificador(char key)
 	case '*':
 		if (tec_vis == 1)
 		{
-			Serial.println("Entrada en modo visualizacion");
+			Serial.println("Saliendo modo configuracion");
 			tec_vis = 0;
 			configuracion = 0;
 		}
