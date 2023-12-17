@@ -584,52 +584,54 @@ ISR(INT0_vect)
 	}
 }
 
-// Timer 3
+// Programación del Timer 3
 void prog_Timer3()
 {
+	// PROGRAMACION (MODO 4 = CTC, TOP= OCR3A)
+	// T = 0.01s, N = 64
+	// f = 1 / 0.01 = 100Hz
+	// f = 16*10^6 / (2 * 64 * (1 + TOP)) => TOP = 1249
+
 	cli();
-	// RESET TIMERS
-	TCCR3A = 0;
-	TCCR3B = 0;
-	TCCR3C = 0;
-	TCNT3 = 0;
+	TCCR3A, TCCR3B, TCCR3C = 0; // Reseteo de los timers
+	TCNT3 = 0;									// Reseteo del contador
 
-	// PROGRAMACION (MODO = Fast PWM, TOP= ORC3A)
+	OCR3A = 1249;
 
-	// OCR3A = 15624;
-	OCR3A = 15624;
+	TCCR3A = B01000000;
+	TCCR3B = B00001011;
 
-	TCCR3A = B00000011;
-	TCCR3B = B00011101;
-
-	TIMSK3 |= (1 << TOIE3);
+	TIMSK3 = B00000010;
 	sei();
 }
 
+// Programación del Timer 1
 void prog_Timer1()
 {
+	// PROGRAMACION (MODO 15 = Fast PWM, TOP= OCR1A)
+	// T = 0.5s, N = 256
+	// f = 1 / 0.5 = 2Hz
+	// f = 16*10^6 / (256 * (1 + TOP)) => TOP = 31249
 
 	cli();
-	// RESET TIMERS
-	TCCR1A = 0;
-	TCCR1B = 0;
-	TCCR1C = 0;
-	TCNT1 = 0;
+	TCCR1A, TCCR1B, TCCR1C = 0; // Reseteo de los timers
+	TCNT1 = 0;									// Reseteo del contador
 
-	// PROGRAMACION (MODO 14 = Fast PWM, TOP= ICR1)
-	// T=4ms, N=8 --> 010
-	// f = 1/0.004 = 250 Hz
-	// mode 14 --> 11 10
-	// 1,6ms --> 0,0016 --> 1/0.0016 = 625 Hz
+	OCR1A = 31249;
 
-	// ICR1A = 7999;
-	ICR1 = 7999;
-	// OC1A = 3076;
+	TCCR1A = B10000011;
+	TCCR1B = B00011100;
 
-	TCCR1A = B01000010;
-	TCCR1B = B00011010;
+	TIMSK1 = B00000001;
+	sei();
+}
 
-	TIMSK1 |= (1 << TOIE1);
+// Programación de la interrupción INT0
+void prog_Int0()
+{
+	cli();
+	EICRA = B00000010;
+	EIMSK = B00000001;
 	sei();
 }
 
@@ -1083,11 +1085,6 @@ void setup()
 	DDRC = B00000001;
 	PORTC = B11111000;
 
-	cli();
-	EICRA |= (1 << ISC01) | (0 << ISC00);
-	EIMSK |= (1 << INT0);
-	sei();
-
 	i2c_rtc_write(14, 31);
 
 	i2c_rtc_write(13, 128);
@@ -1099,6 +1096,7 @@ void setup()
 
 	prog_Timer3();
 	prog_Timer1();
+	prog_Int0();
 }
 
 void loop()
