@@ -67,8 +67,6 @@ volatile int flag_alarma = 0;
 // Setup
 void setup()
 {
-	// put your setup code here, to run once:
-	// habilitar canal TX0/RX0, canal de comunicaciones serie con el virtual terminal.
 	Serial.begin(9600);
 
 	digitalWrite(ESC_SCL, HIGH);
@@ -78,33 +76,26 @@ void setup()
 	pinMode(ESC_SDA, OUTPUT);
 	pinMode(ESC_SCL, OUTPUT);
 
-	// PORTA: Segmentos a-f
 	DDRA = 0xFF;	// PORTA de salida
 	PORTA = 0xFF; // activamos segmentos a-g
 
-	// PORTL[7:4]: filas del teclado
 	DDRL = 0x0F;	// input;
 	PORTL = 0xFF; // pull-up activos, cátodos/columnas teclado desactivadas
 
-	// PORTC: Pulsadores y altavoz
 	DDRC = 0x01;	// PC7:1 input: PC0: output-speaker
 	PORTC = 0xFE; // pull-up activos menos el speaker que es de salida
 
 	// Asignación de valor a variables
 
-	// Prueba del la pantalla LCD
-	// habilitar canal TX3/RX3, canal de comunicaciones serie con la pantalla LCD (MILFORD 4x20 BKP)
-	Serial3.begin(9600); // canal 3, 9600 baudios,
-											 //  8 bits, no parity, 1 stop bit
+	Serial3.begin(9600); // LCD
 
 	Serial3.write(0xFE);
-	Serial3.write(0x01); // Clear Screen
+	Serial3.write(0x01); // Limpiar pantalla LCD
 	delay(100);
 
 	pinMode(5, OUTPUT);
 	pinMode(2, OUTPUT);
 	pinMode(3, OUTPUT);
-	pinMode(21, INPUT);
 
 	// Timer 1: Modo 15 (Fast PWM, TOP = OCR1A), N=1024
 	cli(); // Deshabilitamos las interrupciones
